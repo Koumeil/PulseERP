@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
     public DbSet<User> DomainUsers { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,6 +33,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             u.Property(x => x.Email).HasConversion(v => v.Value, v => new Email(v));
             u.Property(x => x.Phone)
                 .HasConversion(v => v!.Value, v => v != null ? new PhoneNumber(v) : null);
+        });
+
+        builder.Entity<Product>(entity =>
+        {
+            entity
+                .Property(p => p.Price)
+                .HasConversion(
+                    v => v.Value, // Convert Money → decimal (to store)
+                    v => new Money(v) // Convert decimal → Money (when reading)
+                );
         });
     }
 }

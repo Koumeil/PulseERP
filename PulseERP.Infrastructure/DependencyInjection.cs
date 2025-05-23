@@ -38,8 +38,10 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         // Auth service
         services.AddScoped<IAuthService, AuthService>();
-        
+
         services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddScoped<IProductRepository, ProductRepository>();
 
         return services;
     }
