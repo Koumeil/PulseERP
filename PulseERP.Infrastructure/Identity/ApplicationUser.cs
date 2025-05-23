@@ -3,7 +3,7 @@ using PulseERP.Domain.Entities;
 
 namespace PulseERP.Infrastructure.Identity;
 
-public class ApplicationUser : IdentityUser<Guid>
+public class ApplicationUser : IdentityUser<Guid> 
 {
     public Guid DomainUserId { get; private set; }
     public virtual User? DomainUser { get; private set; }

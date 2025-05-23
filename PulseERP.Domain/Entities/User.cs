@@ -8,7 +8,6 @@ public class User : BaseEntity
     public string? Phone { get; private set; }
     public bool IsActive { get; private set; }
 
-    // EF only
     private User() { }
 
     public User(string firstName, string lastName, string email, string? phone = null)
