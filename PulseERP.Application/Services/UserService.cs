@@ -1,62 +1,106 @@
+using AutoMapper;
+using PulseERP.Application.Common.Interfaces;
 using PulseERP.Application.DTOs.Users;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Persistence;
+using PulseERP.Domain.Shared;
 
 namespace PulseERP.Application.Services;
 
 public class UserService : IUserService
 {
     private readonly IUserRepository _repository;
+    private readonly IAppLogger<UserService> _logger;
+    private readonly IMapper _mapper;
 
-    public UserService(IUserRepository repository)
+    public UserService(IUserRepository repository, IAppLogger<UserService> logger, IMapper mapper)
     {
         _repository = repository;
+        _logger = logger;
+        _mapper = mapper;
     }
 
-    public async Task<Guid> CreateAsync(CreateUserCommand command)
+    public async Task<Result<Guid>> CreateAsync(CreateUserCommand command)
     {
-        var user = new User(command.FirstName, command.LastName, command.Email, command.Phone);
-        await _repository.AddAsync(user);
-        return user.Id;
+        try
+        {
+            var user = User.Create(
+                command.FirstName,
+                command.LastName,
+                command.Email,
+                command.Phone
+            );
+
+            await _repository.AddAsync(user);
+            _logger.LogInformation($"Created user {user.Id}");
+
+            return Result<Guid>.Success(user.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to create user", ex);
+            return Result<Guid>.Failure(ex.Message);
+        }
     }
 
-    public async Task<UserDto?> GetByIdAsync(Guid id)
+    public async Task<Result<UserDto>> GetByIdAsync(Guid id)
     {
         var user = await _repository.GetByIdAsync(id);
-        return user is null ? null : ToDto(user);
+        return user is null
+            ? Result<UserDto>.Failure("User not found")
+            : Result<UserDto>.Success(_mapper.Map<UserDto>(user));
     }
 
-    public async Task<List<UserDto>> GetAllAsync()
+    public async Task<Result<IReadOnlyList<UserDto>>> GetAllAsync()
     {
         var users = await _repository.GetAllAsync();
-        return users.Select(ToDto).ToList();
+        var dtos = users.Select(u => _mapper.Map<UserDto>(u)).ToList().AsReadOnly();
+        return Result<IReadOnlyList<UserDto>>.Success(dtos);
     }
 
-    public async Task<bool> UpdateAsync(UpdateUserCommand command)
+    public async Task<Result> UpdateAsync(Guid id, UpdateUserCommand command)
     {
-        var user = await _repository.GetByIdAsync(command.Id);
-        if (user is null)
-            return false;
+        try
+        {
+            var user = await _repository.GetByIdAsync(id);
+            if (user is null)
+                return Result.Failure("User not found");
 
-        user.UpdateContact(command.Phone);
-        typeof(User).GetProperty("FirstName")?.SetValue(user, command.FirstName);
-        typeof(User).GetProperty("LastName")?.SetValue(user, command.LastName);
-        typeof(User).GetProperty("Email")?.SetValue(user, command.Email);
+            user.UpdateName(command.FirstName, command.LastName);
+            user.ChangeEmail(command.Email);
+            user.ChangePhone(command.Phone);
 
-        await _repository.UpdateAsync(user);
-        return true;
+            await _repository.UpdateAsync(user);
+            _logger.LogInformation($"Updated user {user.Id}");
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to update user {command.Id}", ex);
+            return Result.Failure(ex.Message);
+        }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result> DeleteAsync(Guid id)
     {
-        var user = await _repository.GetByIdAsync(id);
-        if (user is null)
-            return false;
-        await _repository.DeleteAsync(user);
-        return true;
-    }
+        try
+        {
+            var user = await _repository.GetByIdAsync(id);
+            if (user is null)
+                return Result.Failure("User not found");
 
-    private static UserDto ToDto(User user) =>
-        new(user.Id, user.FirstName, user.LastName, user.Email, user.Phone, user.IsActive);
+            user.Deactivate(); // Soft delete
+            await _repository.UpdateAsync(user);
+            _logger.LogInformation($"Deactivated user {user.Id}");
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to deactivate user {id}", ex);
+            return Result.Failure(ex.Message);
+        }
+    }
 }

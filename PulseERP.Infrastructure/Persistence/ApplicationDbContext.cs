@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Domain.Entities;
+using PulseERP.Domain.ValueObjects;
 using PulseERP.Infrastructure.Identity;
 
 namespace PulseERP.Infrastructure.Persistence;
@@ -18,10 +19,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     {
         base.OnModelCreating(builder);
 
+        // Relation
         builder
             .Entity<ApplicationUser>()
-            .HasOne(a => a.DomainUser)
+            .HasOne(u => u.DomainUser)
             .WithOne()
-            .HasForeignKey<ApplicationUser>(a => a.DomainUserId);
+            .HasForeignKey<ApplicationUser>(u => u.DomainUserId);
+
+        // ValueObjects (version minimaliste)
+        builder.Entity<User>(u =>
+        {
+            u.Property(x => x.Email).HasConversion(v => v.Value, v => new Email(v));
+            u.Property(x => x.Phone)
+                .HasConversion(v => v!.Value, v => v != null ? new PhoneNumber(v) : null);
+        });
     }
 }

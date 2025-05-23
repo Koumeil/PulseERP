@@ -6,73 +6,102 @@ using PulseERP.Application.Interfaces;
 namespace PulseERP.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/users")]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, ILogger<UsersController> logger)
     {
         _userService = userService;
+        _logger = logger;
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserResponse>> Create(CreateUserRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
     {
-        var id = await _userService.CreateAsync(
-            new CreateUserCommand(request.FirstName, request.LastName, request.Email, request.Phone)
+        var command = new CreateUserCommand(
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Phone
         );
 
-        // Retourne 201 Created avec l'URL du nouvel utilisateur
-        return CreatedAtAction(nameof(GetById), new { id = id }, new { Id = id });
+        var result = await _userService.CreateAsync(command);
+
+        if (result.IsFailure)
+        {
+            _logger.LogWarning($"Create user failed: {result.Error}");
+            return BadRequest(result.Error);
+        }
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = result.Value },
+            new { userId = result.Value }
+        );
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _userService.GetByIdAsync(id);
+
+        if (result.IsFailure)
+            return NotFound(result.Error);
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _userService.GetAllAsync();
+
+        if (result.IsFailure)
+            return StatusCode(500, result.Error);
+
+        return Ok(result.Value);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, UpdateUserRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest request)
     {
-        var success = await _userService.UpdateAsync(
-            new UpdateUserCommand(
-                id,
-                request.FirstName,
-                request.LastName,
-                request.Email,
-                request.Phone
-            )
+        var command = new UpdateUserCommand(
+            id,
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Phone
         );
 
-        if (!success)
-            return NotFound();
+        var result = await _userService.UpdateAsync(id, command);
 
-        return NoContent(); // 204 No Content car la ressource est mise à jour
+        if (result.IsFailure)
+        {
+            if (result.Error == "User not found")
+                return NotFound(result.Error);
+
+            return BadRequest(result.Error);
+        }
+
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var success = await _userService.DeleteAsync(id);
-        if (!success)
-            return NotFound();
+        var result = await _userService.DeleteAsync(id);
+
+        if (result.IsFailure)
+        {
+            if (result.Error == "User not found")
+                return NotFound(result.Error);
+
+            return BadRequest(result.Error);
+        }
 
         return NoContent();
     }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserResponse>> GetById(Guid id)
-    {
-        var user = await _userService.GetByIdAsync(id);
-        if (user == null)
-            return NotFound();
-
-        return Ok(ToResponse(user));
-    }
-
-    [HttpGet]
-    public async Task<ActionResult<List<UserResponse>>> GetAll()
-    {
-        var users = await _userService.GetAllAsync();
-        return Ok(users.Select(ToResponse).ToList());
-    }
-
-    private static UserResponse ToResponse(UserDto dto) =>
-        new(dto.Id, dto.FirstName, dto.LastName, dto.Email, dto.Phone, dto.IsActive);
 }

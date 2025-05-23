@@ -41,31 +41,27 @@ public class AuthService : IAuthService
         if (existingUser != null)
             return new AuthResult(false, null, null, new[] { "Email already used." });
 
-        // 1. Créer l'entité Domain User dans ta base DomainUsers
-        var domainUser = new User(
+        // 1. Créer l'entité DomainUser (ne pas encore l'ajouter)
+        var domainUser = User.Create(
             command.FirstName,
             command.LastName,
             command.Email,
             command.Phone
         );
-        await _userRepository.AddAsync(domainUser);
 
-        // 2. Créer l'ApplicationUser lié avec le DomainUserId
+        // 2. Créer l'ApplicationUser avec le GUID du domainUser
         var appUser = new ApplicationUser(domainUser.Id)
         {
             UserName = command.Email,
             Email = command.Email,
         };
-
-        // (Optionnel) Relier l'objet DomainUser si tu veux
         appUser.SetDomainUser(domainUser);
 
-        // 3. Créer l’utilisateur Identity
+        // 3. Créer l’utilisateur Identity (ça va persister le domainUser **via** navigation si bien configuré)
         var result = await _userManager.CreateAsync(appUser, command.Password);
+
         if (!result.Succeeded)
         {
-            // En cas d'erreur, rollback possible
-            await _userRepository.DeleteAsync(domainUser);
             return new AuthResult(false, null, null, result.Errors.Select(e => e.Description));
         }
 
