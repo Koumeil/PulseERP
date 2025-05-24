@@ -11,6 +11,8 @@ public static class DependencyInjection
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<ICustomerService, CustomerService>();
+
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         return services;
