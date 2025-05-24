@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Application.Common.Interfaces;
 using PulseERP.Domain.Entities;
+using PulseERP.Domain.Filter;
 using PulseERP.Domain.Interfaces.Persistence;
 using PulseERP.Infrastructure.Persistence;
 
@@ -107,5 +108,27 @@ public class ProductRepository : IProductRepository
             _logger.LogError($"Error checking existence for product {id}", ex);
             throw;
         }
+    }
+
+    public async Task<IReadOnlyList<Product>> FilterAsync(ProductFilterRequest filter)
+    {
+        var query = _context.Products.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+            query = query.Where(p => p.Name.Contains(filter.Name));
+
+        if (filter.IsService.HasValue)
+            query = query.Where(p => p.IsService == filter.IsService.Value);
+
+        if (filter.IsActive.HasValue)
+            query = query.Where(p => p.IsActive == filter.IsActive.Value);
+
+        if (filter.MinPrice.HasValue)
+            query = query.Where(p => p.Price.Value >= filter.MinPrice.Value);
+
+        if (filter.MaxPrice.HasValue)
+            query = query.Where(p => p.Price.Value <= filter.MaxPrice.Value);
+
+        return await query.ToListAsync();
     }
 }

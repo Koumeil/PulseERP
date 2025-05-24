@@ -3,6 +3,7 @@ using PulseERP.Application.Common.Interfaces;
 using PulseERP.Application.DTOs.Products;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
+using PulseERP.Domain.Filter;
 using PulseERP.Domain.Interfaces.Persistence;
 using PulseERP.Domain.Shared;
 
@@ -107,5 +108,12 @@ public class ProductService : IProductService
             _logger.LogError($"Failed to delete product {id}", ex);
             return Result.Failure(ex.Message);
         }
+    }
+
+    public async Task<Result<IReadOnlyList<ProductDto>>> FilterAsync(ProductFilterRequest filter)
+    {
+        var products = await _repository.FilterAsync(filter);
+        var dtos = products.Select(p => _mapper.Map<ProductDto>(p)).ToList().AsReadOnly();
+        return Result<IReadOnlyList<ProductDto>>.Success(dtos);
     }
 }

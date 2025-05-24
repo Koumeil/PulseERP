@@ -1,4 +1,5 @@
 using PulseERP.Application.DTOs.Products;
+using PulseERP.Domain.Filter;
 using PulseERP.Domain.Shared;
 
 namespace PulseERP.Application.Interfaces;
@@ -10,4 +11,5 @@ public interface IProductService
     Task<Result<IReadOnlyList<ProductDto>>> GetAllAsync();
     Task<Result<ProductDto>> GetByIdAsync(Guid id);
     Task<Result> UpdateAsync(Guid id, UpdateProductCommand command);
+    Task<Result<IReadOnlyList<ProductDto>>> FilterAsync(ProductFilterRequest filter);
 }

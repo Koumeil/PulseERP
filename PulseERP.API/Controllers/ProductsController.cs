@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.DTOs.Products;
 using PulseERP.Application.DTOs.Products;
 using PulseERP.Application.Interfaces;
+using PulseERP.Domain.Filter;
 
 namespace PulseERP.API.Controllers;
 
@@ -104,5 +105,11 @@ public class ProductsController : ControllerBase
 
         return NoContent();
     }
-}
 
+    [HttpGet("filter")]
+    public async Task<IActionResult> Filter([FromQuery] ProductFilterRequest filter)
+    {
+        var result = await _productService.FilterAsync(filter);
+        return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
+    }
+}
