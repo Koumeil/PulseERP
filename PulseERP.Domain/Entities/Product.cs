@@ -8,12 +8,19 @@ public class Product : BaseEntity
     public string? Description { get; private set; }
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
+    public bool IsService { get; private set; } = false;
     public bool IsActive { get; private set; }
 
     private Product() { }
 
     // Création contrôlée
-    public static Product Create(string name, string? description, decimal price, int quantity)
+    public static Product Create(
+        string name,
+        string? description,
+        decimal price,
+        int quantity,
+        bool isService
+    )
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Le nom est obligatoire", nameof(name));
@@ -35,6 +42,7 @@ public class Product : BaseEntity
             Price = new Money(price),
             Quantity = quantity,
             IsActive = true,
+            IsService = isService,
         };
     }
 

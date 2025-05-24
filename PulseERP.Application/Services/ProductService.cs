@@ -33,7 +33,8 @@ public class ProductService : IProductService
                 command.Name,
                 command.Description,
                 command.Price,
-                command.Quantity
+                command.Quantity,
+                command.IsService
             );
 
             await _repository.AddAsync(product);
