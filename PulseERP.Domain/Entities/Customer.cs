@@ -41,12 +41,15 @@ public class Customer : BaseEntity
     public void UpdateDetails(string? firstName, string? lastName, string? email, string? phone)
     {
         if (!string.IsNullOrWhiteSpace(firstName))
-            FirstName = firstName.Trim();
+            FirstName = firstName;
+
         if (!string.IsNullOrWhiteSpace(lastName))
-            LastName = lastName.Trim();
+            LastName = lastName;
+
         if (!string.IsNullOrWhiteSpace(email))
             ChangeEmail(email);
-        if (phone != null)
+
+        if (!string.IsNullOrWhiteSpace(phone))
             ChangePhone(phone);
 
         UpdatedAt = DateTime.UtcNow;
@@ -74,20 +77,21 @@ public class Customer : BaseEntity
 
     public void UpdateAddress(string? street, string? city, string? postalCode, string? country)
     {
-        var newAddress = Address.TryCreateIfValid(street, city, postalCode, country);
+        // 1. Tentative de création/mise à jour
+        var updatedAddress = Address.TryCreateOrUpdate(
+            existingAddress: Address,
+            street: street,
+            city: city,
+            zipCode: postalCode,
+            country: country
+        );
 
-        // Si aucune nouvelle adresse (tous les champs vides), ne rien faire
-        if (newAddress is null && Address is null)
-            return;
-
-        // Si on a une nouvelle adresse ET (aucune ancienne OU changement)
-        if (newAddress is not null && !newAddress.Equals(Address))
+        if (updatedAddress is not null && !updatedAddress.Equals(Address))
         {
-            Address = newAddress;
+            Address = updatedAddress;
             UpdatedAt = DateTime.UtcNow;
         }
     }
-
     public void Deactivate()
     {
         IsActive = false;

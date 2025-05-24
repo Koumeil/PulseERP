@@ -5,7 +5,6 @@ using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Persistence;
 using PulseERP.Domain.Shared;
-using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Application.Services;
 
@@ -34,7 +33,7 @@ public class CustomerService : ICustomerService
                 command.FirstName,
                 command.LastName,
                 command.Email,
-                new Address(command.Street, command.City, command.ZipCode, command.Country),
+                command.Address,
                 command.Phone
             );
             await _repository.AddAsync(customer);
@@ -70,6 +69,7 @@ public class CustomerService : ICustomerService
             return Result.Failure("Customer not found");
 
         customer.UpdateDetails(command.FirstName, command.LastName, command.Email, command.Phone);
+
         customer.UpdateAddress(command.Street, command.City, command.ZipCode, command.Country);
 
         await _repository.UpdateAsync(customer);

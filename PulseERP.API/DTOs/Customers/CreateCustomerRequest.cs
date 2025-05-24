@@ -1,5 +1,3 @@
-using PulseERP.Domain.ValueObjects;
-
 namespace PulseERP.API.DTOs.Customers;
 
 public record CreateCustomerRequest(
@@ -7,5 +5,8 @@ public record CreateCustomerRequest(
     string LastName,
     string Email,
     string? Phone,
-    Address? Address
+    string Street,
+    string City,
+    string ZipCode,
+    string Country
 );

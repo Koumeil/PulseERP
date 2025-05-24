@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.DTOs.Customers;
 using PulseERP.Application.DTOs.Customers;
 using PulseERP.Application.Interfaces;
+using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.API.Controllers;
 
@@ -33,17 +34,23 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _customerService.GetByIdAsync(id);
+
         if (result.IsFailure)
             return NotFound(result.Error);
 
-        var response = _mapper.Map<CustomerResponse>(result.Value);
-        return Ok(response);
+        return Ok(result.Value);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateCustomerRequest request)
     {
-        var command = _mapper.Map<CreateCustomerCommand>(request);
+        var command = new CreateCustomerCommand(
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Phone,
+            new Address(request.Street, request.City, request.ZipCode, request.Country)
+        );
         var result = await _customerService.CreateAsync(command);
 
         if (result.IsFailure)
@@ -55,7 +62,18 @@ public class CustomersController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, UpdateCustomerRequest request)
     {
-        var command = _mapper.Map<UpdateCustomerCommand>(request) with { Id = id };
+        var command = new UpdateCustomerCommand(
+            id,
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Phone,
+            request.Street,
+            request.City,
+            request.ZipCode,
+            request.Country
+        );
+
         var result = await _customerService.UpdateAsync(id, command);
 
         if (result.IsFailure)

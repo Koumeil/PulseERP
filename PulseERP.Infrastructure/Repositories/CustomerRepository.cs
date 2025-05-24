@@ -23,7 +23,7 @@ public class CustomerRepository : ICustomerRepository
         {
             await _context.Customers.AddAsync(customer);
             await _context.SaveChangesAsync();
-            _context.Entry(customer).State = EntityState.Detached; 
+            _context.Entry(customer).State = EntityState.Detached;
 
             _logger.LogInformation($"Customer added: {customer.Id}");
         }
@@ -36,9 +36,17 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<Customer?> GetByIdAsync(Guid id)
     {
-        return await _context
-            .Customers.AsNoTracking() // Lecture seule
-            .FirstOrDefaultAsync(c => c.Id == id);
+        try
+        {
+            return await _context
+                .Customers.Include(c => c.Address)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error fetching product by ID: {id}", ex);
+            throw;
+        }
     }
 
     public async Task<IReadOnlyList<Customer>> GetAllAsync()

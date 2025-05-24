@@ -7,5 +7,8 @@ public record UpdateCustomerRequest(
     string? LastName,
     string? Email,
     string? Phone,
-    Address? Address
+    string? Street,
+    string? City,
+    string? ZipCode,
+    string? Country
 );
