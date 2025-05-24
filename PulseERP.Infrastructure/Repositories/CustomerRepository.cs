@@ -100,7 +100,7 @@ public class CustomerRepository : ICustomerRepository
             .Where(c =>
                 c.FirstName.Contains(term)
                 || c.LastName.Contains(term)
-                || (c.Email != null && c.Email.Contains(term))
+                || (c.Email != null && c.Email.ToString().Contains(term))
             )
             .ToListAsync();
     }

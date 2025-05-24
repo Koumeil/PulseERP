@@ -6,8 +6,8 @@ public class Customer : BaseEntity
 {
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
-    public string Email { get; private set; }
-    public string? Phone { get; private set; }
+    public Email Email { get; private set; }
+    public PhoneNumber? Phone { get; private set; }
     public Address? Address { get; private set; }
     public bool IsActive { get; private set; }
 
@@ -31,8 +31,8 @@ public class Customer : BaseEntity
         {
             FirstName = firstName.Trim(),
             LastName = lastName.Trim(),
-            Email = email.Trim(),
-            Phone = phone?.Trim(),
+            Email = new Email(email),
+            Phone = phone is not null ? new PhoneNumber(phone) : null,
             Address = address,
             IsActive = true,
         };
@@ -45,11 +45,31 @@ public class Customer : BaseEntity
         if (!string.IsNullOrWhiteSpace(lastName))
             LastName = lastName.Trim();
         if (!string.IsNullOrWhiteSpace(email))
-            Email = email.Trim();
+            ChangeEmail(email);
         if (phone != null)
-            Phone = phone.Trim();
+            ChangePhone(phone);
 
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void ChangeEmail(string email)
+    {
+        var newEmail = new Email(email);
+        if (Email != newEmail)
+        {
+            Email = newEmail;
+            UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
+    public void ChangePhone(string? phone)
+    {
+        var newPhone = phone is not null ? new PhoneNumber(phone) : null;
+        if (Phone != newPhone)
+        {
+            Phone = newPhone;
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 
     public void UpdateAddress(string? street, string? city, string? postalCode, string? country)
