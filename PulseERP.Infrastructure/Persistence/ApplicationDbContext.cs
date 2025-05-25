@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Customer> Customers { get; set; }
+    public DbSet<Brand> Brands { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -64,6 +65,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
             c.Property(x => x.Phone)
                 .HasConversion(v => v!.Value, v => v != null ? new PhoneNumber(v) : null);
+        });
+
+        builder.Entity<Product>(entity =>
+        {
+            entity.HasOne(p => p.Brand).WithMany().HasForeignKey("BrandId").IsRequired();
         });
     }
 }

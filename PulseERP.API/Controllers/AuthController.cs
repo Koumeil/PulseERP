@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.DTOs.Auth;
-using PulseERP.Application.DTOs.Auth;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Dtos.Auth;
+using PulseERP.Contracts.Services;
 
 namespace PulseERP.API.Controllers;
 

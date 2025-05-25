@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using PulseERP.Application.DTOs.Auth;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Dtos.Auth;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Persistence;
+using PulseERP.Domain.Repositories;
 
 namespace PulseERP.Infrastructure.Identity;
 
@@ -17,7 +17,6 @@ public class AuthService : IAuthService
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthService> _logger;
-
     private readonly IUserRepository _userRepository;
 
     public AuthService(
@@ -71,29 +70,6 @@ public class AuthService : IAuthService
 
         return new AuthResult(true, accessToken, refreshToken);
     }
-
-    // public async Task<AuthResult> RegisterAsync(RegisterCommand command)
-    // {
-    //     var existingUser = await _userManager.FindByEmailAsync(command.Email);
-    //     if (existingUser != null)
-    //         return new AuthResult(false, null, null, new[] { "Email already used." });
-
-    //     var user = new ApplicationUser(Guid.NewGuid())
-    //     {
-    //         UserName = command.Email,
-    //         Email = command.Email,
-    //     };
-
-    //     var result = await _userManager.CreateAsync(user, command.Password);
-    //     if (!result.Succeeded)
-    //         return new AuthResult(false, null, null, result.Errors.Select(e => e.Description));
-
-    //     var roles = await _userManager.GetRolesAsync(user);
-    //     var accessToken = _tokenService.GenerateAccessToken(user.Id, user.Email, roles);
-    //     var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
-
-    //     return new AuthResult(true, accessToken, refreshToken);
-    // }
 
     public async Task<AuthResult> LoginAsync(LoginCommand command)
     {

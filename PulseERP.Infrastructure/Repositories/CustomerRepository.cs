@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Application.Common.Interfaces;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Persistence;
+using PulseERP.Domain.Repositories;
 using PulseERP.Infrastructure.Persistence;
 
 namespace PulseERP.Infrastructure.Repositories;

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Application.Common.Interfaces;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Filter;
-using PulseERP.Domain.Interfaces.Persistence;
+using PulseERP.Domain.Filters.Products;
+using PulseERP.Domain.Repositories;
 using PulseERP.Infrastructure.Persistence;
 
 namespace PulseERP.Infrastructure.Repositories;
@@ -22,7 +22,7 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            return await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
         }
         catch (Exception ex)
         {
@@ -31,15 +31,41 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    public async Task<IReadOnlyList<Product>> GetAllAsync()
+    public async Task<IReadOnlyList<Product>> GetAllAsync(ProductParams productParams)
     {
         try
         {
-            return await _context.Products.AsNoTracking().ToListAsync() as IReadOnlyList<Product>;
+            var query = _context.Products.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(productParams.Brand))
+                query = query.Where(p => p.Brand.Name == productParams.Brand);
+
+            if (!string.IsNullOrWhiteSpace(productParams.Search))
+            {
+                var keyword = $"%{productParams.Search}%";
+                query = query.Where(p =>
+                    EF.Functions.Like(p.Name, keyword) || EF.Functions.Like(p.Description, keyword)
+                );
+            }
+
+            // Tri
+            query = productParams.Sort switch
+            {
+                "priceAsc" => query.OrderBy(p => p.Price),
+                "priceDesc" => query.OrderByDescending(p => p.Price),
+                _ => query.OrderBy(p => p.Name),
+            };
+
+            // Pagination 
+            query = query
+                .Skip((productParams.PageCount - 1) * productParams.PageSize)
+                .Take(productParams.PageSize);
+
+            return await query.ToListAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error fetching all products", ex);
+            _logger.LogError("Error fetching all products",ex);
             throw;
         }
     }
@@ -108,27 +134,5 @@ public class ProductRepository : IProductRepository
             _logger.LogError($"Error checking existence for product {id}", ex);
             throw;
         }
-    }
-
-    public async Task<IReadOnlyList<Product>> FilterAsync(ProductFilterRequest filter)
-    {
-        var query = _context.Products.AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(p => p.Name.Contains(filter.Name));
-
-        if (filter.IsService.HasValue)
-            query = query.Where(p => p.IsService == filter.IsService.Value);
-
-        if (filter.IsActive.HasValue)
-            query = query.Where(p => p.IsActive == filter.IsActive.Value);
-
-        if (filter.MinPrice.HasValue)
-            query = query.Where(p => p.Price.Value >= filter.MinPrice.Value);
-
-        if (filter.MaxPrice.HasValue)
-            query = query.Where(p => p.Price.Value <= filter.MaxPrice.Value);
-
-        return await query.ToListAsync();
     }
 }

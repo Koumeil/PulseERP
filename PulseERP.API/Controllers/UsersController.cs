@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.DTOs.Users;
-using PulseERP.Application.DTOs.Users;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Dtos.Users;
+using PulseERP.Contracts.Services;
 
 namespace PulseERP.API.Controllers;
 
@@ -36,11 +36,7 @@ public class UsersController : ControllerBase
             return BadRequest(result.Error);
         }
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = result.Value },
-            new { userId = result.Value }
-        );
+        return CreatedAtAction(nameof(GetById), new { id = result }, new { userId = result.Data });
     }
 
     [HttpGet("{id}")]
@@ -51,7 +47,7 @@ public class UsersController : ControllerBase
         if (result.IsFailure)
             return NotFound(result.Error);
 
-        return Ok(result.Value);
+        return Ok(result.Data);
     }
 
     [HttpGet]
@@ -62,7 +58,7 @@ public class UsersController : ControllerBase
         if (result.IsFailure)
             return StatusCode(500, result.Error);
 
-        return Ok(result.Value);
+        return Ok(result.Data);
     }
 
     [HttpPut("{id}")]

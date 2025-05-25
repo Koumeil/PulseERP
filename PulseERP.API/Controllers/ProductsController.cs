@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.DTOs.Products;
-using PulseERP.Application.DTOs.Products;
-using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Filter;
+using PulseERP.Contracts.Dtos.Pagination;
+using PulseERP.Contracts.Dtos.Products;
+using PulseERP.Contracts.Services;
+using PulseERP.Domain.Filters.Products;
 
 namespace PulseERP.API.Controllers;
 
@@ -25,6 +26,7 @@ public class ProductsController : ControllerBase
         var command = new CreateProductCommand(
             request.Name,
             request.Description,
+            request.Brand,
             request.Price,
             request.Quantity
         );
@@ -39,8 +41,8 @@ public class ProductsController : ControllerBase
 
         return CreatedAtAction(
             nameof(GetById),
-            new { id = result.Value },
-            new { productId = result.Value }
+            new { id = result.Data },
+            new { productId = result.Data }
         );
     }
 
@@ -52,18 +54,20 @@ public class ProductsController : ControllerBase
         if (result.IsFailure)
             return NotFound(result.Error);
 
-        return Ok(result.Value);
+        return Ok(result.Data);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<PaginationResult<ProductDto>>> GetAll(
+       [FromQuery] ProductParams productParams
+    )
     {
-        var result = await _productService.GetAllAsync();
+        var result = await _productService.GetAllAsync(productParams);
 
         if (result.IsFailure)
             return StatusCode(500, result.Error);
 
-        return Ok(result.Value);
+        return Ok(result.Data);
     }
 
     [HttpPut("{id}")]
@@ -104,12 +108,5 @@ public class ProductsController : ControllerBase
         }
 
         return NoContent();
-    }
-
-    [HttpGet("filter")]
-    public async Task<IActionResult> Filter([FromQuery] ProductFilterRequest filter)
-    {
-        var result = await _productService.FilterAsync(filter);
-        return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
     }
 }

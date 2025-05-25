@@ -1,5 +1,5 @@
 using AutoMapper;
-using PulseERP.Application.DTOs.Customers;
+using PulseERP.Contracts.Dtos.Customers;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.ValueObjects;
 
@@ -24,9 +24,18 @@ public class CustomerProfile : Profile
 
         // Command → Domain (création)
         CreateMap<CreateCustomerCommand, Customer>()
-            .ConstructUsing(cmd =>
-                Customer.Create(cmd.FirstName, cmd.LastName, cmd.Email, cmd.Address, cmd.Phone)
+            .ConstructUsing(
+                (cmd, context) =>
+                {
+                    var address = context.Mapper.Map<Address>(cmd.Address);
+                    return Customer.Create(
+                        cmd.FirstName,
+                        cmd.LastName,
+                        cmd.Email,
+                        address,
+                        cmd.Phone
+                    );
+                }
             );
-
     }
 }

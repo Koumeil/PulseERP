@@ -8,7 +8,7 @@ public class Customer : BaseEntity
     public string LastName { get; private set; }
     public Email Email { get; private set; }
     public PhoneNumber? Phone { get; private set; }
-    public Address? Address { get; private set; }
+    public Address Address { get; private set; }
     public bool IsActive { get; private set; }
 
     private Customer() { }
@@ -17,7 +17,7 @@ public class Customer : BaseEntity
         string firstName,
         string lastName,
         string email,
-        Address? address,
+        Address address,
         string? phone = null
     )
     {

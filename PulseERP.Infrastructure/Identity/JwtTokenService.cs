@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
 
 namespace PulseERP.Infrastructure.Identity;

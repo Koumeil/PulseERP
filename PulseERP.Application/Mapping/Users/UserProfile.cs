@@ -1,5 +1,5 @@
 using AutoMapper;
-using PulseERP.Application.DTOs.Users;
+using PulseERP.Contracts.Dtos.Users;
 using PulseERP.Domain.Entities;
 
 namespace PulseERP.Application.Mapping.Users;

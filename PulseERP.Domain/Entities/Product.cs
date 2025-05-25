@@ -6,6 +6,7 @@ public class Product : BaseEntity
 {
     public string Name { get; private set; }
     public string? Description { get; private set; }
+    public Brand Brand { get; private set; }
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
     public bool IsService { get; private set; } = false;
@@ -13,10 +14,10 @@ public class Product : BaseEntity
 
     private Product() { }
 
-    // Création contrôlée
     public static Product Create(
         string name,
         string? description,
+        Brand brand,
         decimal price,
         int quantity,
         bool isService
@@ -24,11 +25,16 @@ public class Product : BaseEntity
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Le nom est obligatoire", nameof(name));
+
+        if (brand == null)
+            throw new ArgumentNullException(nameof(brand), "La marque est obligatoire");
+
         if (price < 0)
             throw new ArgumentOutOfRangeException(
                 nameof(price),
                 "Le prix ne peut pas être négatif"
             );
+
         if (quantity < 0)
             throw new ArgumentOutOfRangeException(
                 nameof(quantity),
@@ -39,6 +45,7 @@ public class Product : BaseEntity
         {
             Name = name.Trim(),
             Description = description?.Trim(),
+            Brand = brand,
             Price = new Money(price),
             Quantity = quantity,
             IsActive = true,
@@ -62,6 +69,12 @@ public class Product : BaseEntity
             Description = description.Trim();
             UpdatedAt = DateTime.UtcNow;
         }
+    }
+
+    public void UpdateBrand(Brand brand)
+    {
+        Brand = brand ?? throw new ArgumentNullException(nameof(brand));
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdatePrice(decimal? price)

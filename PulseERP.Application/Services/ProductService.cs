@@ -1,11 +1,10 @@
 using AutoMapper;
-using PulseERP.Application.Common.Interfaces;
-using PulseERP.Application.DTOs.Products;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Dtos.Products;
+using PulseERP.Contracts.Dtos.Services;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Filter;
-using PulseERP.Domain.Interfaces.Persistence;
-using PulseERP.Domain.Shared;
+using PulseERP.Domain.Filters.Products;
+using PulseERP.Domain.Repositories;
 
 namespace PulseERP.Application.Services;
 
@@ -33,6 +32,7 @@ public class ProductService : IProductService
             var product = Product.Create(
                 command.Name,
                 command.Description,
+                Brand.Create(command.Brand),
                 command.Price,
                 command.Quantity,
                 command.IsService
@@ -58,11 +58,11 @@ public class ProductService : IProductService
             : Result<ProductDto>.Success(_mapper.Map<ProductDto>(product));
     }
 
-    public async Task<Result<IReadOnlyList<ProductDto>>> GetAllAsync()
+    public async Task<Result<IReadOnlyList<ProductDto>>> GetAllAsync(ProductParams productParams)
     {
-        var products = await _repository.GetAllAsync();
-        var dtos = products.Select(p => _mapper.Map<ProductDto>(p)).ToList().AsReadOnly();
-        return Result<IReadOnlyList<ProductDto>>.Success(dtos);
+        var products = await _repository.GetAllAsync(productParams);
+        var productsDtos = products.Select(p => _mapper.Map<ProductDto>(p)).ToList().AsReadOnly();
+        return Result<IReadOnlyList<ProductDto>>.Success(productsDtos);
     }
 
     public async Task<Result> UpdateAsync(Guid id, UpdateProductCommand command)
@@ -108,12 +108,5 @@ public class ProductService : IProductService
             _logger.LogError($"Failed to delete product {id}", ex);
             return Result.Failure(ex.Message);
         }
-    }
-
-    public async Task<Result<IReadOnlyList<ProductDto>>> FilterAsync(ProductFilterRequest filter)
-    {
-        var products = await _repository.FilterAsync(filter);
-        var dtos = products.Select(p => _mapper.Map<ProductDto>(p)).ToList().AsReadOnly();
-        return Result<IReadOnlyList<ProductDto>>.Success(dtos);
     }
 }

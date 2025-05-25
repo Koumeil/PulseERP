@@ -1,9 +1,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.DTOs.Customers;
-using PulseERP.Application.DTOs.Customers;
-using PulseERP.Application.Interfaces;
-using PulseERP.Domain.ValueObjects;
+using PulseERP.Contracts.Dtos.Customers;
+using PulseERP.Contracts.Services;
 
 namespace PulseERP.API.Controllers;
 
@@ -27,7 +26,7 @@ public class CustomersController : ControllerBase
         if (result.IsFailure)
             return StatusCode(500, result.Error);
 
-        return Ok(result.Value);
+        return Ok(result.Data);
     }
 
     [HttpGet("{id}")]
@@ -38,7 +37,7 @@ public class CustomersController : ControllerBase
         if (result.IsFailure)
             return NotFound(result.Error);
 
-        return Ok(result.Value);
+        return Ok(result.Data);
     }
 
     [HttpPost]
@@ -49,14 +48,14 @@ public class CustomersController : ControllerBase
             request.LastName,
             request.Email,
             request.Phone,
-            new Address(request.Street, request.City, request.ZipCode, request.Country)
+            request.AddressDto
         );
         var result = await _customerService.CreateAsync(command);
 
         if (result.IsFailure)
             return BadRequest(result.Error);
 
-        return CreatedAtAction(nameof(GetById), new { id = result.Value }, null);
+        return CreatedAtAction(nameof(GetById), new { id = result.Data }, null);
     }
 
     [HttpPut("{id}")]

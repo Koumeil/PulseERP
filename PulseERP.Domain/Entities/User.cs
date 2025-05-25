@@ -43,24 +43,19 @@ public class User : BaseEntity
         }
     }
 
-    public void ChangeEmail(string email)
+    public void ChangeEmail(string? email)
     {
-        var newEmail = new Email(email);
-        if (Email != newEmail)
+        if (!string.IsNullOrWhiteSpace(email))
         {
-            Email = newEmail;
+            Email = new Email(email);
             UpdatedAt = DateTime.UtcNow;
         }
     }
 
     public void ChangePhone(string? phone)
     {
-        var newPhone = phone is not null ? new PhoneNumber(phone) : null;
-        if (Phone != newPhone)
-        {
-            Phone = newPhone;
-            UpdatedAt = DateTime.UtcNow;
-        }
+        Phone = !string.IsNullOrWhiteSpace(phone) ? new PhoneNumber(phone!) : null;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Deactivate()

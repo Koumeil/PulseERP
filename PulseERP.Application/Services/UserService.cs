@@ -1,10 +1,9 @@
 using AutoMapper;
-using PulseERP.Application.Common.Interfaces;
-using PulseERP.Application.DTOs.Users;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Dtos.Services;
+using PulseERP.Contracts.Dtos.Users;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Persistence;
-using PulseERP.Domain.Shared;
+using PulseERP.Domain.Repositories;
 
 namespace PulseERP.Application.Services;
 
@@ -21,7 +20,7 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task<Result<Guid>> CreateAsync(CreateUserCommand command)
+    public async Task<Result<UserDto>> CreateAsync(CreateUserCommand command)
     {
         try
         {
@@ -35,12 +34,14 @@ public class UserService : IUserService
             await _repository.AddAsync(user);
             _logger.LogInformation($"Created user {user.Id}");
 
-            return Result<Guid>.Success(user.Id);
+            var userDto = _mapper.Map<UserDto>(user);
+
+            return Result<UserDto>.Success(userDto);
         }
         catch (Exception ex)
         {
             _logger.LogError("Failed to create user", ex);
-            return Result<Guid>.Failure(ex.Message);
+            return Result<UserDto>.Failure(ex.Message);
         }
     }
 
@@ -68,8 +69,12 @@ public class UserService : IUserService
                 return Result.Failure("User not found");
 
             user.UpdateName(command.FirstName, command.LastName);
-            user.ChangeEmail(command.Email);
-            user.ChangePhone(command.Phone);
+
+            if (command.Email != null)
+                user.ChangeEmail(command.Email);
+
+            if (command.Phone != null)
+                user.ChangePhone(command.Phone);
 
             await _repository.UpdateAsync(user);
             _logger.LogInformation($"Updated user {user.Id}");

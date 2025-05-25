@@ -2,7 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using PulseERP.Application;
-using PulseERP.Application.Common;
+using PulseERP.Application.Settings;
 using PulseERP.Infrastructure;
 using Serilog;
 

@@ -6,10 +6,13 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="MediatR" Version="11.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../PulseERP.Contracts/PulseERP.Contracts.csproj" />
     <ProjectReference Include="../PulseERP.Domain/PulseERP.Domain.csproj" />
   </ItemGroup>
 </Project>

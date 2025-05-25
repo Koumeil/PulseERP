@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
 using PulseERP.Infrastructure.Persistence;
 

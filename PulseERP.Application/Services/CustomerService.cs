@@ -1,10 +1,10 @@
 using AutoMapper;
-using PulseERP.Application.Common.Interfaces;
-using PulseERP.Application.DTOs.Customers;
-using PulseERP.Application.Interfaces;
+using PulseERP.Contracts.Dtos.Customers;
+using PulseERP.Contracts.Dtos.Services;
+using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Persistence;
-using PulseERP.Domain.Shared;
+using PulseERP.Domain.Repositories;
+using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Application.Services;
 
@@ -33,7 +33,12 @@ public class CustomerService : ICustomerService
                 command.FirstName,
                 command.LastName,
                 command.Email,
-                command.Address,
+                new Address(
+                    command.Address.Street,
+                    command.Address.City,
+                    command.Address.ZipCode,
+                    command.Address.Country
+                ),
                 command.Phone
             );
             await _repository.AddAsync(customer);
