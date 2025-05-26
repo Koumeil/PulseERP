@@ -58,7 +58,7 @@ public class CustomersController : ControllerBase
         if (result.IsFailure)
             return BadRequest(result.Error);
 
-        return NoContent();
+        return Ok(result.Data);
     }
 
     [HttpDelete("{id}")]

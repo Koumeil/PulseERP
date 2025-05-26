@@ -3,20 +3,21 @@ using PulseERP.Contracts.Dtos.Products;
 using PulseERP.Contracts.Dtos.Services;
 using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Filters.Products;
 using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Domain.Pagination;
+using PulseERP.Domain.Query.Products;
 
 namespace PulseERP.Application.Services;
 
 public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
-    private readonly IAppLoggerService<ProductService> _logger;
+    private readonly ISerilogAppLoggerService<ProductService> _logger;
     private readonly IMapper _mapper;
 
     public ProductService(
         IProductRepository repository,
-        IAppLoggerService<ProductService> logger,
+        ISerilogAppLoggerService<ProductService> logger,
         IMapper mapper
     )
     {
@@ -58,35 +59,49 @@ public class ProductService : IProductService
             : ServiceResult<ProductDto>.Success(_mapper.Map<ProductDto>(product));
     }
 
-    public async Task<ServiceResult<IReadOnlyList<ProductDto>>> GetAllAsync(ProductParams productParams)
+    public async Task<ServiceResult<PaginationResult<ProductDto>>> GetAllAsync(
+        ProductParams productParams
+    )
     {
-        var products = await _repository.GetAllAsync(productParams);
-        var productsDtos = products.Select(p => _mapper.Map<ProductDto>(p)).ToList().AsReadOnly();
-        return ServiceResult<IReadOnlyList<ProductDto>>.Success(productsDtos);
+        var pagedProducts = await _repository.GetAllAsync(productParams);
+
+        var productsDtos = pagedProducts.Items.Select(p => _mapper.Map<ProductDto>(p)).ToList();
+
+        var result = new PaginationResult<ProductDto>(
+            productsDtos,
+            pagedProducts.TotalItems,
+            pagedProducts.PageNumber,
+            pagedProducts.PageSize
+        );
+
+        return ServiceResult<PaginationResult<ProductDto>>.Success(result);
     }
 
-    public async Task<ServiceResult> UpdateAsync(Guid id, UpdateProductRequest command)
+    public async Task<ServiceResult<ProductDto>> UpdateAsync(Guid id, UpdateProductRequest command)
     {
         try
         {
             var product = await _repository.GetByIdAsync(id);
             if (product is null)
-                return ServiceResult.Failure("Product not found");
+                return ServiceResult<ProductDto>.Failure("Product not found");
 
             product.UpdateName(command.Name);
             product.UpdateDescription(command.Description);
             product.UpdatePrice(command.Price);
             product.UpdateQuantity(command.Quantity);
+            product.UpdateBrand(command.Brand);
 
             await _repository.UpdateAsync(product);
             _logger.LogInformation($"Updated product {product.Id}");
 
-            return ServiceResult.Success();
+            var productDto = _mapper.Map<ProductDto>(product);
+
+            return ServiceResult<ProductDto>.Success(productDto);
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to update product {command.Id}", ex);
-            return ServiceResult.Failure(ex.Message);
+            _logger.LogError($"Failed to update product {id}", ex);
+            return ServiceResult<ProductDto>.Failure(ex.Message);
         }
     }
 

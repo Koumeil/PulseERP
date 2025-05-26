@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
         if (result.IsFailure)
             return BadRequest(result.Error);
 
-        return Ok(result.Data); 
+        return Ok(result.Data);
     }
 
     [HttpPost("login")]

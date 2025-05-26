@@ -8,6 +8,6 @@ public interface ICustomerService
     Task<ServiceResult<Guid>> CreateAsync(CreateCustomerRequest command);
     Task<ServiceResult<CustomerDto>> GetByIdAsync(Guid id);
     Task<ServiceResult<IReadOnlyList<CustomerDto>>> GetAllAsync();
-    Task<ServiceResult> UpdateAsync(Guid id, UpdateCustomerRequest command);
+    Task<ServiceResult<CustomerDto>> UpdateAsync(Guid id, UpdateCustomerRequest command);
     Task<ServiceResult> DeleteAsync(Guid id);
 }

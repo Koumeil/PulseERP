@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Filters.Products;
 using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Domain.Pagination;
+using PulseERP.Domain.Query.Products;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
@@ -10,9 +11,12 @@ namespace PulseERP.Infrastructure.Repositories;
 public class ProductRepository : IProductRepository
 {
     private readonly CoreDbContext _context;
-    private readonly IAppLoggerService<ProductRepository> _logger;
+    private readonly ISerilogAppLoggerService<ProductRepository> _logger;
 
-    public ProductRepository(CoreDbContext context, IAppLoggerService<ProductRepository> logger)
+    public ProductRepository(
+        CoreDbContext context,
+        ISerilogAppLoggerService<ProductRepository> logger
+    )
     {
         _context = context;
         _logger = logger;
@@ -22,7 +26,9 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            return await _context
+                .Products.Include(p => p.Brand)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
         catch (Exception ex)
         {
@@ -31,43 +37,43 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    public async Task<IReadOnlyList<Product>> GetAllAsync(ProductParams productParams)
+    public async Task<PaginationResult<Product>> GetAllAsync(ProductParams productParams)
     {
-        try
+        var query = _context.Products.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(productParams.Brand))
+            query = query.Where(product => product.Brand.Name == productParams.Brand);
+
+        if (!string.IsNullOrWhiteSpace(productParams.Search))
         {
-            var query = _context.Products.AsNoTracking().AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(productParams.Brand))
-                query = query.Where(p => p.Brand.Name == productParams.Brand);
-
-            if (!string.IsNullOrWhiteSpace(productParams.Search))
-            {
-                var keyword = $"%{productParams.Search}%";
-                query = query.Where(p =>
-                    EF.Functions.Like(p.Name, keyword) || EF.Functions.Like(p.Description, keyword)
-                );
-            }
-
-            // Tri
-            query = productParams.Sort switch
-            {
-                "priceAsc" => query.OrderBy(p => p.Price),
-                "priceDesc" => query.OrderByDescending(p => p.Price),
-                _ => query.OrderBy(p => p.Name),
-            };
-
-            // Pagination 
-            query = query
-                .Skip((productParams.PageCount - 1) * productParams.PageSize)
-                .Take(productParams.PageSize);
-
-            return await query.ToListAsync();
+            var keyword = $"%{productParams.Search}%";
+            query = query.Where(p =>
+                EF.Functions.Like(p.Name, keyword) || EF.Functions.Like(p.Description, keyword)
+            );
         }
-        catch (Exception ex)
+
+        query = productParams.Sort switch
         {
-            _logger.LogError("Error fetching all products",ex);
-            throw;
-        }
+            "priceAsc" => query.OrderBy(product => product.Price),
+            "priceDesc" => query.OrderByDescending(product => product.Price),
+            _ => query.OrderBy(product => product.Name),
+        };
+
+        // Compter le total avant pagination
+        var totalItems = await query.CountAsync();
+
+        // Pagination
+        var items = await query
+            .Skip((productParams.PageNumber - 1) * productParams.PageSize)
+            .Take(productParams.PageSize)
+            .ToListAsync();
+
+        return new PaginationResult<Product>(
+            items,
+            totalItems,
+            productParams.PageNumber,
+            productParams.PageSize
+        );
     }
 
     public async Task AddAsync(Product product)

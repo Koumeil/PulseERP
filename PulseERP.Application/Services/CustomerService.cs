@@ -11,12 +11,12 @@ namespace PulseERP.Application.Services;
 public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _repository;
-    private readonly IAppLoggerService<CustomerService> _logger;
+    private readonly ISerilogAppLoggerService<CustomerService> _logger;
     private readonly IMapper _mapper;
 
     public CustomerService(
         ICustomerRepository repository,
-        IAppLoggerService<CustomerService> logger,
+        ISerilogAppLoggerService<CustomerService> logger,
         IMapper mapper
     )
     {
@@ -67,17 +67,23 @@ public class CustomerService : ICustomerService
         );
     }
 
-    public async Task<ServiceResult> UpdateAsync(Guid id, UpdateCustomerRequest command)
+    public async Task<ServiceResult<CustomerDto>> UpdateAsync(
+        Guid id,
+        UpdateCustomerRequest command
+    )
     {
         var customer = await _repository.GetByIdAsync(id);
         if (customer is null)
-            return ServiceResult.Failure("Customer not found");
+            return ServiceResult<CustomerDto>.Failure("Customer not found");
 
         customer.UpdateDetails(command.FirstName, command.LastName, command.Email, command.Phone);
         customer.UpdateAddress(command.Street, command.City, command.ZipCode, command.Country);
 
         await _repository.UpdateAsync(customer);
-        return ServiceResult.Success();
+
+        var customerDto = _mapper.Map<CustomerDto>(customer);
+
+        return ServiceResult<CustomerDto>.Success(customerDto);
     }
 
     public async Task<ServiceResult> DeleteAsync(Guid id)

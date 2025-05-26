@@ -10,12 +10,12 @@ namespace PulseERP.Application.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _repository;
-    private readonly IAppLoggerService<UserService> _logger;
+    private readonly ISerilogAppLoggerService<UserService> _logger;
     private readonly IMapper _mapper;
 
     public UserService(
         IUserRepository repository,
-        IAppLoggerService<UserService> logger,
+        ISerilogAppLoggerService<UserService> logger,
         IMapper mapper
     )
     {

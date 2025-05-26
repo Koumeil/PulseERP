@@ -9,9 +9,9 @@ namespace PulseERP.Infrastructure.Repositories;
 public class CustomerRepository : ICustomerRepository
 {
     private readonly CoreDbContext _context;
-    private readonly IAppLoggerService<CustomerRepository> _logger;
+    private readonly ISerilogAppLoggerService<CustomerRepository> _logger;
 
-    public CustomerRepository(CoreDbContext context, IAppLoggerService<CustomerRepository> logger)
+    public CustomerRepository(CoreDbContext context, ISerilogAppLoggerService<CustomerRepository> logger)
     {
         _context = context;
         _logger = logger;

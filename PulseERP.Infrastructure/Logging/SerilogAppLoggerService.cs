@@ -3,7 +3,7 @@ using PulseERP.Contracts.Interfaces.Services;
 
 namespace PulseERP.Infrastructure.Logging;
 
-public class SerilogAppLoggerService<T> : IAppLoggerService<T>
+public class SerilogAppLoggerService<T> : ISerilogAppLoggerService<T>
 {
     private readonly ILogger<T> _logger;
 
@@ -12,9 +12,17 @@ public class SerilogAppLoggerService<T> : IAppLoggerService<T>
         _logger = logger;
     }
 
-    public void LogInformation(string message) => _logger.LogInformation(message);
+    public void LogInformation(string message, params object[] args) =>
+        _logger.LogInformation(message, args);
 
-    public void LogWarning(string message) => _logger.LogWarning(message);
+    public void LogWarning(string message, params object[] args) =>
+        _logger.LogWarning(message, args);
 
-    public void LogError(string message, Exception? ex = null) => _logger.LogError(ex, message);
+    public void LogError(string message, Exception? ex = null, params object[] args)
+    {
+        if (ex is null)
+            _logger.LogError(message, args);
+        else
+            _logger.LogError(ex, message, args);
+    }
 }

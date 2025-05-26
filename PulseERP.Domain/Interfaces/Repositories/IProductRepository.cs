@@ -1,11 +1,12 @@
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Filters.Products;
+using PulseERP.Domain.Pagination;
+using PulseERP.Domain.Query.Products;
 
 namespace PulseERP.Domain.Interfaces.Repositories;
 
 public interface IProductRepository
 {
-    Task<IReadOnlyList<Product>> GetAllAsync(ProductParams productParams);
+    Task<PaginationResult<Product>> GetAllAsync(ProductParams productParams);
     Task<Product?> GetByIdAsync(Guid id);
     Task AddAsync(Product product);
     Task UpdateAsync(Product product);

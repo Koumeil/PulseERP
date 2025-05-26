@@ -1,6 +1,9 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
+using PulseERP.API.ErrorHandling;
 using PulseERP.Application;
 using PulseERP.Application.Settings;
 using PulseERP.Infrastructure;
@@ -8,7 +11,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog via HostBuilder pour bien gérer le cycle de vie du logger
+// Configure Serilog
 builder.Host.UseSerilog(
     (ctx, lc) =>
         lc
@@ -16,6 +19,38 @@ builder.Host.UseSerilog(
             .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
             .ReadFrom.Configuration(ctx.Configuration)
 );
+
+builder.Services.AddOptions();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    // Empêche ASP.NET Core de renvoyer automatiquement une réponse 400 quand la validation échoue.
+    // Cela te permet d'intercepter ces erreurs et de les formater à ta façon (ex: avec ExtendedValidationProblemDetails).
+    options.SuppressModelStateInvalidFilter = true;
+
+    // Personnalise la réponse quand la validation du modèle échoue
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        // Crée un ValidationProblemDetails enrichi (tu peux utiliser ta factory ici aussi)
+        var problemDetailsFactory =
+            context.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
+
+        var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(
+            context.HttpContext,
+            context.ModelState,
+            statusCode: StatusCodes.Status400BadRequest,
+            title: "Model validation failed",
+            detail: "See the errors property for details."
+        );
+
+        // Retourne un ObjectResult avec le contenu problem details et le bon code HTTP
+        return new ObjectResult(validationProblemDetails)
+        {
+            StatusCode = validationProblemDetails.Status,
+        };
+    };
+});
 
 // Lier JwtSettings à l’IOptions
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
@@ -26,7 +61,6 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSetting
 // Email
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-// Ajouter l'authentification JWT
 builder
     .Services.AddAuthentication(options =>
     {
@@ -50,10 +84,8 @@ builder
         };
     });
 
-// Ajouter les services applicatifs et infrastructure (Clean Architecture)
 builder.Services.AddApplication().AddInfrastructure(builder.Configuration);
 
-// Ajouter support des contrôleurs API
 builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen();
@@ -61,6 +93,8 @@ builder.Services.AddSwaggerGen();
 Log.Information("Starting application...");
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

@@ -71,10 +71,13 @@ public class Product : BaseEntity
         }
     }
 
-    public void UpdateBrand(Brand brand)
+    public void UpdateBrand(string? brandName)
     {
-        Brand = brand ?? throw new ArgumentNullException(nameof(brand));
-        UpdatedAt = DateTime.UtcNow;
+        if (brandName is not null && brandName != Brand.Name)
+        {
+            UpdatedAt = DateTime.UtcNow;
+            Brand.UpdateName(brandName);
+        }
     }
 
     public void UpdatePrice(decimal? price)

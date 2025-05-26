@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../PulseERP.Application/PulseERP.Application.csproj" />
+    <ProjectReference Include="../PulseERP.Contracts/PulseERP.Contracts.csproj" />
     <ProjectReference Include="../PulseERP.Domain/PulseERP.Domain.csproj" />
   </ItemGroup>
 </Project>

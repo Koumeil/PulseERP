@@ -1,4 +1,4 @@
-namespace PulseERP.Contracts.Dtos.Pagination;
+namespace PulseERP.Domain.Pagination;
 
 public class PaginationResult<T>
 {

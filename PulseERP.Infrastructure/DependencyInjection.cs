@@ -19,8 +19,7 @@ public static class DependencyInjection
         IConfiguration configuration
     )
     {
-        services.AddScoped(typeof(IAppLoggerService<>), typeof(SerilogAppLoggerService<>));
-
+        services.AddScoped(typeof(ISerilogAppLoggerService<>), typeof(SerilogAppLoggerService<>));
         // EF Core
         services.AddDbContext<CoreDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))

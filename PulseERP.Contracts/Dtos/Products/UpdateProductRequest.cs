@@ -1,9 +1,9 @@
 namespace PulseERP.Contracts.Dtos.Products;
 
 public record UpdateProductRequest(
-    Guid Id,
     string? Name,
     string? Description,
+    string? Brand,
     decimal? Price,
     int? Quantity
 );

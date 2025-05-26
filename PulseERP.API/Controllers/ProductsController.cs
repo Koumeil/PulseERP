@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.Contracts.Dtos.Pagination;
 using PulseERP.Contracts.Dtos.Products;
 using PulseERP.Contracts.Interfaces.Services;
-using PulseERP.Domain.Filters.Products;
+using PulseERP.Domain.Pagination;
+using PulseERP.Domain.Query.Products;
 
 namespace PulseERP.API.Controllers;
 
@@ -74,7 +74,7 @@ public class ProductsController : ControllerBase
             return BadRequest(result.Error);
         }
 
-        return NoContent();
+        return Ok(result.Data);
     }
 
     [HttpDelete("{id}")]
