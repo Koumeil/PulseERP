@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.API.DTOs.Products;
 using PulseERP.Contracts.Dtos.Pagination;
 using PulseERP.Contracts.Dtos.Products;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Filters.Products;
 
 namespace PulseERP.API.Controllers;
@@ -23,15 +22,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
     {
-        var command = new CreateProductCommand(
-            request.Name,
-            request.Description,
-            request.Brand,
-            request.Price,
-            request.Quantity
-        );
-
-        var result = await _productService.CreateAsync(command);
+        var result = await _productService.CreateAsync(request);
 
         if (result.IsFailure)
         {
@@ -73,15 +64,7 @@ public class ProductsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
     {
-        var command = new UpdateProductCommand(
-            id,
-            request.Name,
-            request.Description,
-            request.Price,
-            request.Quantity
-        );
-
-        var result = await _productService.UpdateAsync(id, command);
+        var result = await _productService.UpdateAsync(id, request);
 
         if (result.IsFailure)
         {

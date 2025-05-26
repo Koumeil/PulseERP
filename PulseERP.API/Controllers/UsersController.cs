@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.API.DTOs.Users;
 using PulseERP.Contracts.Dtos.Users;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Interfaces.Services;
 
 namespace PulseERP.API.Controllers;
 
@@ -21,14 +20,8 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
     {
-        var command = new CreateUserCommand(
-            request.FirstName,
-            request.LastName,
-            request.Email,
-            request.Phone
-        );
 
-        var result = await _userService.CreateAsync(command);
+        var result = await _userService.CreateAsync(request);
 
         if (result.IsFailure)
         {
@@ -64,15 +57,7 @@ public class UsersController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest request)
     {
-        var command = new UpdateUserCommand(
-            id,
-            request.FirstName,
-            request.LastName,
-            request.Email,
-            request.Phone
-        );
-
-        var result = await _userService.UpdateAsync(id, command);
+        var result = await _userService.UpdateAsync(id, request);
 
         if (result.IsFailure)
         {

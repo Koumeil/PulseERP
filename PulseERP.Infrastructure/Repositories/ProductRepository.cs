@@ -1,18 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Filters.Products;
-using PulseERP.Domain.Repositories;
-using PulseERP.Infrastructure.Persistence;
+using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IAppLogger<ProductRepository> _logger;
+    private readonly CoreDbContext _context;
+    private readonly IAppLoggerService<ProductRepository> _logger;
 
-    public ProductRepository(ApplicationDbContext context, IAppLogger<ProductRepository> logger)
+    public ProductRepository(CoreDbContext context, IAppLoggerService<ProductRepository> logger)
     {
         _context = context;
         _logger = logger;

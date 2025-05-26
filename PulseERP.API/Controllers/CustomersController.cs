@@ -1,8 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.API.DTOs.Customers;
 using PulseERP.Contracts.Dtos.Customers;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Interfaces.Services;
 
 namespace PulseERP.API.Controllers;
 
@@ -43,14 +42,7 @@ public class CustomersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateCustomerRequest request)
     {
-        var command = new CreateCustomerCommand(
-            request.FirstName,
-            request.LastName,
-            request.Email,
-            request.Phone,
-            request.AddressDto
-        );
-        var result = await _customerService.CreateAsync(command);
+        var result = await _customerService.CreateAsync(request);
 
         if (result.IsFailure)
             return BadRequest(result.Error);
@@ -61,19 +53,7 @@ public class CustomersController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, UpdateCustomerRequest request)
     {
-        var command = new UpdateCustomerCommand(
-            id,
-            request.FirstName,
-            request.LastName,
-            request.Email,
-            request.Phone,
-            request.Street,
-            request.City,
-            request.ZipCode,
-            request.Country
-        );
-
-        var result = await _customerService.UpdateAsync(id, command);
+        var result = await _customerService.UpdateAsync(id, request);
 
         if (result.IsFailure)
             return BadRequest(result.Error);

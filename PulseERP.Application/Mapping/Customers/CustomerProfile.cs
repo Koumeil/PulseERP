@@ -23,7 +23,7 @@ public class CustomerProfile : Profile
             ));
 
         // Command → Domain (création)
-        CreateMap<CreateCustomerCommand, Customer>()
+        CreateMap<CreateCustomerRequest, Customer>()
             .ConstructUsing(
                 (cmd, context) =>
                 {

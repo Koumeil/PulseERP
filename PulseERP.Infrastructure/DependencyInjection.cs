@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PulseERP.Contracts.Services;
-using PulseERP.Domain.Repositories;
-using PulseERP.Infrastructure.Identity;
+using PulseERP.Contracts.Interfaces.Services;
+using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Infrastructure.Database;
+using PulseERP.Infrastructure.Identity.Entities;
+using PulseERP.Infrastructure.Identity.Service;
 using PulseERP.Infrastructure.Logging;
-using PulseERP.Infrastructure.Persistence;
 using PulseERP.Infrastructure.Repositories;
 
 namespace PulseERP.Infrastructure;
@@ -18,16 +19,16 @@ public static class DependencyInjection
         IConfiguration configuration
     )
     {
-        services.AddScoped(typeof(IAppLogger<>), typeof(SerilogAppLogger<>));
+        services.AddScoped(typeof(IAppLoggerService<>), typeof(SerilogAppLoggerService<>));
 
         // EF Core
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContext<CoreDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
         );
         // Identity
         services
             .AddIdentity<ApplicationUser, IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddEntityFrameworkStores<CoreDbContext>()
             .AddDefaultTokenProviders();
 
         // JWT Token service

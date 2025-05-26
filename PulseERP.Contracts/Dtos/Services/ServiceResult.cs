@@ -1,6 +1,6 @@
 namespace PulseERP.Contracts.Dtos.Services;
 
-public class Result<T>
+public class ServiceResult<T>
 {
     public bool IsSuccess { get; }
     public string? Error { get; }
@@ -8,31 +8,31 @@ public class Result<T>
 
     public bool IsFailure => !IsSuccess;
 
-    private Result(T? value, bool isSuccess, string? error)
+    private ServiceResult(T? value, bool isSuccess, string? error)
     {
         IsSuccess = isSuccess;
         Error = error;
         Data = value;
     }
 
-    public static Result<T> Success(T value) => new(value, true, null);
+    public static ServiceResult<T> Success(T value) => new(value, true, null);
 
-    public static Result<T> Failure(string error) => new(default, false, error);
+    public static ServiceResult<T> Failure(string error) => new(default, false, error);
 }
 
-public class Result
+public class ServiceResult
 {
     public bool IsSuccess { get; }
     public string? Error { get; }
 
     public bool IsFailure => !IsSuccess;
 
-    private Result(bool isSuccess, string? error)
+    private ServiceResult(bool isSuccess, string? error)
     {
         IsSuccess = isSuccess;
         Error = error;
     }
 
-    public static Result Success() => new(true, null);
-    public static Result Failure(string error) => new(false, error);
+    public static ServiceResult Success() => new(true, null);
+    public static ServiceResult Failure(string error) => new(false, error);
 }

@@ -1,9 +1,9 @@
 using AutoMapper;
 using PulseERP.Contracts.Dtos.Customers;
 using PulseERP.Contracts.Dtos.Services;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Repositories;
+using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Application.Services;
@@ -11,12 +11,12 @@ namespace PulseERP.Application.Services;
 public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _repository;
-    private readonly IAppLogger<CustomerService> _logger;
+    private readonly IAppLoggerService<CustomerService> _logger;
     private readonly IMapper _mapper;
 
     public CustomerService(
         ICustomerRepository repository,
-        IAppLogger<CustomerService> logger,
+        IAppLoggerService<CustomerService> logger,
         IMapper mapper
     )
     {
@@ -25,7 +25,7 @@ public class CustomerService : ICustomerService
         _mapper = mapper;
     }
 
-    public async Task<Result<Guid>> CreateAsync(CreateCustomerCommand command)
+    public async Task<ServiceResult<Guid>> CreateAsync(CreateCustomerRequest command)
     {
         try
         {
@@ -42,52 +42,51 @@ public class CustomerService : ICustomerService
                 command.Phone
             );
             await _repository.AddAsync(customer);
-            return Result<Guid>.Success(customer.Id);
+            return ServiceResult<Guid>.Success(customer.Id);
         }
         catch (Exception ex)
         {
             _logger.LogError("Create failed", ex);
-            return Result<Guid>.Failure(ex.Message);
+            return ServiceResult<Guid>.Failure(ex.Message);
         }
     }
 
-    public async Task<Result<CustomerDto>> GetByIdAsync(Guid id)
+    public async Task<ServiceResult<CustomerDto>> GetByIdAsync(Guid id)
     {
         var customer = await _repository.GetByIdAsync(id);
         return customer == null
-            ? Result<CustomerDto>.Failure("Not found")
-            : Result<CustomerDto>.Success(_mapper.Map<CustomerDto>(customer));
+            ? ServiceResult<CustomerDto>.Failure("Not found")
+            : ServiceResult<CustomerDto>.Success(_mapper.Map<CustomerDto>(customer));
     }
 
-    public async Task<Result<IReadOnlyList<CustomerDto>>> GetAllAsync()
+    public async Task<ServiceResult<IReadOnlyList<CustomerDto>>> GetAllAsync()
     {
         var customers = await _repository.GetAllAsync();
-        return Result<IReadOnlyList<CustomerDto>>.Success(
+        return ServiceResult<IReadOnlyList<CustomerDto>>.Success(
             customers.Select(_mapper.Map<CustomerDto>).ToList()
         );
     }
 
-    public async Task<Result> UpdateAsync(Guid id, UpdateCustomerCommand command)
+    public async Task<ServiceResult> UpdateAsync(Guid id, UpdateCustomerRequest command)
     {
         var customer = await _repository.GetByIdAsync(id);
         if (customer is null)
-            return Result.Failure("Customer not found");
+            return ServiceResult.Failure("Customer not found");
 
         customer.UpdateDetails(command.FirstName, command.LastName, command.Email, command.Phone);
-
         customer.UpdateAddress(command.Street, command.City, command.ZipCode, command.Country);
 
         await _repository.UpdateAsync(customer);
-        return Result.Success();
+        return ServiceResult.Success();
     }
 
-    public async Task<Result> DeleteAsync(Guid id)
+    public async Task<ServiceResult> DeleteAsync(Guid id)
     {
         var customer = await _repository.GetByIdAsync(id);
         if (customer is null)
-            return Result.Failure("Not found");
+            return ServiceResult.Failure("Not found");
 
         await _repository.DeleteAsync(customer);
-        return Result.Success();
+        return ServiceResult.Success();
     }
 }

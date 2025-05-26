@@ -1,17 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Repositories;
-using PulseERP.Infrastructure.Persistence;
+using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IAppLogger<UserRepository> _logger;
+    private readonly CoreDbContext _context;
+    private readonly IAppLoggerService<UserRepository> _logger;
 
-    public UserRepository(ApplicationDbContext context, IAppLogger<UserRepository> logger)
+    public UserRepository(CoreDbContext context, IAppLoggerService<UserRepository> logger)
     {
         _context = context;
         _logger = logger;

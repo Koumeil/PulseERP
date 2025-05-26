@@ -11,7 +11,7 @@ public class ProductProfile : Profile
         CreateMap<Product, ProductDto>()
             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price.Value));
 
-        CreateMap<CreateProductCommand, Product>()
+        CreateMap<CreateProductRequest, Product>()
             .ConstructUsing(cmd =>
                 Product.Create(
                     cmd.Name,

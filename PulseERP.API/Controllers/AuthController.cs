@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.API.DTOs.Auth;
 using PulseERP.Contracts.Dtos.Auth;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Dtos.Auth.Token;
+using PulseERP.Contracts.Interfaces.Services;
 
 namespace PulseERP.API.Controllers;
 
@@ -19,43 +19,34 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = new RegisterCommand(
-            request.FirstName,
-            request.LastName,
-            request.Email,
-            request.Password,
-            request.Password
-        );
+        var result = await _authService.RegisterAsync(request);
 
-        var result = await _authService.RegisterAsync(command);
+        if (result.IsFailure)
+            return BadRequest(result.Error);
 
-        if (!result.Success)
-            return BadRequest(result.Errors);
-
-        return Ok(result);
+        return Ok(result.Data); 
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var command = new LoginCommand(request.Email, request.Password);
-        var result = await _authService.LoginAsync(command);
+        var result = await _authService.LoginAsync(request);
 
-        if (!result.Success)
-            return Unauthorized(result.Errors);
+        if (result.IsFailure)
+            return Unauthorized(result.Error);
 
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenResponse request)
     {
         var result = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
 
-        if (!result.Success)
-            return Unauthorized(result.Errors);
+        if (result.IsFailure)
+            return Unauthorized(result.Error);
 
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [HttpPost("logout")]

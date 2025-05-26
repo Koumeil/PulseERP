@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PulseERP.Application.Services;
-using PulseERP.Contracts.Services;
+using PulseERP.Contracts.Interfaces.Services;
 
 namespace PulseERP.Application;
 

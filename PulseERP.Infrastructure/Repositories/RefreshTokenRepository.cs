@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Contracts.Services;
 using PulseERP.Domain.Entities;
-using PulseERP.Infrastructure.Persistence;
+using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
 public class RefreshTokenRepository : IRefreshTokenRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly CoreDbContext _context;
 
-    public RefreshTokenRepository(ApplicationDbContext context)
+    public RefreshTokenRepository(CoreDbContext context)
     {
         _context = context;
     }
