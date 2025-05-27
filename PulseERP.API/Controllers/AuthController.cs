@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using PulseERP.API.Dtos; 
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Contracts.Dtos.Auth;
 using PulseERP.Contracts.Dtos.Auth.Token;
-using PulseERP.Contracts.Interfaces.Services;
 
 namespace PulseERP.API.Controllers;
 
@@ -17,42 +18,36 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(RegisterRequest request)
     {
-        var result = await _authService.RegisterAsync(request);
-
-        if (result.IsFailure)
-            return BadRequest(result.Error);
-
-        return Ok(result.Data);
+        var authResult = await _authService.RegisterAsync(request);
+        var response = new ApiResponse<AuthResponse>(Success: true, Data: authResult, Error: null);
+        return Ok(response);
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(LoginRequest request)
     {
-        var result = await _authService.LoginAsync(request);
-
-        if (result.IsFailure)
-            return Unauthorized(result.Error);
-
-        return Ok(result.Data);
+        var authResult = await _authService.LoginAsync(request);
+        var response = new ApiResponse<AuthResponse>(Success: true, Data: authResult, Error: null);
+        return Ok(response);
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenResponse request)
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshToken(
+        [FromBody] RefreshTokenResponse request
+    )
     {
-        var result = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
-
-        if (result.IsFailure)
-            return Unauthorized(result.Error);
-
-        return Ok(result.Data);
+        var authResult = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
+        var response = new ApiResponse<AuthResponse>(Success: true, Data: authResult, Error: null);
+        return Ok(response);
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] LogoutRequest request)
+    public async Task<ActionResult<ApiResponse<object>>> Logout([FromBody] LogoutRequest request)
     {
         await _authService.LogoutAsync(request.RefreshToken);
-        return NoContent();
+        var response = new ApiResponse<object>(Success: true, Data: null, Error: null);
+        return Ok(response);
     }
 }

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PulseERP.Contracts.Interfaces.Services;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Infrastructure.Database;
 using PulseERP.Infrastructure.Identity.Entities;

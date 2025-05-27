@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using PulseERP.API.Dtos;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Contracts.Dtos.Products;
-using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
 
@@ -11,85 +12,86 @@ namespace PulseERP.API.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
-    private readonly ILogger<ProductsController> _logger;
 
-    public ProductsController(IProductService productService, ILogger<ProductsController> logger)
+    public ProductsController(IProductService productService)
     {
         _productService = productService;
-        _logger = logger;
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
-    {
-        var result = await _productService.CreateAsync(request);
-
-        if (result.IsFailure)
-        {
-            _logger.LogWarning($"Create product failed: {result.Error}");
-            return BadRequest(result.Error);
-        }
-
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = result.Data },
-            new { productId = result.Data }
-        );
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
-    {
-        var result = await _productService.GetByIdAsync(id);
-
-        if (result.IsFailure)
-            return NotFound(result.Error);
-
-        return Ok(result.Data);
     }
 
     [HttpGet]
-    public async Task<ActionResult<PaginationResult<ProductDto>>> GetAll(
-       [FromQuery] ProductParams productParams
+    public async Task<ActionResult<ApiResponse<PaginationResult<ProductDto>>>> GetAll(
+        [FromQuery] ProductParams productParams
     )
     {
         var result = await _productService.GetAllAsync(productParams);
 
-        if (result.IsFailure)
-            return StatusCode(500, result.Error);
+        var response = new ApiResponse<PaginationResult<ProductDto>>(
+            Success: true,
+            Data: result,
+            Message: "Products retrieved successfully"
+        );
 
-        return Ok(result.Data);
+        return Ok(response);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ApiResponse<ProductDto>>> GetById(Guid id)
+    {
+        var result = await _productService.GetByIdAsync(id);
+
+        var response = new ApiResponse<ProductDto>(
+            Success: true,
+            Data: result,
+            Message: "Product retrieved successfully"
+        );
+
+        return Ok(response);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ApiResponse<ProductDto>>> Create(
+        [FromBody] CreateProductRequest request
+    )
+    {
+        var result = await _productService.CreateAsync(request);
+
+        var response = new ApiResponse<ProductDto>(
+            Success: true,
+            Data: result,
+            Message: "Product created successfully"
+        );
+
+        return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<ApiResponse<ProductDto>>> Update(
+        Guid id,
+        [FromBody] UpdateProductRequest request
+    )
     {
         var result = await _productService.UpdateAsync(id, request);
 
-        if (result.IsFailure)
-        {
-            if (result.Error == "Product not found")
-                return NotFound(result.Error);
+        var response = new ApiResponse<ProductDto>(
+            Success: true,
+            Data: result,
+            Message: "Product updated successfully"
+        );
 
-            return BadRequest(result.Error);
-        }
-
-        return Ok(result.Data);
+        return Ok(response);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id)
     {
-        var result = await _productService.DeleteAsync(id);
+        await _productService.DeleteAsync(id);
 
-        if (result.IsFailure)
-        {
-            if (result.Error == "Product not found")
-                return NotFound(result.Error);
+        var response = new ApiResponse<object>(
+            Success: true,
+            Data: null,
+            Message: "Product deleted successfully"
+        );
 
-            return BadRequest(result.Error);
-        }
-
-        return NoContent();
+        return Ok(response);
     }
 }

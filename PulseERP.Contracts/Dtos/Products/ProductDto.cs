@@ -6,7 +6,7 @@ public record ProductDto(
     Guid Id,
     string Name,
     string? Description,
-    BrandDto Brand,
+    string? BrandName,
     decimal Price,
     int Quantity
 );

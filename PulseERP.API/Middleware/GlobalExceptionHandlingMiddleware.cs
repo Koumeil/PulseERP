@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using PulseERP.API.Dtos;
 using PulseERP.Application.Exceptions;
 
 public class GlobalExceptionHandlingMiddleware
@@ -85,10 +86,12 @@ public class GlobalExceptionHandlingMiddleware
             detail: ex.Message
         );
 
-        context.Response.StatusCode = statusCode;
-        context.Response.ContentType = "application/problem+json";
+        var response = new ApiResponse<object>(Success: false, Error: problemDetails);
 
-        var json = JsonSerializer.Serialize(problemDetails, JsonOptions);
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+
+        var json = JsonSerializer.Serialize(response, JsonOptions);
         await context.Response.WriteAsync(json);
     }
 }

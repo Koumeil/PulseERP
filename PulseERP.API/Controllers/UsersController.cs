@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using PulseERP.API.Dtos;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Contracts.Dtos.Users;
-using PulseERP.Contracts.Interfaces.Services;
+using PulseERP.Domain.Pagination;
 
 namespace PulseERP.API.Controllers;
 
@@ -9,80 +11,85 @@ namespace PulseERP.API.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
-    private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IUserService userService, ILogger<UsersController> logger)
+    public UsersController(IUserService userService)
     {
         _userService = userService;
-        _logger = logger;
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
-    {
-
-        var result = await _userService.CreateAsync(request);
-
-        if (result.IsFailure)
-        {
-            _logger.LogWarning($"Create user failed: {result.Error}");
-            return BadRequest(result.Error);
-        }
-
-        return CreatedAtAction(nameof(GetById), new { id = result }, new { userId = result.Data });
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
-    {
-        var result = await _userService.GetByIdAsync(id);
-
-        if (result.IsFailure)
-            return NotFound(result.Error);
-
-        return Ok(result.Data);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<ApiResponse<PaginationResult<UserDto>>>> GetAll(
+        [FromQuery] PaginationParams paginationParams
+    )
     {
-        var result = await _userService.GetAllAsync();
+        var result = await _userService.GetAllAsync(paginationParams);
 
-        if (result.IsFailure)
-            return StatusCode(500, result.Error);
+        var response = new ApiResponse<PaginationResult<UserDto>>(
+            Success: true,
+            Data: result,
+            Message: "Users retrieved successfully"
+        );
 
-        return Ok(result.Data);
+        return Ok(response);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest request)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ApiResponse<UserDto>>> GetById(Guid id)
+    {
+        var result = await _userService.GetByIdAsync(id);
+
+        var response = new ApiResponse<UserDto>(
+            Success: true,
+            Data: result,
+            Message: "User retrieved successfully"
+        );
+
+        return Ok(response);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ApiResponse<UserDto>>> Create(
+        [FromBody] CreateUserRequest request
+    )
+    {
+        var result = await _userService.CreateAsync(request);
+
+        var response = new ApiResponse<UserDto>(
+            Success: true,
+            Data: result,
+            Message: "User created successfully"
+        );
+
+        return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<ApiResponse<UserDto>>> Update(
+        Guid id,
+        [FromBody] UpdateUserRequest request
+    )
     {
         var result = await _userService.UpdateAsync(id, request);
 
-        if (result.IsFailure)
-        {
-            if (result.Error == "User not found")
-                return NotFound(result.Error);
+        var response = new ApiResponse<UserDto>(
+            Success: true,
+            Data: result,
+            Message: "User updated successfully"
+        );
 
-            return BadRequest(result.Error);
-        }
-
-        return NoContent();
+        return Ok(response);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id)
     {
-        var result = await _userService.DeleteAsync(id);
+        await _userService.DeleteAsync(id);
 
-        if (result.IsFailure)
-        {
-            if (result.Error == "User not found")
-                return NotFound(result.Error);
-
-            return BadRequest(result.Error);
-        }
-
-        return NoContent();
+        var reponse = new ApiResponse<object>(
+            Success: true,
+            Data: null,
+            Message: "User deleted successfully"
+        );
+        return Ok(reponse);
     }
 }

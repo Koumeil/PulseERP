@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using PulseERP.Application.Exceptions;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Contracts.Dtos.Auth;
-using PulseERP.Contracts.Dtos.Services;
-using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Infrastructure.Identity.Entities;
@@ -37,14 +37,19 @@ public class AuthService : IAuthService
         _userRepository = userRepository;
     }
 
-    public async Task<ServiceResult<AuthResponse>> RegisterAsync(RegisterRequest command)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest command)
     {
-        // 1. Check if email exists
         var existingUser = await _userManager.FindByEmailAsync(command.Email);
         if (existingUser != null)
-            return ServiceResult<AuthResponse>.Failure("Email already used.");
+        {
+            throw new ValidationException(
+                new Dictionary<string, string[]>
+                {
+                    ["email"] = new[] { "Email is already in use." },
+                }
+            );
+        }
 
-        // 2. Create domain user
         var domainUser = User.Create(
             command.FirstName,
             command.LastName,
@@ -52,7 +57,6 @@ public class AuthService : IAuthService
             command.Phone
         );
 
-        // 3. Create Identity user
         var appUser = new ApplicationUser(domainUser.Id)
         {
             UserName = command.Email,
@@ -60,24 +64,23 @@ public class AuthService : IAuthService
         };
         appUser.SetDomainUser(domainUser);
 
-        // 4. Create user with password
         var result = await _userManager.CreateAsync(appUser, command.Password);
         if (!result.Succeeded)
-            return ServiceResult<AuthResponse>.Failure(
-                string.Join(", ", result.Errors.Select(e => e.Description))
+        {
+            throw new ValidationException(
+                new Dictionary<string, string[]>
+                {
+                    ["password"] = result.Errors.Select(e => e.Description).ToArray(),
+                }
             );
+        }
 
-        // 5. Get user roles
         var roles = await _userManager.GetRolesAsync(appUser);
 
-        // 6. Generate JWT access token
         var accessToken = _tokenService.GenerateAccessToken(appUser.Id, appUser.Email, roles);
-
-        // 7. Generate refresh token
         var refreshToken = await _tokenService.GenerateRefreshTokenAsync(appUser.Id);
 
-        // 8. Create AuthResponse DTO
-        var authResponse = new AuthResponse(
+        return new AuthResponse(
             UserId: appUser.Id.ToString(),
             FirstName: domainUser.FirstName,
             LastName: domainUser.LastName,
@@ -86,40 +89,29 @@ public class AuthService : IAuthService
             RefreshToken: refreshToken,
             ExpiresAt: DateTime.UtcNow.AddHours(1)
         );
-
-        return ServiceResult<AuthResponse>.Success(authResponse);
     }
 
-    public async Task<ServiceResult<AuthResponse>> LoginAsync(LoginRequest command)
+    public async Task<AuthResponse> LoginAsync(LoginRequest command)
     {
-        // 1. Find ApplicationUser by email including the DomainUser entity
         var user = await _userManager
             .Users.Include(u => u.DomainUser)
             .SingleOrDefaultAsync(u => u.Email == command.Email);
 
-        // 2. Validate user existence and password
         if (user == null || !await _userManager.CheckPasswordAsync(user, command.Password))
-            return ServiceResult<AuthResponse>.Failure("Invalid credentials.");
+            throw new UnauthorizedAccessException("Invalid credentials.");
 
-        // 3. Ensure DomainUser is loaded
         if (user.DomainUser == null)
-            return ServiceResult<AuthResponse>.Failure("Domain user data missing.");
+            throw new InvalidOperationException("Domain user data is missing.");
 
-        // 4. Get user roles
         var roles = await _userManager.GetRolesAsync(user);
 
-        // 5. Check email is not null or empty
         if (string.IsNullOrEmpty(user.Email))
             throw new InvalidOperationException("User email cannot be null or empty.");
 
-        // 6. Generate JWT access token
         var accessToken = _tokenService.GenerateAccessToken(user.Id, user.Email, roles);
-
-        // 7. Generate refresh token
         var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
 
-        // 8. Build AuthResponse using DomainUser data
-        var authResponse = new AuthResponse(
+        return new AuthResponse(
             UserId: user.Id.ToString(),
             FirstName: user.DomainUser.FirstName,
             LastName: user.DomainUser.LastName,
@@ -128,54 +120,40 @@ public class AuthService : IAuthService
             RefreshToken: refreshToken,
             ExpiresAt: DateTime.UtcNow.AddHours(1)
         );
-
-        // 8. Return success
-        return ServiceResult<AuthResponse>.Success(authResponse);
     }
 
-    public async Task<ServiceResult<AuthResponse>> RefreshTokenAsync(
-        string token,
-        string refreshToken
-    )
+    public async Task<AuthResponse> RefreshTokenAsync(string token, string refreshToken)
     {
-        // Extract principal from expired token
         var principal = GetPrincipalFromExpiredToken(token);
         if (principal == null)
-            return ServiceResult<AuthResponse>.Failure("Invalid token.");
+            throw new UnauthorizedAccessException("Invalid token.");
 
-        // Parse userId claim
         var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub);
         if (!Guid.TryParse(userIdClaim?.Value, out var userId))
-            return ServiceResult<AuthResponse>.Failure("Invalid token claims.");
+            throw new UnauthorizedAccessException("Invalid token claims.");
 
-        // Validate refresh token
         var isValid = await _tokenService.ValidateRefreshTokenAsync(refreshToken, userId);
         if (!isValid)
-            return ServiceResult<AuthResponse>.Failure("Invalid refresh token.");
+            throw new UnauthorizedAccessException("Invalid refresh token.");
 
-        // Load user including domain info
         var user = await _userManager
             .Users.Include(u => u.DomainUser)
             .SingleOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
-            return ServiceResult<AuthResponse>.Failure("User not found.");
+            throw new NotFoundException("User", userId);
 
         if (user.DomainUser == null)
-            return ServiceResult<AuthResponse>.Failure("Domain user data missing.");
+            throw new InvalidOperationException("Domain user data is missing.");
 
-        // Get roles
         var roles = await _userManager.GetRolesAsync(user);
 
-        // Generate new tokens
         var newAccessToken = _tokenService.GenerateAccessToken(user.Id, user.Email, roles);
         var newRefreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
 
-        // Revoke old refresh token
         await _tokenService.RevokeRefreshTokenAsync(refreshToken);
 
-        // Create response with domain data
-        var authResponse = new AuthResponse(
+        return new AuthResponse(
             UserId: user.Id.ToString(),
             FirstName: user.DomainUser.FirstName,
             LastName: user.DomainUser.LastName,
@@ -184,9 +162,6 @@ public class AuthService : IAuthService
             RefreshToken: newRefreshToken,
             ExpiresAt: DateTime.UtcNow.AddHours(1)
         );
-
-        // Return success with full info
-        return ServiceResult<AuthResponse>.Success(authResponse);
     }
 
     public async Task LogoutAsync(string refreshToken)
@@ -197,7 +172,6 @@ public class AuthService : IAuthService
     private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-
         var secretKeyBase64 = _configuration["Jwt:SecretKey"];
 
         if (string.IsNullOrEmpty(secretKeyBase64))

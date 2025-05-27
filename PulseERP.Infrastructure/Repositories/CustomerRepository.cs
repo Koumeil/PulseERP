@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Contracts.Interfaces.Services;
-using PulseERP.Domain.Entities;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Domain.Pagination;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
@@ -11,27 +11,32 @@ public class CustomerRepository : ICustomerRepository
     private readonly CoreDbContext _context;
     private readonly ISerilogAppLoggerService<CustomerRepository> _logger;
 
-    public CustomerRepository(CoreDbContext context, ISerilogAppLoggerService<CustomerRepository> logger)
+    public CustomerRepository(
+        CoreDbContext context,
+        ISerilogAppLoggerService<CustomerRepository> logger
+    )
     {
         _context = context;
         _logger = logger;
     }
 
-    public async Task AddAsync(Customer customer)
+    public async Task<PaginationResult<Customer>> GetAllAsync(PaginationParams paginationParams)
     {
-        try
-        {
-            await _context.Customers.AddAsync(customer);
-            await _context.SaveChangesAsync();
-            _context.Entry(customer).State = EntityState.Detached;
+        var query = _context.Customers.AsNoTracking();
 
-            _logger.LogInformation($"Customer added: {customer.Id}");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Failed to add customer: {ex.Message}", ex);
-            throw;
-        }
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
+
+        return new PaginationResult<Customer>(
+            items,
+            totalCount,
+            paginationParams.PageNumber,
+            paginationParams.PageSize
+        );
     }
 
     public async Task<Customer?> GetByIdAsync(Guid id)
@@ -49,9 +54,21 @@ public class CustomerRepository : ICustomerRepository
         }
     }
 
-    public async Task<IReadOnlyList<Customer>> GetAllAsync()
+    public async Task AddAsync(Customer customer)
     {
-        return await _context.Customers.AsNoTracking().ToListAsync();
+        try
+        {
+            await _context.Customers.AddAsync(customer);
+            await _context.SaveChangesAsync();
+            _context.Entry(customer).State = EntityState.Detached;
+
+            _logger.LogInformation($"Customer added: {customer.Id}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to add customer: {ex.Message}", ex);
+            throw;
+        }
     }
 
     public async Task UpdateAsync(Customer customer)

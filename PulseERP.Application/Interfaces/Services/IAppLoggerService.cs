@@ -1,4 +1,4 @@
-namespace PulseERP.Contracts.Interfaces.Services;
+namespace PulseERP.Application.Interfaces.Services;
 
 public interface ISerilogAppLoggerService<T>
 {

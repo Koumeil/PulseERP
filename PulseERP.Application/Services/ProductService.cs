@@ -1,7 +1,7 @@
 using AutoMapper;
+using PulseERP.Application.Exceptions;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Contracts.Dtos.Products;
-using PulseERP.Contracts.Dtos.Services;
-using PulseERP.Contracts.Interfaces.Services;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
@@ -26,102 +26,73 @@ public class ProductService : IProductService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<Guid>> CreateAsync(CreateProductRequest command)
-    {
-        try
-        {
-            var product = Product.Create(
-                command.Name,
-                command.Description,
-                Brand.Create(command.Brand),
-                command.Price,
-                command.Quantity,
-                command.IsService
-            );
-
-            await _repository.AddAsync(product);
-            _logger.LogInformation($"Created product {product.Id}");
-
-            return ServiceResult<Guid>.Success(product.Id);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Failed to create product", ex);
-            return ServiceResult<Guid>.Failure(ex.Message);
-        }
-    }
-
-    public async Task<ServiceResult<ProductDto>> GetByIdAsync(Guid id)
-    {
-        var product = await _repository.GetByIdAsync(id);
-        return product is null
-            ? ServiceResult<ProductDto>.Failure("Product not found")
-            : ServiceResult<ProductDto>.Success(_mapper.Map<ProductDto>(product));
-    }
-
-    public async Task<ServiceResult<PaginationResult<ProductDto>>> GetAllAsync(
-        ProductParams productParams
-    )
+    public async Task<PaginationResult<ProductDto>> GetAllAsync(ProductParams productParams)
     {
         var pagedProducts = await _repository.GetAllAsync(productParams);
+        var productsDtos = _mapper.Map<List<ProductDto>>(pagedProducts.Items);
 
-        var productsDtos = pagedProducts.Items.Select(p => _mapper.Map<ProductDto>(p)).ToList();
-
-        var result = new PaginationResult<ProductDto>(
+        return new PaginationResult<ProductDto>(
             productsDtos,
             pagedProducts.TotalItems,
             pagedProducts.PageNumber,
             pagedProducts.PageSize
         );
-
-        return ServiceResult<PaginationResult<ProductDto>>.Success(result);
     }
 
-    public async Task<ServiceResult<ProductDto>> UpdateAsync(Guid id, UpdateProductRequest command)
+    public async Task<ProductDto> GetByIdAsync(Guid id)
     {
-        try
-        {
-            var product = await _repository.GetByIdAsync(id);
-            if (product is null)
-                return ServiceResult<ProductDto>.Failure("Product not found");
+        var product = await _repository.GetByIdAsync(id);
+        if (product is null)
+            throw new NotFoundException($"Product with id '{id}' was not found.", id);
 
-            product.UpdateName(command.Name);
-            product.UpdateDescription(command.Description);
-            product.UpdatePrice(command.Price);
-            product.UpdateQuantity(command.Quantity);
-            product.UpdateBrand(command.Brand);
-
-            await _repository.UpdateAsync(product);
-            _logger.LogInformation($"Updated product {product.Id}");
-
-            var productDto = _mapper.Map<ProductDto>(product);
-
-            return ServiceResult<ProductDto>.Success(productDto);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Failed to update product {id}", ex);
-            return ServiceResult<ProductDto>.Failure(ex.Message);
-        }
+        return _mapper.Map<ProductDto>(product);
     }
 
-    public async Task<ServiceResult> DeleteAsync(Guid id)
+    public async Task<ProductDto> CreateAsync(CreateProductRequest command)
     {
-        try
-        {
-            var product = await _repository.GetByIdAsync(id);
-            if (product is null)
-                return ServiceResult.Failure("Product not found");
+        var brand = Brand.Create(command.Brand);
+        var product = Product.Create(
+            command.Name,
+            command.Description,
+            brand,
+            command.Price,
+            command.Quantity,
+            command.IsService
+        );
 
-            await _repository.DeleteAsync(product);
-            _logger.LogInformation($"Deleted product {product.Id}");
+        await _repository.AddAsync(product);
+        _logger.LogInformation("Created product {ProductId}", product.Id);
 
-            return ServiceResult.Success();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Failed to delete product {id}", ex);
-            return ServiceResult.Failure(ex.Message);
-        }
+        return _mapper.Map<ProductDto>(product);
+    }
+
+    public async Task<ProductDto> UpdateAsync(Guid id, UpdateProductRequest command)
+    {
+        var product = await _repository.GetByIdAsync(id);
+        if (product is null)
+            throw new NotFoundException($"Product with id '{id}' was not found.", id);
+
+        product.UpdateDetails(
+            command.Name,
+            command.Description,
+            command.Brand,
+            command.Price,
+            command.Quantity
+        );
+
+        await _repository.UpdateAsync(product);
+        _logger.LogInformation("Updated product {ProductId}", product.Id);
+
+        return _mapper.Map<ProductDto>(product);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var product = await _repository.GetByIdAsync(id);
+        if (product is null)
+            throw new NotFoundException($"Product with id '{id}' was not found.", id);
+
+        await _repository.DeleteAsync(product);
+        _logger.LogInformation("Deleted product {ProductId}", product.Id);
     }
 }

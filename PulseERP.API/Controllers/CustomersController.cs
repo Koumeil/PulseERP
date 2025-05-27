@@ -1,7 +1,8 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PulseERP.API.Dtos;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Contracts.Dtos.Customers;
-using PulseERP.Contracts.Interfaces.Services;
+using PulseERP.Domain.Pagination;
 
 namespace PulseERP.API.Controllers;
 
@@ -10,65 +11,85 @@ namespace PulseERP.API.Controllers;
 public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;
-    private readonly IMapper _mapper;
 
-    public CustomersController(ICustomerService customerService, IMapper mapper)
+    public CustomersController(ICustomerService customerService)
     {
         _customerService = customerService;
-        _mapper = mapper;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<ApiResponse<PaginationResult<CustomerDto>>>> GetAll(
+        [FromQuery] PaginationParams paginationParams
+    )
     {
-        var result = await _customerService.GetAllAsync();
-        if (result.IsFailure)
-            return StatusCode(500, result.Error);
+        var result = await _customerService.GetAllAsync(paginationParams);
 
-        return Ok(result.Data);
+        var response = new ApiResponse<PaginationResult<CustomerDto>>(
+            Success: true,
+            Data: result,
+            Message: "Customers retrieved successfully"
+        );
+
+        return Ok(response);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<ActionResult<ApiResponse<CustomerDto>>> GetById(Guid id)
     {
         var result = await _customerService.GetByIdAsync(id);
 
-        if (result.IsFailure)
-            return NotFound(result.Error);
+        // Pas besoin de gérer result.IsFailure car une exception NotFoundException sera levée
+        var response = new ApiResponse<CustomerDto>(
+            Success: true,
+            Data: result,
+            Message: "Customer retrieved successfully"
+        );
 
-        return Ok(result.Data);
+        return Ok(response);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateCustomerRequest request)
+    public async Task<ActionResult<ApiResponse<CustomerDto>>> Create(CreateCustomerRequest request)
     {
         var result = await _customerService.CreateAsync(request);
 
-        if (result.IsFailure)
-            return BadRequest(result.Error);
+        var response = new ApiResponse<CustomerDto>(
+            Success: true,
+            Data: result,
+            Message: "Customer created successfully"
+        );
 
-        return CreatedAtAction(nameof(GetById), new { id = result.Data }, null);
+        return CreatedAtAction(nameof(GetById), new { id = result }, response);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, UpdateCustomerRequest request)
+    public async Task<ActionResult<ApiResponse<CustomerDto>>> Update(
+        Guid id,
+        UpdateCustomerRequest request
+    )
     {
         var result = await _customerService.UpdateAsync(id, request);
 
-        if (result.IsFailure)
-            return BadRequest(result.Error);
+        var response = new ApiResponse<CustomerDto>(
+            Success: true,
+            Data: result,
+            Message: "Customer updated successfully"
+        );
 
-        return Ok(result.Data);
+        return Ok(response);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<ActionResult<ApiResponse<object>>> Deactivate(Guid id)
     {
-        var result = await _customerService.DeleteAsync(id);
+        await _customerService.DeactivateAsync(id);
 
-        if (result.IsFailure)
-            return NotFound(result.Error);
+        var response = new ApiResponse<object>(
+            Success: true,
+            Data: null,
+            Message: "Customer deactivated successfully"
+        );
 
-        return NoContent();
+        return Ok(response);
     }
 }

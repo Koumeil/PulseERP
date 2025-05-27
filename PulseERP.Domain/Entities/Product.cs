@@ -1,8 +1,7 @@
+using PulseERP.Domain.Entities;
 using PulseERP.Domain.ValueObjects;
 
-namespace PulseERP.Domain.Entities;
-
-public class Product : BaseEntity
+public sealed class Product : BaseEntity
 {
     public string Name { get; private set; }
     public string? Description { get; private set; }
@@ -25,16 +24,13 @@ public class Product : BaseEntity
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Le nom est obligatoire", nameof(name));
-
         if (brand == null)
             throw new ArgumentNullException(nameof(brand), "La marque est obligatoire");
-
         if (price < 0)
             throw new ArgumentOutOfRangeException(
                 nameof(price),
                 "Le prix ne peut pas être négatif"
             );
-
         if (quantity < 0)
             throw new ArgumentOutOfRangeException(
                 nameof(quantity),
@@ -53,35 +49,24 @@ public class Product : BaseEntity
         };
     }
 
-    public void UpdateName(string? name)
+    public void UpdateDetails(
+        string? name,
+        string? description,
+        string? brandName,
+        decimal? price,
+        int? quantity
+    )
     {
-        if (!string.IsNullOrWhiteSpace(name))
-        {
-            Name = name.Trim();
-            UpdatedAt = DateTime.UtcNow;
-        }
-    }
+        bool changed =
+            ApplyIfChanged(Name, name?.Trim(), v => Name = v)
+            | ApplyIfChanged(Description, description?.Trim(), v => Description = v);
 
-    public void UpdateDescription(string? description)
-    {
-        if (description != null)
-        {
-            Description = description.Trim();
-            UpdatedAt = DateTime.UtcNow;
-        }
-    }
-
-    public void UpdateBrand(string? brandName)
-    {
         if (brandName is not null && brandName != Brand.Name)
         {
-            UpdatedAt = DateTime.UtcNow;
             Brand.UpdateName(brandName);
+            changed = true;
         }
-    }
 
-    public void UpdatePrice(decimal? price)
-    {
         if (price is not null)
         {
             if (price < 0)
@@ -89,14 +74,13 @@ public class Product : BaseEntity
                     nameof(price),
                     "Le prix ne peut pas être négatif"
                 );
-
-            Price = new Money(price.Value);
-            UpdatedAt = DateTime.UtcNow;
+            if (Price.Value != price)
+            {
+                Price = new Money(price.Value);
+                changed = true;
+            }
         }
-    }
 
-    public void UpdateQuantity(int? quantity)
-    {
         if (quantity is not null)
         {
             if (quantity < 0)
@@ -104,27 +88,37 @@ public class Product : BaseEntity
                     nameof(quantity),
                     "La quantité ne peut pas être négative"
                 );
+            if (Quantity != quantity)
+            {
+                Quantity = quantity.Value;
+                changed = true;
+            }
+        }
 
-            Quantity = quantity.Value;
-            UpdatedAt = DateTime.UtcNow;
+        if (changed)
+            MarkAsUpdated();
+    }
+
+    public void Deactivate() => ChangeStatus(false);
+
+    public void Reactivate() => ChangeStatus(true);
+
+    private void ChangeStatus(bool isActive)
+    {
+        if (IsActive != isActive)
+        {
+            IsActive = isActive;
+            MarkAsUpdated();
         }
     }
 
-    public void Deactivate()
+    private static bool ApplyIfChanged<T>(T current, T updated, Action<T> apply)
     {
-        if (IsActive)
+        if (!EqualityComparer<T>.Default.Equals(current, updated))
         {
-            IsActive = false;
-            UpdatedAt = DateTime.UtcNow;
+            apply(updated);
+            return true;
         }
-    }
-
-    public void Reactivate()
-    {
-        if (!IsActive)
-        {
-            IsActive = true;
-            UpdatedAt = DateTime.UtcNow;
-        }
+        return false;
     }
 }

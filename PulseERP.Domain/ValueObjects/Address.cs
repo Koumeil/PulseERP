@@ -1,62 +1,39 @@
-namespace PulseERP.Domain.ValueObjects;
-
 public record Address(string Street, string City, string ZipCode, string Country)
 {
-    public static Address? TryCreateOrUpdate(
-        Address? existingAddress,
-        string? street,
-        string? city,
-        string? zipCode,
-        string? country
-    )
-    {
-        // Cas 1 : Tous les champs sont vides/nulls => retourne null
-        if (AllFieldsAreNullOrEmpty(street, city, zipCode, country))
-        {
-            return null;
-        }
-
-        // Cas 2 : Création d'une nouvelle adresse
-        if (existingAddress is null)
-        {
-            ValidateRequiredFields(street, city, zipCode, country);
-            return new Address(street!.Trim(), city!.Trim(), zipCode!.Trim(), country!.Trim());
-        }
-
-        // Cas 3 : Mise à jour partielle de l'adresse existante
-        var updated = new Address(
-            !string.IsNullOrWhiteSpace(street) ? street.Trim() : existingAddress.Street,
-            !string.IsNullOrWhiteSpace(city) ? city.Trim() : existingAddress.City,
-            !string.IsNullOrWhiteSpace(zipCode) ? zipCode.Trim() : existingAddress.ZipCode,
-            !string.IsNullOrWhiteSpace(country) ? country.Trim() : existingAddress.Country
-        );
-
-        // ✅ Si rien n’a changé, retourne null
-        if (updated.Equals(existingAddress))
-            return null;
-
-        return updated;
-    }
-
-    private static bool AllFieldsAreNullOrEmpty(params string?[] fields)
-    {
-        return fields.All(string.IsNullOrWhiteSpace);
-    }
-
-    private static void ValidateRequiredFields(
-        string? street,
-        string? city,
-        string? postalCode,
-        string? country
-    )
+    public static Address Create(string street, string city, string zipCode, string country)
     {
         if (string.IsNullOrWhiteSpace(street))
-            throw new ArgumentException("La rue est obligatoire", nameof(street));
+            throw new ArgumentException("Street is required");
         if (string.IsNullOrWhiteSpace(city))
-            throw new ArgumentException("La ville est obligatoire", nameof(city));
-        if (string.IsNullOrWhiteSpace(postalCode))
-            throw new ArgumentException("Le code postal est obligatoire", nameof(postalCode));
+            throw new ArgumentException("City is required");
+        if (string.IsNullOrWhiteSpace(zipCode))
+            throw new ArgumentException("ZipCode is required");
         if (string.IsNullOrWhiteSpace(country))
-            throw new ArgumentException("Le pays est obligatoire", nameof(country));
+            throw new ArgumentException("Country is required");
+
+        return new Address(street.Trim(), city.Trim(), zipCode.Trim(), country.Trim());
     }
+
+    public Address Update(
+        string? street = null,
+        string? city = null,
+        string? zipCode = null,
+        string? country = null
+    )
+    {
+        var updated = new Address(
+            street is not null && !string.IsNullOrWhiteSpace(street) ? street.Trim() : this.Street,
+            city is not null && !string.IsNullOrWhiteSpace(city) ? city.Trim() : this.City,
+            zipCode is not null && !string.IsNullOrWhiteSpace(zipCode)
+                ? zipCode.Trim()
+                : this.ZipCode,
+            country is not null && !string.IsNullOrWhiteSpace(country)
+                ? country.Trim()
+                : this.Country
+        );
+
+        return updated.Equals(this) ? this : updated;
+    }
+
+    public override string ToString() => $"{Street}, {City}, {ZipCode}, {Country}";
 }

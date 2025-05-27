@@ -1,9 +1,10 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
+using PulseERP.Application.Exceptions;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Contracts.Dtos.Customers;
-using PulseERP.Contracts.Dtos.Services;
-using PulseERP.Contracts.Interfaces.Services;
-using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Application.Services;
@@ -11,12 +12,12 @@ namespace PulseERP.Application.Services;
 public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _repository;
-    private readonly ISerilogAppLoggerService<CustomerService> _logger;
+    private readonly ILogger<CustomerService> _logger;
     private readonly IMapper _mapper;
 
     public CustomerService(
         ICustomerRepository repository,
-        ISerilogAppLoggerService<CustomerService> logger,
+        ILogger<CustomerService> logger,
         IMapper mapper
     )
     {
@@ -25,74 +26,82 @@ public class CustomerService : ICustomerService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<Guid>> CreateAsync(CreateCustomerRequest command)
+    public async Task<PaginationResult<CustomerDto>> GetAllAsync(PaginationParams paginationParams)
     {
-        try
-        {
-            var customer = Customer.Create(
-                command.FirstName,
-                command.LastName,
-                command.Email,
-                new Address(
-                    command.Address.Street,
-                    command.Address.City,
-                    command.Address.ZipCode,
-                    command.Address.Country
-                ),
-                command.Phone
-            );
-            await _repository.AddAsync(customer);
-            return ServiceResult<Guid>.Success(customer.Id);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Create failed", ex);
-            return ServiceResult<Guid>.Failure(ex.Message);
-        }
+        var pagedCustomers = await _repository.GetAllAsync(paginationParams);
+        var customerDtos = _mapper.Map<PaginationResult<CustomerDto>>(pagedCustomers);
+        return customerDtos;
     }
 
-    public async Task<ServiceResult<CustomerDto>> GetByIdAsync(Guid id)
-    {
-        var customer = await _repository.GetByIdAsync(id);
-        return customer == null
-            ? ServiceResult<CustomerDto>.Failure("Not found")
-            : ServiceResult<CustomerDto>.Success(_mapper.Map<CustomerDto>(customer));
-    }
-
-    public async Task<ServiceResult<IReadOnlyList<CustomerDto>>> GetAllAsync()
-    {
-        var customers = await _repository.GetAllAsync();
-        return ServiceResult<IReadOnlyList<CustomerDto>>.Success(
-            customers.Select(_mapper.Map<CustomerDto>).ToList()
-        );
-    }
-
-    public async Task<ServiceResult<CustomerDto>> UpdateAsync(
-        Guid id,
-        UpdateCustomerRequest command
-    )
+    public async Task<CustomerDto> GetByIdAsync(Guid id)
     {
         var customer = await _repository.GetByIdAsync(id);
         if (customer is null)
-            return ServiceResult<CustomerDto>.Failure("Customer not found");
-
-        customer.UpdateDetails(command.FirstName, command.LastName, command.Email, command.Phone);
-        customer.UpdateAddress(command.Street, command.City, command.ZipCode, command.Country);
-
-        await _repository.UpdateAsync(customer);
+            throw new NotFoundException($"Customer with Id '{id}' not found.", id);
 
         var customerDto = _mapper.Map<CustomerDto>(customer);
-
-        return ServiceResult<CustomerDto>.Success(customerDto);
+        return customerDto;
     }
 
-    public async Task<ServiceResult> DeleteAsync(Guid id)
+    public async Task<CustomerDto> CreateAsync(CreateCustomerRequest command)
+    {
+        var address = Address.Create(
+            command.Street,
+            command.City,
+            command.ZipCode,
+            command.Country
+        );
+
+        var email = _mapper.Map<Email>(command.Email);
+        var phoneNumber = _mapper.Map<PhoneNumber>(command.Phone);
+
+        var customer = Customer.Create(
+            command.FirstName,
+            command.LastName,
+            email,
+            phoneNumber,
+            address
+        );
+        await _repository.AddAsync(customer);
+
+        _logger.LogInformation("Created new customer with Id {CustomerId}", customer.Id);
+
+        return _mapper.Map<CustomerDto>(customer);
+    }
+
+    public async Task<CustomerDto> UpdateAsync(Guid id, UpdateCustomerRequest command)
     {
         var customer = await _repository.GetByIdAsync(id);
         if (customer is null)
-            return ServiceResult.Failure("Not found");
+            throw new NotFoundException($"Customer with Id '{id}' not found.", id);
 
-        await _repository.DeleteAsync(customer);
-        return ServiceResult.Success();
+        var email = _mapper.Map<Email>(command.Email);
+        var phoneNumber = _mapper.Map<PhoneNumber>(command.Phone);
+        var address = customer.Address.Update(
+            command.Street,
+            command.City,
+            command.ZipCode,
+            command.Country
+        );
+
+        customer.UpdateDetails(command.FirstName, command.LastName, email, phoneNumber);
+        customer.UpdateAddress(address);
+
+        await _repository.UpdateAsync(customer);
+        _logger.LogInformation("Updated customer with Id {CustomerId}", customer.Id);
+
+        return _mapper.Map<CustomerDto>(customer);
+    }
+
+    public async Task DeactivateAsync(Guid id)
+    {
+        var customer = await _repository.GetByIdAsync(id);
+        if (customer is null)
+            throw new NotFoundException($"Customer with Id '{id}' not found.", id);
+
+        customer.Deactivate();
+        await _repository.UpdateAsync(customer);
+
+        _logger.LogInformation("Deactivated customer with Id {CustomerId}", customer.Id);
     }
 }

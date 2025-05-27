@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Contracts.Interfaces.Services;
+using PulseERP.Application.Interfaces.Services;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
@@ -22,27 +22,12 @@ public class ProductRepository : IProductRepository
         _logger = logger;
     }
 
-    public async Task<Product?> GetByIdAsync(Guid id)
-    {
-        try
-        {
-            return await _context
-                .Products.Include(p => p.Brand)
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error fetching product by ID: {id}", ex);
-            throw;
-        }
-    }
-
     public async Task<PaginationResult<Product>> GetAllAsync(ProductParams productParams)
     {
-        var query = _context.Products.AsQueryable();
+        var query = _context.Products.Include(p => p.Brand).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(productParams.Brand))
-            query = query.Where(product => product.Brand.Name == productParams.Brand);
+            query = query.Where(product => product.Brand.Name.Contains(productParams.Brand));
 
         if (!string.IsNullOrWhiteSpace(productParams.Search))
         {
@@ -74,6 +59,21 @@ public class ProductRepository : IProductRepository
             productParams.PageNumber,
             productParams.PageSize
         );
+    }
+
+    public async Task<Product?> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            return await _context
+                .Products.Include(p => p.Brand)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error fetching product by ID: {id}", ex);
+            throw;
+        }
     }
 
     public async Task AddAsync(Product product)
