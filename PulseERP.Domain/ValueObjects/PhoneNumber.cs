@@ -1,7 +1,11 @@
+using System.Text.RegularExpressions;
+
 namespace PulseERP.Domain.ValueObjects;
 
 public record PhoneNumber
 {
+    private static readonly Regex PhoneRegex = new(@"^\+?[0-9]{5,15}$", RegexOptions.Compiled);
+
     public string Value { get; }
 
     private PhoneNumber(string value)
@@ -19,15 +23,15 @@ public record PhoneNumber
 
         var trimmed = value.Trim();
 
-        if (trimmed.Length < 5)
-            throw new ArgumentException("Phone number is too short.", nameof(value));
-
-        // Ici tu peux ajouter d'autres validations, regex, etc.
+        if (!PhoneRegex.IsMatch(trimmed))
+            throw new ArgumentException(
+                "Invalid phone number format. It must be digits only and optionally start with a '+'.",
+                nameof(value)
+            );
 
         return new PhoneNumber(trimmed);
     }
 
-    // Opérateur de conversion explicite vers string
     public static explicit operator string(PhoneNumber phone) => phone.Value;
 
     public override string ToString() => Value;

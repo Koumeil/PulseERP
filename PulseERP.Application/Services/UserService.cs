@@ -73,7 +73,10 @@ public class UserService : IUserService
             user.ChangeEmail(Email.Create(command.Email));
 
         if (command.Phone != null)
-            user.ChangePhone(PhoneNumber.Create(command.Phone));
+        {
+            var newPhone = PhoneNumber.Create(command.Phone);
+            user.ChangePhone(newPhone);
+        }
 
         await _repository.UpdateAsync(user);
         _logger.LogInformation("Updated user {UserId}", user.Id);

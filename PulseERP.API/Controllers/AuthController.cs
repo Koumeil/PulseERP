@@ -17,13 +17,13 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost("register")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(RegisterRequest request)
-    {
-        var authResult = await _authService.RegisterAsync(request);
-        var response = new ApiResponse<AuthResponse>(Success: true, Data: authResult, Error: null);
-        return Ok(response);
-    }
+    // [HttpPost("register")]
+    // public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(RegisterRequest request)
+    // {
+    //     var authResult = await _authService.RegisterAsync(request);
+    //     var response = new ApiResponse<AuthResponse>(Success: true, Data: authResult, Error: null);
+    //     return Ok(response);
+    // }
 
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(LoginRequest request)

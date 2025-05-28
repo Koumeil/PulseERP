@@ -10,7 +10,6 @@ public class BrandProfile : Profile
     {
         // Domain → DTO
         CreateMap<Brand, BrandDto>().ConstructUsing(src => new BrandDto(src.Id, src.Name));
-
         // Command → Domain
         CreateMap<CreateBrandDto, Brand>().ConstructUsing(cmd => Brand.Create(cmd.Name));
     }
