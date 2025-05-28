@@ -1,69 +1,91 @@
+using PulseERP.Domain.Exceptions;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Domain.Entities;
 
-public class User : BaseEntity
+public sealed class User : BaseEntity
 {
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public Email Email { get; private set; }
-    public PhoneNumber? Phone { get; private set; }
+    public PhoneNumber Phone { get; private set; }
     public bool IsActive { get; private set; }
 
+    // Constructeur EF Core privé pour ORM
     private User() { }
 
-    // Factory method pour une création contrôlée
-    public static User Create(string firstName, string lastName, string email, string? phone = null)
+    public static User Create(string firstName, string lastName, Email email, PhoneNumber phone)
     {
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("Le prénom est obligatoire", nameof(firstName));
-
+            throw new DomainException("First name is required");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("Le nom est obligatoire", nameof(lastName));
+            throw new DomainException("Last name is required");
+        if (email is null)
+            throw new DomainException("Email is required");
+        if (phone is null)
+            throw new DomainException("Phone is required");
 
-        var user = new User
+        return new User
         {
             FirstName = firstName.Trim(),
             LastName = lastName.Trim(),
-            Email = new Email(email), // La validation est dans le constructeur de Email
-            Phone = phone is not null ? new PhoneNumber(phone) : null,
+            Email = email,
+            Phone = phone,
             IsActive = true,
         };
-
-        return user;
     }
 
-    public void UpdateName(string? firstName, string? lastName)
+    public void UpdateName(string? firstName = null, string? lastName = null)
     {
-        if (!string.IsNullOrWhiteSpace(firstName) || !string.IsNullOrWhiteSpace(lastName))
+        var updated = false;
+
+        if (!string.IsNullOrWhiteSpace(firstName) && firstName.Trim() != FirstName)
         {
-            FirstName = firstName!.Trim();
-            LastName = lastName!.Trim();
-            UpdatedAt = DateTime.UtcNow;
+            FirstName = firstName.Trim();
+            updated = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(lastName) && lastName.Trim() != LastName)
+        {
+            LastName = lastName.Trim();
+            updated = true;
+        }
+
+        if (updated)
+            MarkAsUpdated();
+    }
+
+    public void ChangeEmail(Email? newEmail)
+    {
+        if (newEmail is not null && !newEmail.Equals(Email))
+        {
+            Email = newEmail;
+            MarkAsUpdated();
         }
     }
 
-    public void ChangeEmail(string? email)
+    public void ChangePhone(PhoneNumber newPhone)
     {
-        if (!string.IsNullOrWhiteSpace(email))
+        if (newPhone is null)
+            throw new DomainException("Phone cannot be null");
+
+        if (!newPhone.Equals(Phone))
         {
-            Email = new Email(email);
-            UpdatedAt = DateTime.UtcNow;
+            Phone = newPhone;
+            MarkAsUpdated();
         }
     }
 
-    public void ChangePhone(string? phone)
-    {
-        Phone = !string.IsNullOrWhiteSpace(phone) ? new PhoneNumber(phone!) : null;
-        UpdatedAt = DateTime.UtcNow;
-    }
+    public void Activate() => SetActive(true);
 
-    public void Deactivate()
+    public void Deactivate() => SetActive(false);
+
+    private void SetActive(bool active)
     {
-        if (IsActive)
+        if (IsActive != active)
         {
-            IsActive = false;
-            UpdatedAt = DateTime.UtcNow;
+            IsActive = active;
+            MarkAsUpdated();
         }
     }
 }

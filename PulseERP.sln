@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseERP.Application", "Pul
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseERP.Infrastructure", "PulseERP.Infrastructure\PulseERP.Infrastructure.csproj", "{825EF740-9CD7-4738-9345-8DB241A2BAA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseERP.Contracts", "PulseERP.Contracts\PulseERP.Contracts.csproj", "{DAD214BE-394E-4D45-9745-F14FF2CF7122}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseERP.Shared", "PulseERP.Shared\PulseERP.Shared.csproj", "{DAD214BE-394E-4D45-9745-F14FF2CF7122}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

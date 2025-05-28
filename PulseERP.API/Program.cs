@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using PulseERP.API.ErrorHandling;
 using PulseERP.Application;
+using PulseERP.Application.Interfaces.Services;
+using PulseERP.Application.Services;
 using PulseERP.Application.Settings;
 using PulseERP.Infrastructure;
 using Serilog;
@@ -52,15 +54,23 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
-// Lier JwtSettings à l’IOptions
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-
-// Récupérer JwtSettings pour configurer JWT Bearer
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-
 // Email
+// Charger les EmailSettings + injecter dans DI
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
+// Charger les JwtSettings + injecter dans DI
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+// Enregistre le service MailKit (SmtpEmailService)
+builder.Services.AddTransient<ISmtpEmailService, SmtpEmailService>();
+
+
+// JWT setup
+var jwtSettings =
+    builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JwtSettings missing");
+
+// Auth
 builder
     .Services.AddAuthentication(options =>
     {

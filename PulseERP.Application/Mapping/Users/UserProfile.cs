@@ -1,7 +1,8 @@
 using AutoMapper;
-using PulseERP.Contracts.Dtos.Users;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Pagination;
+using PulseERP.Domain.ValueObjects;
+using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.Application.Mapping.Users;
 
@@ -9,17 +10,26 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
-        // Mapping User → UserDto
+        // Mapping User → UserDto avec ConstructUsing (comme pour Customer)
         CreateMap<User, UserDto>()
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email.ToString()))
-            .ForMember(
-                dest => dest.Phone,
-                opt => opt.MapFrom(src => src.Phone != null ? src.Phone.ToString() : null)
-            );
+            .ConstructUsing(src => new UserDto(
+                src.Id,
+                src.FirstName,
+                src.LastName,
+                src.Email.ToString(),
+                src.Phone.ToString()
+            ));
 
         // Mapping CreateUserRequest → User via factory User.Create
         CreateMap<CreateUserRequest, User>()
-            .ConstructUsing(cmd => User.Create(cmd.FirstName, cmd.LastName, cmd.Email, cmd.Phone));
+            .ConstructUsing(cmd =>
+                User.Create(
+                    cmd.FirstName,
+                    cmd.LastName,
+                    Email.Create(cmd.Email),
+                    PhoneNumber.Create(cmd.Phone)
+                )
+            );
 
         // Mapping PaginationResult<User> → PaginationResult<UserDto>
         CreateMap<PaginationResult<User>, PaginationResult<UserDto>>()

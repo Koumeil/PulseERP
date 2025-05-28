@@ -1,6 +1,6 @@
 using AutoMapper;
-using PulseERP.Contracts.Dtos.Brands;
 using PulseERP.Domain.Entities;
+using PulseERP.Shared.Dtos.Brands;
 
 namespace PulseERP.Application.Mapping.Brands;
 

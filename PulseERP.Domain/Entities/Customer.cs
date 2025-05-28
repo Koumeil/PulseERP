@@ -11,6 +11,7 @@ public sealed class Customer : BaseEntity
     public Address Address { get; private set; }
     public bool IsActive { get; private set; }
 
+    // Constructeur EF Core pour ORM (private)
     private Customer() { }
 
     public static Customer Create(
@@ -25,6 +26,12 @@ public sealed class Customer : BaseEntity
             throw new DomainException("First name is required");
         if (string.IsNullOrWhiteSpace(lastName))
             throw new DomainException("Last name is required");
+        if (email is null)
+            throw new DomainException("Email is required");
+        if (phone is null)
+            throw new DomainException("Phone is required");
+        if (address is null)
+            throw new DomainException("Address is required");
 
         return new Customer
         {
@@ -37,47 +44,66 @@ public sealed class Customer : BaseEntity
         };
     }
 
-    public void UpdateDetails(string? firstName, string? lastName, Email? email, PhoneNumber? phone)
+    // Mise à jour des détails, validations simples
+    public void UpdateDetails(
+        string? firstName = null,
+        string? lastName = null,
+        Email? email = null,
+        PhoneNumber? phone = null
+    )
     {
-        var changed =
-            ApplyIfChanged(FirstName, firstName, v => FirstName = v)
-            | ApplyIfChanged(LastName, lastName, v => LastName = v)
-            | ApplyIfChanged(Email, email, v => Email = v)
-            | ApplyIfChanged(Phone, phone, v => Phone = v);
+        var updated = false;
 
-        if (changed)
+        if (!string.IsNullOrWhiteSpace(firstName) && firstName.Trim() != FirstName)
+        {
+            FirstName = firstName.Trim();
+            updated = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(lastName) && lastName.Trim() != LastName)
+        {
+            LastName = lastName.Trim();
+            updated = true;
+        }
+
+        if (email is not null && !email.Equals(Email))
+        {
+            Email = email;
+            updated = true;
+        }
+
+        if (phone is not null && !phone.Equals(Phone))
+        {
+            Phone = phone;
+            updated = true;
+        }
+
+        if (updated)
             MarkAsUpdated();
     }
 
     public void UpdateAddress(Address newAddress)
     {
-        if (!Address.Equals(newAddress))
+        if (newAddress is null)
+            throw new DomainException("Address cannot be null");
+
+        if (!newAddress.Equals(Address))
         {
             Address = newAddress;
             MarkAsUpdated();
         }
     }
 
-    public void Activate() => ChangeStatus(true);
+    public void Activate() => SetActive(true);
 
-    public void Deactivate() => ChangeStatus(false);
+    public void Deactivate() => SetActive(false);
 
-    private void ChangeStatus(bool isActive)
+    private void SetActive(bool active)
     {
-        if (IsActive != isActive)
+        if (IsActive != active)
         {
-            IsActive = isActive;
+            IsActive = active;
             MarkAsUpdated();
         }
-    }
-
-    private static bool ApplyIfChanged<T>(T current, T updated, Action<T> apply)
-    {
-        if (!EqualityComparer<T>.Default.Equals(current, updated))
-        {
-            apply(updated);
-            return true;
-        }
-        return false;
     }
 }

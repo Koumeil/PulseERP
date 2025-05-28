@@ -1,16 +1,14 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using PulseERP.Application.Exceptions;
 using PulseERP.Application.Interfaces.Services;
-using PulseERP.Contracts.Dtos.Auth;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Infrastructure.Identity.Entities;
+using PulseERP.Shared.Dtos.Auth;
+using PulseERP.Shared.Dtos.Auth.Token;
+using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.Infrastructure.Identity.Service;
 
@@ -18,30 +16,199 @@ public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITokenService _tokenService;
-    private readonly IConfiguration _configuration;
+    private readonly ISmtpEmailService _emailService;
     private readonly ILogger<AuthService> _logger;
-    private readonly IUserRepository _userRepository;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
-        IConfiguration configuration,
-        ILogger<AuthService> logger,
-        IUserRepository userRepository
+        ISmtpEmailService emailService,
+        ILogger<AuthService> logger
     )
     {
-        _userManager = userManager;
-        _tokenService = tokenService;
-        _configuration = configuration;
-        _logger = logger;
-        _userRepository = userRepository;
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest command)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
-        var existingUser = await _userManager.FindByEmailAsync(command.Email);
-        if (existingUser != null)
+        _logger.LogInformation("Registering new user with email {Email}", request.Email);
+
+        await EnsureEmailNotUsedAsync(request.Email);
+
+        var domainUser = CreateDomainUser(request);
+        var appUser = CreateApplicationUser(domainUser, request);
+
+        await CreateIdentityUserAsync(appUser);
+        await SendInvitationEmailAsync(appUser, domainUser);
+
+        var roles = await _userManager.GetRolesAsync(appUser);
+        var accessToken = _tokenService.GenerateAccessToken(appUser.Id, appUser.Email!, roles);
+        var refreshToken = await _tokenService.GenerateRefreshTokenAsync(appUser.Id);
+
+        _logger.LogInformation("User {UserId} registered successfully", appUser.Id);
+
+        return new AuthResponse(
+            CreateUserInfo(domainUser),
+            accessToken,
+            new RefreshTokenDto(refreshToken.Token, refreshToken.Expires)
+        );
+    }
+
+    public async Task<AuthResponse> LoginAsync(LoginRequest request)
+    {
+        _logger.LogInformation("Attempting login for email {Email}", request.Email);
+
+        var user = await GetUserByEmailAsync(request.Email);
+
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
         {
+            _logger.LogWarning("Invalid password for user {UserId}", user.Id);
+            throw new UnauthorizedAccessException("Invalid credentials.");
+        }
+
+        return await GenerateAuthResponseAsync(user);
+    }
+
+    public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
+    {
+        _logger.LogInformation("Refreshing token");
+
+        var storedToken = await _tokenService.GetRefreshTokenInfoAsync(refreshToken);
+        if (storedToken == null || storedToken.Revoked != null || storedToken.IsExpired)
+        {
+            _logger.LogWarning("Invalid or expired refresh token");
+            throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+        }
+
+        var user = await GetUserByIdAsync(storedToken.UserId);
+
+        await _tokenService.RevokeRefreshTokenAsync(refreshToken);
+
+        return await GenerateAuthResponseAsync(user);
+    }
+
+    public async Task LogoutAsync(string refreshToken)
+    {
+        _logger.LogInformation("Logging out refresh token");
+        await _tokenService.RevokeRefreshTokenAsync(refreshToken);
+    }
+
+    // ----------- Méthodes privées ------------
+
+    private async Task<AuthResponse> GenerateAuthResponseAsync(ApplicationUser user)
+    {
+        var domainUser = EnsureDomainUserIsNotNull(user);
+        var email = EnsureEmailIsNotNull(user);
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var accessToken = _tokenService.GenerateAccessToken(user.Id, email, roles);
+        var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
+
+        return new AuthResponse(
+            CreateUserInfo(domainUser),
+            accessToken,
+            new RefreshTokenDto(refreshToken.Token, refreshToken.Expires)
+        );
+    }
+
+    private async Task<ApplicationUser> GetUserByEmailAsync(string email)
+    {
+        var user = await _userManager
+            .Users.Include(u => u.DomainUser)
+            .SingleOrDefaultAsync(u => u.Email == email);
+
+        if (user == null)
+        {
+            _logger.LogWarning("User not found for email {Email}", email);
+            throw new UnauthorizedAccessException("Invalid credentials.");
+        }
+
+        return user;
+    }
+
+    private async Task<ApplicationUser> GetUserByIdAsync(Guid userId)
+    {
+        var user = await _userManager
+            .Users.Include(u => u.DomainUser)
+            .SingleOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            _logger.LogWarning("User not found with Id {UserId}", userId);
+            throw new NotFoundException("User", userId);
+        }
+
+        return user;
+    }
+
+    private static User CreateDomainUser(RegisterRequest request) =>
+        User.Create(
+            request.FirstName,
+            request.LastName,
+            Domain.ValueObjects.Email.Create(request.Email),
+            Domain.ValueObjects.PhoneNumber.Create(request.Phone)
+        );
+
+    private static ApplicationUser CreateApplicationUser(User domainUser, RegisterRequest request)
+    {
+        var appUser = new ApplicationUser(domainUser.Id)
+        {
+            UserName = request.Email,
+            Email = request.Email,
+            EmailConfirmed = false,
+            PhoneNumber = request.Phone,
+        };
+        appUser.SetDomainUser(domainUser);
+        return appUser;
+    }
+
+    private async Task CreateIdentityUserAsync(ApplicationUser appUser)
+    {
+        var result = await _userManager.CreateAsync(appUser);
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning(
+                "Failed to create identity user {UserId}: {Errors}",
+                appUser.Id,
+                string.Join(", ", result.Errors.Select(e => e.Description))
+            );
+
+            throw new ValidationException(
+                new Dictionary<string, string[]>
+                {
+                    ["identity"] = result.Errors.Select(e => e.Description).ToArray(),
+                }
+            );
+        }
+    }
+
+    private async Task SendInvitationEmailAsync(ApplicationUser appUser, User domainUser)
+    {
+        var resetToken = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+        var encodedToken = HttpUtility.UrlEncode(resetToken);
+
+        var frontendUrl = "https://localhost:5003";
+        var invitationLink = $"{frontendUrl}/set-password?userId={appUser.Id}&token={encodedToken}";
+
+        var subject = "Bienvenue sur PulseERP – Définissez votre mot de passe";
+        var body =
+            $@"
+            <p>Bonjour {domainUser.FirstName},</p>
+            <p>Votre compte a été créé avec succès. Veuillez cliquer sur le lien ci-dessous pour définir votre mot de passe :</p>
+            <p><a href=""{invitationLink}"">Configurer mon mot de passe</a></p>
+            <p>Ce lien expirera dans quelques heures.</p>";
+
+        await _emailService.SendEmailAsync(appUser.Email!, subject, body);
+    }
+
+    private async Task EnsureEmailNotUsedAsync(string email)
+    {
+        if (await _userManager.FindByEmailAsync(email) != null)
+        {
+            _logger.LogWarning("Email already in use: {Email}", email);
             throw new ValidationException(
                 new Dictionary<string, string[]>
                 {
@@ -49,172 +216,14 @@ public class AuthService : IAuthService
                 }
             );
         }
-
-        var domainUser = User.Create(
-            command.FirstName,
-            command.LastName,
-            command.Email,
-            command.Phone
-        );
-
-        var appUser = new ApplicationUser(domainUser.Id)
-        {
-            UserName = command.Email,
-            Email = command.Email,
-        };
-        appUser.SetDomainUser(domainUser);
-
-        var result = await _userManager.CreateAsync(appUser, command.Password);
-        if (!result.Succeeded)
-        {
-            throw new ValidationException(
-                new Dictionary<string, string[]>
-                {
-                    ["password"] = result.Errors.Select(e => e.Description).ToArray(),
-                }
-            );
-        }
-
-        var roles = await _userManager.GetRolesAsync(appUser);
-
-        var accessToken = _tokenService.GenerateAccessToken(appUser.Id, appUser.Email, roles);
-        var refreshToken = await _tokenService.GenerateRefreshTokenAsync(appUser.Id);
-
-        return new AuthResponse(
-            UserId: appUser.Id.ToString(),
-            FirstName: domainUser.FirstName,
-            LastName: domainUser.LastName,
-            Email: domainUser.Email.ToString(),
-            Token: accessToken,
-            RefreshToken: refreshToken,
-            ExpiresAt: DateTime.UtcNow.AddHours(1)
-        );
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest command)
-    {
-        var user = await _userManager
-            .Users.Include(u => u.DomainUser)
-            .SingleOrDefaultAsync(u => u.Email == command.Email);
+    private static User EnsureDomainUserIsNotNull(ApplicationUser user) =>
+        user.DomainUser ?? throw new InvalidOperationException("Domain user cannot be null.");
 
-        if (user == null || !await _userManager.CheckPasswordAsync(user, command.Password))
-            throw new UnauthorizedAccessException("Invalid credentials.");
+    private static string EnsureEmailIsNotNull(ApplicationUser user) =>
+        user.Email ?? throw new InvalidOperationException("User email cannot be null.");
 
-        if (user.DomainUser == null)
-            throw new InvalidOperationException("Domain user data is missing.");
-
-        var roles = await _userManager.GetRolesAsync(user);
-
-        if (string.IsNullOrEmpty(user.Email))
-            throw new InvalidOperationException("User email cannot be null or empty.");
-
-        var accessToken = _tokenService.GenerateAccessToken(user.Id, user.Email, roles);
-        var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
-
-        return new AuthResponse(
-            UserId: user.Id.ToString(),
-            FirstName: user.DomainUser.FirstName,
-            LastName: user.DomainUser.LastName,
-            Email: user.Email,
-            Token: accessToken,
-            RefreshToken: refreshToken,
-            ExpiresAt: DateTime.UtcNow.AddHours(1)
-        );
-    }
-
-    public async Task<AuthResponse> RefreshTokenAsync(string token, string refreshToken)
-    {
-        var principal = GetPrincipalFromExpiredToken(token);
-        if (principal == null)
-            throw new UnauthorizedAccessException("Invalid token.");
-
-        var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub);
-        if (!Guid.TryParse(userIdClaim?.Value, out var userId))
-            throw new UnauthorizedAccessException("Invalid token claims.");
-
-        var isValid = await _tokenService.ValidateRefreshTokenAsync(refreshToken, userId);
-        if (!isValid)
-            throw new UnauthorizedAccessException("Invalid refresh token.");
-
-        var user = await _userManager
-            .Users.Include(u => u.DomainUser)
-            .SingleOrDefaultAsync(u => u.Id == userId);
-
-        if (user == null)
-            throw new NotFoundException("User", userId);
-
-        if (user.DomainUser == null)
-            throw new InvalidOperationException("Domain user data is missing.");
-
-        var roles = await _userManager.GetRolesAsync(user);
-
-        var newAccessToken = _tokenService.GenerateAccessToken(user.Id, user.Email, roles);
-        var newRefreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
-
-        await _tokenService.RevokeRefreshTokenAsync(refreshToken);
-
-        return new AuthResponse(
-            UserId: user.Id.ToString(),
-            FirstName: user.DomainUser.FirstName,
-            LastName: user.DomainUser.LastName,
-            Email: user.Email,
-            Token: newAccessToken,
-            RefreshToken: newRefreshToken,
-            ExpiresAt: DateTime.UtcNow.AddHours(1)
-        );
-    }
-
-    public async Task LogoutAsync(string refreshToken)
-    {
-        await _tokenService.RevokeRefreshTokenAsync(refreshToken);
-    }
-
-    private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var secretKeyBase64 = _configuration["Jwt:SecretKey"];
-
-        if (string.IsNullOrEmpty(secretKeyBase64))
-        {
-            _logger.LogError("Jwt:SecretKey is missing or empty in configuration.");
-            return null;
-        }
-
-        var key = new SymmetricSecurityKey(Convert.FromBase64String(secretKeyBase64));
-
-        try
-        {
-            var principal = tokenHandler.ValidateToken(
-                token,
-                new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = key,
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero,
-                    ValidateLifetime = false,
-                },
-                out var validatedToken
-            );
-
-            if (
-                validatedToken is JwtSecurityToken jwtToken
-                && jwtToken.Header.Alg.Equals(
-                    SecurityAlgorithms.HmacSha256,
-                    StringComparison.InvariantCultureIgnoreCase
-                )
-            )
-            {
-                return principal;
-            }
-
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning("Token validation failed: {Message}", ex.Message);
-            return null;
-        }
-    }
+    private static UserInfo CreateUserInfo(User domainUser) =>
+        new(domainUser.Id, domainUser.FirstName, domainUser.LastName, domainUser.Email.ToString());
 }

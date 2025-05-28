@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos;
 using PulseERP.Application.Interfaces.Services;
-using PulseERP.Contracts.Dtos.Users;
 using PulseERP.Domain.Pagination;
+using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.API.Controllers;
 
@@ -48,13 +49,13 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<UserDto>>> Create(
+    public async Task<ActionResult<ApiResponse<UserInfo>>> Create(
         [FromBody] CreateUserRequest request
     )
     {
         var result = await _userService.CreateAsync(request);
 
-        var response = new ApiResponse<UserDto>(
+        var response = new ApiResponse<UserInfo>(
             Success: true,
             Data: result,
             Message: "User created successfully"

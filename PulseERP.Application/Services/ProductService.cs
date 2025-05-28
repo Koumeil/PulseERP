@@ -1,11 +1,11 @@
 using AutoMapper;
 using PulseERP.Application.Exceptions;
 using PulseERP.Application.Interfaces.Services;
-using PulseERP.Contracts.Dtos.Products;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
+using PulseERP.Shared.Dtos.Products;
 
 namespace PulseERP.Application.Services;
 
@@ -13,16 +13,20 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
     private readonly ISerilogAppLoggerService<ProductService> _logger;
+
+    private readonly IBrandService _brandService;
     private readonly IMapper _mapper;
 
     public ProductService(
         IProductRepository repository,
         ISerilogAppLoggerService<ProductService> logger,
+        IBrandService brandService,
         IMapper mapper
     )
     {
         _repository = repository;
         _logger = logger;
+        _brandService = brandService;
         _mapper = mapper;
     }
 
@@ -50,7 +54,11 @@ public class ProductService : IProductService
 
     public async Task<ProductDto> CreateAsync(CreateProductRequest command)
     {
-        var brand = Brand.Create(command.Brand);
+        var brand = await _brandService.GetOrCreateAsync(command.Brand);
+
+        if (brand is null)
+            brand = Brand.Create(command.Brand);
+
         var product = Product.Create(
             command.Name,
             command.Description,

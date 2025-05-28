@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos;
 using PulseERP.Application.Interfaces.Services;
-using PulseERP.Contracts.Dtos.Products;
+using PulseERP.Shared.Dtos.Products;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
 

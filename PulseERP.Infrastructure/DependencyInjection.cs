@@ -31,13 +31,13 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
 
         // JWT Token service
-        services.AddScoped<ITokenService, JwtTokenService>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
-
+        services.AddScoped<IBrandRepository, BrandRepository>();
         return services;
     }
 }

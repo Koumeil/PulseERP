@@ -5,7 +5,7 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-public class RefreshTokenRepository : IRefreshTokenRepository
+public class RefreshTokenRepository : ITokenRepository
 {
     private readonly CoreDbContext _context;
 

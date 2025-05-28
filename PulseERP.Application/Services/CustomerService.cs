@@ -2,7 +2,7 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 using PulseERP.Application.Exceptions;
 using PulseERP.Application.Interfaces.Services;
-using PulseERP.Contracts.Dtos.Customers;
+using PulseERP.Shared.Dtos.Customers;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
@@ -29,8 +29,7 @@ public class CustomerService : ICustomerService
     public async Task<PaginationResult<CustomerDto>> GetAllAsync(PaginationParams paginationParams)
     {
         var pagedCustomers = await _repository.GetAllAsync(paginationParams);
-        var customerDtos = _mapper.Map<PaginationResult<CustomerDto>>(pagedCustomers);
-        return customerDtos;
+        return _mapper.Map<PaginationResult<CustomerDto>>(pagedCustomers);
     }
 
     public async Task<CustomerDto> GetByIdAsync(Guid id)

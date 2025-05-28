@@ -1,10 +1,11 @@
 using AutoMapper;
 using PulseERP.Application.Exceptions;
 using PulseERP.Application.Interfaces.Services;
-using PulseERP.Contracts.Dtos.Users;
-using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
+using PulseERP.Domain.ValueObjects;
+using PulseERP.Shared.Dtos.Auth;
+using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.Application.Services;
 
@@ -14,15 +15,19 @@ public class UserService : IUserService
     private readonly ISerilogAppLoggerService<UserService> _logger;
     private readonly IMapper _mapper;
 
+    private readonly IAuthService _authService;
+
     public UserService(
         IUserRepository repository,
         ISerilogAppLoggerService<UserService> logger,
-        IMapper mapper
+        IMapper mapper,
+        IAuthService authService
     )
     {
         _repository = repository;
         _logger = logger;
         _mapper = mapper;
+        _authService = authService;
     }
 
     public async Task<PaginationResult<UserDto>> GetAllAsync(PaginationParams paginationParams)
@@ -40,14 +45,20 @@ public class UserService : IUserService
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<UserDto> CreateAsync(CreateUserRequest command)
+    public async Task<UserInfo> CreateAsync(CreateUserRequest command)
     {
-        var user = User.Create(command.FirstName, command.LastName, command.Email, command.Phone);
+        var registerCommand = new RegisterRequest(
+            command.FirstName,
+            command.LastName,
+            command.Email,
+            command.Phone
+        );
 
-        await _repository.AddAsync(user);
-        _logger.LogInformation("Created user {UserId}", user.Id);
+        var result = await _authService.RegisterAsync(registerCommand);
 
-        return _mapper.Map<UserDto>(user);
+        _logger.LogInformation("Invitation email sent to {command.Email}", command.Email);
+
+        return _mapper.Map<UserInfo>(result);
     }
 
     public async Task<UserDto> UpdateAsync(Guid id, UpdateUserRequest command)
@@ -59,10 +70,10 @@ public class UserService : IUserService
         user.UpdateName(command.FirstName, command.LastName);
 
         if (command.Email != null)
-            user.ChangeEmail(command.Email);
+            user.ChangeEmail(Email.Create(command.Email));
 
         if (command.Phone != null)
-            user.ChangePhone(command.Phone);
+            user.ChangePhone(PhoneNumber.Create(command.Phone));
 
         await _repository.UpdateAsync(user);
         _logger.LogInformation("Updated user {UserId}", user.Id);

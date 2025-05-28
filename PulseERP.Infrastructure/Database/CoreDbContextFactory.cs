@@ -1,29 +1,34 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-
-namespace PulseERP.Infrastructure.Database;
+using PulseERP.Infrastructure.Database;
 
 public class CoreDbContextFactory : IDesignTimeDbContextFactory<CoreDbContext>
 {
     public CoreDbContext CreateDbContext(string[] args)
     {
-        var environment =
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        // Trouver le répertoire de l'API
+        var basePath = Directory.GetCurrentDirectory();
+        Console.WriteLine($"Current directory: {basePath}");
+
+        // Si pas répertoire Infrastructure, on remonte d'un niveau
+        if (basePath.EndsWith("PulseERP.Infrastructure"))
+            basePath = Path.Combine(basePath, "..", "PulseERP.API");
 
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../PulseERP.API"))
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{environment}.json", optional: true)
-            .AddEnvironmentVariables()
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile(
+                $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
+                optional: true
+            )
+            .AddUserSecrets("19ad8bae-7b68-4cf5-b5c8-aa36453d2338")
             .Build();
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         if (string.IsNullOrWhiteSpace(connectionString))
-        {
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        }
 
         var optionsBuilder = new DbContextOptionsBuilder<CoreDbContext>();
         optionsBuilder.UseSqlServer(connectionString);

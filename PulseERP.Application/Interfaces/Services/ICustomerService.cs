@@ -1,4 +1,4 @@
-using PulseERP.Contracts.Dtos.Customers;
+using PulseERP.Shared.Dtos.Customers;
 using PulseERP.Domain.Pagination;
 
 namespace PulseERP.Application.Interfaces.Services;

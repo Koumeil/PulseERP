@@ -1,5 +1,5 @@
 using AutoMapper;
-using PulseERP.Contracts.Dtos.Products;
+using PulseERP.Shared.Dtos.Products;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Pagination;
 

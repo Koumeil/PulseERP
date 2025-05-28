@@ -1,5 +1,5 @@
 using AutoMapper;
-using PulseERP.Contracts.Dtos.Customers;
+using PulseERP.Shared.Dtos.Customers;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
 
@@ -16,11 +16,11 @@ public class CustomerProfile : Profile
                 src.FirstName,
                 src.LastName,
                 src.Email.ToString(),
-                src.Phone != null ? src.Phone.ToString() : null,
-                src.Address != null ? src.Address.Street : null,
-                src.Address != null ? src.Address.City : null,
-                src.Address != null ? src.Address.ZipCode : null,
-                src.Address != null ? src.Address.Country : null
+                src.Phone.ToString(),
+                src.Address.Street,
+                src.Address.City,
+                src.Address.ZipCode,
+                src.Address.Country
             ));
 
         // Mapping CreateCustomerRequest → Customer
@@ -28,10 +28,10 @@ public class CustomerProfile : Profile
             .ConstructUsing(
                 (cmd, context) =>
                 {
-                    var email = context.Mapper.Map<Email>(cmd.Email);
-                    var phone =
-                        cmd.Phone != null ? context.Mapper.Map<PhoneNumber>(cmd.Phone) : null;
+                    var email = Email.Create(cmd.Email);
+                    var phone = PhoneNumber.Create(cmd.Phone);
                     var address = Address.Create(cmd.Street, cmd.City, cmd.ZipCode, cmd.Country);
+
                     return Customer.Create(cmd.FirstName, cmd.LastName, email, phone, address);
                 }
             );

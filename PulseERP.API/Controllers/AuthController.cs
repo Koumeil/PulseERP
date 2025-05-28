@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos; 
 using PulseERP.Application.Interfaces.Services;
-using PulseERP.Contracts.Dtos.Auth;
-using PulseERP.Contracts.Dtos.Auth.Token;
+using PulseERP.Shared.Dtos.Auth;
+using PulseERP.Shared.Dtos.Auth.Token;
 
 namespace PulseERP.API.Controllers;
 
@@ -35,10 +35,10 @@ public class AuthController : ControllerBase
 
     [HttpPost("refresh-token")]
     public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshToken(
-        [FromBody] RefreshTokenResponse request
+        [FromBody] RefreshTokenRequest request
     )
     {
-        var authResult = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
+        var authResult = await _authService.RefreshTokenAsync(request.RefreshToken);
         var response = new ApiResponse<AuthResponse>(Success: true, Data: authResult, Error: null);
         return Ok(response);
     }

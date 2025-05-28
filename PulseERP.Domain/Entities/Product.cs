@@ -1,4 +1,5 @@
 using PulseERP.Domain.Entities;
+using PulseERP.Domain.Exceptions;
 using PulseERP.Domain.ValueObjects;
 
 public sealed class Product : BaseEntity
@@ -8,9 +9,10 @@ public sealed class Product : BaseEntity
     public Brand Brand { get; private set; }
     public Money Price { get; private set; }
     public int Quantity { get; private set; }
-    public bool IsService { get; private set; } = false;
+    public bool IsService { get; private set; }
     public bool IsActive { get; private set; }
 
+    // Constructeur EF Core privé pour ORM
     private Product() { }
 
     public static Product Create(
@@ -23,19 +25,13 @@ public sealed class Product : BaseEntity
     )
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Le nom est obligatoire", nameof(name));
-        if (brand == null)
-            throw new ArgumentNullException(nameof(brand), "La marque est obligatoire");
+            throw new DomainException("Name is required");
+        if (brand is null)
+            throw new DomainException("Brand is required");
         if (price < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(price),
-                "Le prix ne peut pas être négatif"
-            );
+            throw new DomainException("Price must be a non-negative value");
         if (quantity < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(quantity),
-                "La quantité ne peut pas être négative"
-            );
+            throw new DomainException("Quantity cannot be negative");
 
         return new Product
         {
@@ -44,51 +40,57 @@ public sealed class Product : BaseEntity
             Brand = brand,
             Price = new Money(price),
             Quantity = quantity,
-            IsActive = true,
             IsService = isService,
+            IsActive = true,
         };
     }
 
     public void UpdateDetails(
-        string? name,
-        string? description,
-        string? brandName,
-        decimal? price,
-        int? quantity
+        string? name = null,
+        string? description = null,
+        string? brandName = null,
+        decimal? price = null,
+        int? quantity = null
     )
     {
-        bool changed =
-            ApplyIfChanged(Name, name?.Trim(), v => Name = v)
-            | ApplyIfChanged(Description, description?.Trim(), v => Description = v);
+        var changed = false;
 
-        if (brandName is not null && brandName != Brand.Name)
+        if (!string.IsNullOrWhiteSpace(name) && name.Trim() != Name)
+        {
+            Name = name.Trim();
+            changed = true;
+        }
+
+        if (description != null && description.Trim() != Description)
+        {
+            Description = description.Trim();
+            changed = true;
+        }
+
+        if (brandName != null && brandName != Brand.Name)
         {
             Brand.UpdateName(brandName);
             changed = true;
         }
 
-        if (price is not null)
+        if (price.HasValue)
         {
-            if (price < 0)
-                throw new ArgumentOutOfRangeException(
-                    nameof(price),
-                    "Le prix ne peut pas être négatif"
-                );
-            if (Price.Value != price)
+            if (price.Value < 0)
+                throw new DomainException("Price must be a non-negative value");
+
+            if (Price.Value != price.Value)
             {
                 Price = new Money(price.Value);
                 changed = true;
             }
         }
 
-        if (quantity is not null)
+        if (quantity.HasValue)
         {
-            if (quantity < 0)
-                throw new ArgumentOutOfRangeException(
-                    nameof(quantity),
-                    "La quantité ne peut pas être négative"
-                );
-            if (Quantity != quantity)
+            if (quantity.Value < 0)
+                throw new DomainException("Quantity cannot be negative");
+
+            if (Quantity != quantity.Value)
             {
                 Quantity = quantity.Value;
                 changed = true;
@@ -110,15 +112,5 @@ public sealed class Product : BaseEntity
             IsActive = isActive;
             MarkAsUpdated();
         }
-    }
-
-    private static bool ApplyIfChanged<T>(T current, T updated, Action<T> apply)
-    {
-        if (!EqualityComparer<T>.Default.Equals(current, updated))
-        {
-            apply(updated);
-            return true;
-        }
-        return false;
     }
 }
