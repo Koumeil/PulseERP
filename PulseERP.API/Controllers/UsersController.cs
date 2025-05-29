@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos;
-using PulseERP.Application.Interfaces.Services;
+using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Pagination;
 using PulseERP.Shared.Dtos.Users;
 
@@ -18,52 +17,51 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
+    // GET api/users?pageNumber=1&pageSize=10
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PaginationResult<UserDto>>>> GetAll(
         [FromQuery] PaginationParams paginationParams
     )
     {
         var result = await _userService.GetAllAsync(paginationParams);
-
         var response = new ApiResponse<PaginationResult<UserDto>>(
             Success: true,
             Data: result,
             Message: "Users retrieved successfully"
         );
-
         return Ok(response);
     }
 
+    // GET api/users/{id}
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ApiResponse<UserDto>>> GetById(Guid id)
     {
         var result = await _userService.GetByIdAsync(id);
-
         var response = new ApiResponse<UserDto>(
             Success: true,
             Data: result,
             Message: "User retrieved successfully"
         );
-
         return Ok(response);
     }
 
+    // POST api/users
     [HttpPost]
     public async Task<ActionResult<ApiResponse<UserInfo>>> Create(
         [FromBody] CreateUserRequest request
     )
     {
         var result = await _userService.CreateAsync(request);
-
         var response = new ApiResponse<UserInfo>(
             Success: true,
             Data: result,
             Message: "User created successfully"
         );
-
+        // renvoie 201 avec en-tête Location
         return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
     }
 
+    // PUT api/users/{id}
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ApiResponse<UserDto>>> Update(
         Guid id,
@@ -71,26 +69,50 @@ public class UsersController : ControllerBase
     )
     {
         var result = await _userService.UpdateAsync(id, request);
-
         var response = new ApiResponse<UserDto>(
             Success: true,
             Data: result,
             Message: "User updated successfully"
         );
-
         return Ok(response);
     }
 
+    // DELETE api/users/{id}
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id)
     {
         await _userService.DeleteAsync(id);
-
-        var reponse = new ApiResponse<object>(
+        var response = new ApiResponse<object>(
             Success: true,
             Data: null,
-            Message: "User deleted successfully"
+            Message: "User deleted (deactivated) successfully"
         );
-        return Ok(reponse);
+        return Ok(response);
+    }
+
+    // POST api/users/{id}/activate
+    [HttpPost("{id:guid}/activate")]
+    public async Task<ActionResult<ApiResponse<object>>> Activate(Guid id)
+    {
+        await _userService.ActivateUserAsync(id);
+        var response = new ApiResponse<object>(
+            Success: true,
+            Data: null,
+            Message: "User activated successfully"
+        );
+        return Ok(response);
+    }
+
+    // POST api/users/{id}/deactivate
+    [HttpPost("{id:guid}/deactivate")]
+    public async Task<ActionResult<ApiResponse<object>>> Deactivate(Guid id)
+    {
+        await _userService.DeactivateUserAsync(id);
+        var response = new ApiResponse<object>(
+            Success: true,
+            Data: null,
+            Message: "User deactivated successfully"
+        );
+        return Ok(response);
     }
 }

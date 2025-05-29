@@ -3,17 +3,17 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PulseERP.API.ErrorHandling;
 using PulseERP.Application;
-using PulseERP.Application.Interfaces.Services;
-using PulseERP.Application.Services;
+using PulseERP.Application.Interfaces;
 using PulseERP.Application.Settings;
 using PulseERP.Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog
+// === Serilog Configuration ===
 builder.Host.UseSerilog(
     (ctx, lc) =>
         lc
@@ -22,55 +22,44 @@ builder.Host.UseSerilog(
             .ReadFrom.Configuration(ctx.Configuration)
 );
 
+// === Services configuration ===
 builder.Services.AddOptions();
 builder.Services.AddHttpContextAccessor();
+
+// Personnalisation des ProblemDetails pour la validation
 builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    // Empêche ASP.NET Core de renvoyer automatiquement une réponse 400 quand la validation échoue.
-    // Cela te permet d'intercepter ces erreurs et de les formater à ta façon (ex: avec ExtendedValidationProblemDetails).
     options.SuppressModelStateInvalidFilter = true;
-
-    // Personnalise la réponse quand la validation du modèle échoue
     options.InvalidModelStateResponseFactory = context =>
     {
-        // Crée un ValidationProblemDetails enrichi (tu peux utiliser ta factory ici aussi)
-        var problemDetailsFactory =
+        var factory =
             context.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
-
-        var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(
+        var validationDetails = factory.CreateValidationProblemDetails(
             context.HttpContext,
             context.ModelState,
             statusCode: StatusCodes.Status400BadRequest,
             title: "Model validation failed",
             detail: "See the errors property for details."
         );
-
-        // Retourne un ObjectResult avec le contenu problem details et le bon code HTTP
-        return new ObjectResult(validationProblemDetails)
-        {
-            StatusCode = validationProblemDetails.Status,
-        };
+        return new ObjectResult(validationDetails) { StatusCode = validationDetails.Status };
     };
 });
 
-// Email
-// Charger les EmailSettings + injecter dans DI
+// Email settings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-// Charger les JwtSettings + injecter dans DI
+// JWT settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-// Enregistre le service MailKit (SmtpEmailService)
+// SmtpEmailService
 builder.Services.AddTransient<ISmtpEmailService, SmtpEmailService>();
 
-
-// JWT setup
+// Authentication (JWT Bearer)
 var jwtSettings =
     builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
     ?? throw new InvalidOperationException("JwtSettings missing");
 
-// Auth
 builder
     .Services.AddAuthentication(options =>
     {
@@ -90,35 +79,76 @@ builder
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSettings.SecretKey)
             ),
+
             ClockSkew = TimeSpan.Zero,
         };
     });
 
+// Application + Infrastructure DI
 builder.Services.AddApplication().AddInfrastructure(builder.Configuration);
 
+// Controllers
 builder.Services.AddControllers();
 
-builder.Services.AddSwaggerGen();
+// === Swagger / OpenAPI configuration ===
+builder.Services.AddSwaggerGen(c =>
+{
+    // Définition du schéma Bearer pour JWT
+    c.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Entrez 'Bearer {votre_token}'",
+        }
+    );
+
+    // Exigence de ce schéma pour tous les endpoints protégés
+    c.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                Array.Empty<string>()
+            },
+        }
+    );
+});
 
 Log.Information("Starting application...");
 
+// === Build & Middleware pipeline ===
 var app = builder.Build();
 
+// Global exception handling
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PulseERP API V1");
+        // c.RoutePrefix = string.Empty; // décommentez pour Swagger à la racine
+    });
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
-
 Log.CloseAndFlush();

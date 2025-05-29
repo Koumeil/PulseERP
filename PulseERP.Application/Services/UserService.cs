@@ -1,6 +1,7 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using PulseERP.Application.Exceptions;
-using PulseERP.Application.Interfaces.Services;
+using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
@@ -11,34 +12,36 @@ namespace PulseERP.Application.Services;
 
 public class UserService : IUserService
 {
-    private readonly IUserRepository _repository;
-    private readonly ISerilogAppLoggerService<UserService> _logger;
+    private readonly IUserQueryRepository _userQuery;
+    private readonly IUserCommandRepository _userCommand;
+    private readonly IAuthenticationService _authService;
     private readonly IMapper _mapper;
-
-    private readonly IAuthService _authService;
+    private readonly ILogger<UserService> _logger;
 
     public UserService(
-        IUserRepository repository,
-        ISerilogAppLoggerService<UserService> logger,
+        IUserQueryRepository userQuery,
+        IUserCommandRepository userCommand,
+        IAuthenticationService authService,
         IMapper mapper,
-        IAuthService authService
+        ILogger<UserService> logger
     )
     {
-        _repository = repository;
-        _logger = logger;
-        _mapper = mapper;
+        _userQuery = userQuery;
+        _userCommand = userCommand;
         _authService = authService;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<PaginationResult<UserDto>> GetAllAsync(PaginationParams paginationParams)
     {
-        var users = await _repository.GetAllAsync(paginationParams);
+        var users = await _userQuery.GetAllAsync(paginationParams);
         return _mapper.Map<PaginationResult<UserDto>>(users);
     }
 
     public async Task<UserDto> GetByIdAsync(Guid id)
     {
-        var user = await _repository.GetByIdAsync(id);
+        var user = await _userQuery.GetByIdAsync(id);
         if (user is null)
             throw new NotFoundException("User", id);
 
@@ -47,51 +50,81 @@ public class UserService : IUserService
 
     public async Task<UserInfo> CreateAsync(CreateUserRequest command)
     {
-        var registerCommand = new RegisterRequest(
+        var registerRequest = new RegisterRequest(
             command.FirstName,
             command.LastName,
             command.Email,
-            command.Phone
+            command.Phone,
+            command.Password
         );
 
-        var result = await _authService.RegisterAsync(registerCommand);
+        var authResult = await _authService.RegisterAsync(
+            registerRequest,
+            string.Empty,
+            string.Empty
+        );
+        _logger.LogInformation("User created with email {Email}", command.Email);
 
-        _logger.LogInformation("Invitation email sent to {command.Email}", command.Email);
-
-        return _mapper.Map<UserInfo>(result);
+        return authResult.User;
     }
 
     public async Task<UserDto> UpdateAsync(Guid id, UpdateUserRequest command)
     {
-        var user = await _repository.GetByIdAsync(id);
+        var user = await _userQuery.GetByIdAsync(id);
         if (user is null)
             throw new NotFoundException("User", id);
 
         user.UpdateName(command.FirstName, command.LastName);
 
-        if (command.Email != null)
-            user.ChangeEmail(Email.Create(command.Email));
+        if (!string.IsNullOrWhiteSpace(command.Email))
+            user.UpdateEmail(Email.Create(command.Email));
 
-        if (command.Phone != null)
-        {
-            var newPhone = PhoneNumber.Create(command.Phone);
-            user.ChangePhone(newPhone);
-        }
+        if (!string.IsNullOrWhiteSpace(command.Phone))
+            user.UpdatePhone(Phone.Create(command.Phone));
 
-        await _repository.UpdateAsync(user);
+        await _userCommand.UpdateAsync(user);
+        await _userCommand.SaveChangesAsync();
+
         _logger.LogInformation("Updated user {UserId}", user.Id);
-
         return _mapper.Map<UserDto>(user);
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var user = await _repository.GetByIdAsync(id);
+        var user = await _userQuery.GetByIdAsync(id);
         if (user is null)
             throw new NotFoundException("User", id);
 
-        user.Deactivate(); // Soft delete
-        await _repository.UpdateAsync(user);
+        user.Deactivate();
+        await _userCommand.UpdateAsync(user);
+        await _userCommand.SaveChangesAsync();
+
         _logger.LogInformation("Deactivated user {UserId}", user.Id);
+    }
+
+    public async Task ActivateUserAsync(Guid id)
+    {
+        var user = await _userQuery.GetByIdAsync(id);
+        if (user is null)
+            throw new NotFoundException("User", id);
+
+        user.Activate();
+        await _userCommand.UpdateAsync(user);
+        await _userCommand.SaveChangesAsync();
+
+        _logger.LogInformation("Activated user {UserId}", id);
+    }
+
+    public async Task DeactivateUserAsync(Guid id)
+    {
+        var user = await _userQuery.GetByIdAsync(id);
+        if (user is null)
+            throw new NotFoundException("User", id);
+
+        user.Deactivate();
+        await _userCommand.UpdateAsync(user);
+        await _userCommand.SaveChangesAsync();
+
+        _logger.LogInformation("Deactivated user {UserId}", id);
     }
 }

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Application.Interfaces.Services;
+using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Infrastructure.Database;

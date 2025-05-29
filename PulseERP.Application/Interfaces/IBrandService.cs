@@ -2,7 +2,7 @@ using PulseERP.Domain.Entities;
 using PulseERP.Domain.Pagination;
 using PulseERP.Shared.Dtos.Brands;
 
-namespace PulseERP.Application.Interfaces.Services;
+namespace PulseERP.Application.Interfaces;
 
 public interface IBrandService
 {

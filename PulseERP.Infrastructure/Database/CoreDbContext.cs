@@ -1,19 +1,16 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.ValueObjects;
-using PulseERP.Infrastructure.Identity.Entities;
 
 namespace PulseERP.Infrastructure.Database;
 
-public class CoreDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class CoreDbContext : DbContext
 {
     public CoreDbContext(DbContextOptions<CoreDbContext> options)
         : base(options) { }
 
     // DbSets
-    public DbSet<User> DomainUsers { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Customer> Customers { get; set; }
@@ -22,23 +19,6 @@ public class CoreDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Gui
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
-        // ==============================================
-        // Identity - Configuration ApplicationUser
-        // ==============================================
-        builder.Entity<ApplicationUser>(entity =>
-        {
-            entity
-                .HasOne(u => u.DomainUser)
-                .WithOne()
-                .HasForeignKey<ApplicationUser>(u => u.DomainUserId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Désactiver les champs Email standard d'Identity si nécessaire
-            entity.Ignore(u => u.Email);
-            entity.Ignore(u => u.EmailConfirmed);
-        });
 
         // ==============================================
         // User - Configuration
@@ -58,9 +38,22 @@ public class CoreDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Gui
 
             u.Property(x => x.Phone)
                 .IsRequired()
-                .HasConversion(v => v.Value, v => PhoneNumber.Create(v))
+                .HasConversion(v => v.Value, v => Phone.Create(v))
                 .HasMaxLength(20);
 
+            // Configuration du UserRole en tant que Value Object Owned
+            u.OwnsOne(
+                x => x.Role,
+                role =>
+                {
+                    role.Property(r => r.RoleName)
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnName("RoleName"); // colonne dans la table User
+
+                    // Si tu veux, tu peux configurer des index ou contraintes ici
+                }
+            );
             // Index
             u.HasIndex(x => x.Email).IsUnique();
         });
@@ -83,7 +76,7 @@ public class CoreDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Gui
 
             c.Property(x => x.Phone)
                 .IsRequired()
-                .HasConversion(v => v.Value, v => PhoneNumber.Create(v))
+                .HasConversion(v => v.Value, v => Phone.Create(v))
                 .HasMaxLength(20);
 
             // Address comme Owned Entity

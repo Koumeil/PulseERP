@@ -8,9 +8,9 @@ public class PhoneNumberProfile : Profile
 {
     public PhoneNumberProfile()
     {
-        CreateMap<PhoneNumber, PhoneNumberDto>()
+        CreateMap<Phone, PhoneNumberDto>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
-        CreateMap<PhoneNumberDto, PhoneNumber>().ConstructUsing(dto => PhoneNumber.Create(dto.Value));
+        CreateMap<PhoneNumberDto, Phone>().ConstructUsing(dto => Phone.Create(dto.Value));
     }
 }

@@ -14,7 +14,8 @@ public class AuthProfile : Profile
                 src.User.FirstName,
                 src.User.LastName,
                 src.User.Email,
-                null
+                src.User.Phone,
+                src.User.Role
             ));
 
         // Mappage AuthResponse → UserInfo
@@ -23,13 +24,15 @@ public class AuthProfile : Profile
                 src.User.Id,
                 src.User.FirstName,
                 src.User.LastName,
-                src.User.Email
+                src.User.Email,
+                src.User.Phone,
+                src.User.Role
             ));
 
         // Mappage inverse si nécessaire (UserInfo → AuthResponse.User)
         CreateMap<UserInfo, AuthResponse>()
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src))
-            .ForMember(dest => dest.accessTokenDto, opt => opt.Ignore())
-            .ForMember(dest => dest.RefreshTokenDto, opt => opt.Ignore());
+            .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
+            .ForMember(dest => dest.RefreshToken, opt => opt.Ignore());
     }
 }

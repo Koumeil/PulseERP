@@ -1,7 +1,7 @@
-using PulseERP.Shared.Dtos.Customers;
 using PulseERP.Domain.Pagination;
+using PulseERP.Shared.Dtos.Customers;
 
-namespace PulseERP.Application.Interfaces.Services;
+namespace PulseERP.Application.Interfaces;
 
 public interface ICustomerService
 {

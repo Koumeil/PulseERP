@@ -1,0 +1,7 @@
+namespace PulseERP.Shared.Dtos.Auth.Password;
+
+public class ChangePasswordDto
+{
+    public string CurrentPassword { get; set; } = default!;
+    public string NewPassword { get; set; } = default!;
+}

@@ -1,11 +1,11 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using PulseERP.Application.Exceptions;
-using PulseERP.Application.Interfaces.Services;
-using PulseERP.Shared.Dtos.Customers;
+using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Shared.Dtos.Customers;
 
 namespace PulseERP.Application.Services;
 
@@ -52,7 +52,7 @@ public class CustomerService : ICustomerService
         );
 
         var email = _mapper.Map<Email>(command.Email);
-        var phoneNumber = _mapper.Map<PhoneNumber>(command.Phone);
+        var phoneNumber = _mapper.Map<Phone>(command.Phone);
 
         var customer = Customer.Create(
             command.FirstName,
@@ -75,7 +75,7 @@ public class CustomerService : ICustomerService
             throw new NotFoundException($"Customer with Id '{id}' not found.", id);
 
         var email = _mapper.Map<Email>(command.Email);
-        var phoneNumber = _mapper.Map<PhoneNumber>(command.Phone);
+        var phoneNumber = _mapper.Map<Phone>(command.Phone);
         var address = customer.Address.Update(
             command.Street,
             command.City,

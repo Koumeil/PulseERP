@@ -1,5 +1,7 @@
 using AutoMapper;
+using PulseERP.Application.Services;
 using PulseERP.Domain.Entities;
+using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
 using PulseERP.Shared.Dtos.Users;
@@ -17,17 +19,23 @@ public class UserProfile : Profile
                 src.FirstName,
                 src.LastName,
                 src.Email.ToString(),
-                src.Phone.ToString()
+                src.Phone.ToString(),
+                src.Role.ToString()
             ));
 
         // Mapping CreateUserRequest → User via factory User.Create
+
+        IDateTimeProvider dateTimeProvider = new SystemDateTimeProvider();
+
         CreateMap<CreateUserRequest, User>()
             .ConstructUsing(cmd =>
                 User.Create(
                     cmd.FirstName,
                     cmd.LastName,
                     Email.Create(cmd.Email),
-                    PhoneNumber.Create(cmd.Phone)
+                    Phone.Create(cmd.Phone),
+                    cmd.Password,
+                    dateTimeProvider
                 )
             );
 

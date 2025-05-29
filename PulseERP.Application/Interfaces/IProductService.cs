@@ -2,7 +2,7 @@ using PulseERP.Shared.Dtos.Products;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
 
-namespace PulseERP.Application.Interfaces.Services;
+namespace PulseERP.Application.Interfaces;
 
 public interface IProductService
 {

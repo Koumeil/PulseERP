@@ -29,7 +29,7 @@ public class CustomerProfile : Profile
                 (cmd, context) =>
                 {
                     var email = Email.Create(cmd.Email);
-                    var phone = PhoneNumber.Create(cmd.Phone);
+                    var phone = Phone.Create(cmd.Phone);
                     var address = Address.Create(cmd.Street, cmd.City, cmd.ZipCode, cmd.Country);
 
                     return Customer.Create(cmd.FirstName, cmd.LastName, email, phone, address);

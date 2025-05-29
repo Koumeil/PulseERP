@@ -7,7 +7,7 @@ public sealed class Customer : BaseEntity
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public Email Email { get; private set; }
-    public PhoneNumber Phone { get; private set; }
+    public Phone Phone { get; private set; }
     public Address Address { get; private set; }
     public bool IsActive { get; private set; }
 
@@ -18,7 +18,7 @@ public sealed class Customer : BaseEntity
         string firstName,
         string lastName,
         Email email,
-        PhoneNumber phone,
+        Phone phone,
         Address address
     )
     {
@@ -49,7 +49,7 @@ public sealed class Customer : BaseEntity
         string? firstName = null,
         string? lastName = null,
         Email? email = null,
-        PhoneNumber? phone = null
+        Phone? phone = null
     )
     {
         var updated = false;

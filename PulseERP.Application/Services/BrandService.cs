@@ -1,5 +1,5 @@
 using AutoMapper;
-using PulseERP.Application.Interfaces.Services;
+using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
