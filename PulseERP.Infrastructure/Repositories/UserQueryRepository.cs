@@ -10,50 +10,70 @@ namespace PulseERP.Infrastructure.Repositories;
 
 public class UserQueryRepository : IUserQueryRepository
 {
-    private readonly CoreDbContext _ctx;
+    private readonly CoreDbContext _context;
 
-    public UserQueryRepository(CoreDbContext ctx) => _ctx = ctx;
+    public UserQueryRepository(CoreDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task<PaginationResult<User>> GetAllAsync(PaginationParams pagination)
     {
-        var q = _ctx.Users.AsNoTracking();
-        var total = await q.CountAsync();
-        var items = await q.OrderBy(u => u.LastName)
+        var query = _context.Users.AsNoTracking(); // lecture pure ici = OK
+        var totalCount = await query.CountAsync();
+
+        var users = await query
+            .OrderBy(u => u.LastName)
             .Skip((pagination.PageNumber - 1) * pagination.PageSize)
             .Take(pagination.PageSize)
             .ToListAsync();
-        return new PaginationResult<User>(items, total, pagination.PageNumber, pagination.PageSize);
+
+        return new PaginationResult<User>(
+            users,
+            totalCount,
+            pagination.PageNumber,
+            pagination.PageSize
+        );
     }
 
-    public Task<User?> GetByIdAsync(Guid id) =>
-        _ctx.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
+    public Task<User?> GetByIdAsync(Guid id)
+    {
+        return _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
+    }
 
-    public Task<bool> ExistsAsync(Guid id) => _ctx.Users.AnyAsync(u => u.Id == id);
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        return _context.Users.AnyAsync(u => u.Id == id);
+    }
 
-    public Task<User?> GetByEmailAsync(Email email) =>
-        _ctx.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Email == email);
+    public Task<User?> GetByEmailAsync(Email email)
+    {
+        return _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+    }
 
-    public Task<User?> GetByRefreshTokenAsync(string refreshTokenHash) =>
-        _ctx
+    public Task<User?> GetByRefreshTokenAsync(string refreshTokenHash)
+    {
+        return _context
             .RefreshTokens.Where(rt =>
                 rt.Token == refreshTokenHash
                 && rt.TokenType == TokenType.Refresh
                 && rt.Revoked == null
                 && rt.Expires > DateTime.UtcNow
             )
-            .Join(_ctx.Users, rt => rt.UserId, u => u.Id, (rt, u) => u)
-            .AsNoTracking()
-            .SingleOrDefaultAsync();
+            .Join(_context.Users, rt => rt.UserId, u => u.Id, (rt, u) => u)
+            .SingleOrDefaultAsync(); // pas de .AsNoTracking ici non plus
+    }
 
-    public Task<User?> GetByResetTokenAsync(string token) =>
-        _ctx
+    public Task<User?> GetByResetTokenAsync(string token)
+    {
+        return _context
             .RefreshTokens.Where(rt =>
                 rt.Token == token
                 && rt.TokenType == TokenType.PasswordReset
                 && rt.Revoked == null
                 && rt.Expires > DateTime.UtcNow
             )
-            .Join(_ctx.Users, rt => rt.UserId, u => u.Id, (rt, u) => u)
-            .AsNoTracking()
+            .Join(_context.Users, rt => rt.UserId, u => u.Id, (rt, u) => u)
             .SingleOrDefaultAsync();
+    }
 }

@@ -18,13 +18,17 @@ public class AuthenticationService : IAuthenticationService
     private readonly IUserQueryRepository _userQuery;
     private readonly IUserCommandRepository _userCommand;
     private readonly ILogger<AuthenticationService> _logger;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ISmtpEmailService _smtpEmailService;
 
     public AuthenticationService(
         IPasswordService passwordService,
         ITokenService tokenService,
         IUserQueryRepository userQuery,
         IUserCommandRepository userCommand,
-        ILogger<AuthenticationService> logger
+        ILogger<AuthenticationService> logger,
+        IDateTimeProvider dateTimeProvider,
+        ISmtpEmailService smtpEmailService,
     )
     {
         _passwordService = passwordService;
@@ -32,6 +36,8 @@ public class AuthenticationService : IAuthenticationService
         _userQuery = userQuery;
         _userCommand = userCommand;
         _logger = logger;
+        _dateTimeProvider = dateTimeProvider;
+        _smtpEmailService = smtpEmailService;
     }
 
     public async Task<AuthResponse> RegisterAsync(
@@ -43,15 +49,17 @@ public class AuthenticationService : IAuthenticationService
         _logger.LogInformation("Registering new user with email {Email}", request.Email);
 
         await EnsureEmailNotUsedAsync(request.Email);
-        var passwordHash = _passwordService.HashPassword(request.Password);
+
+        var password = Password.Create(request.Password);
+
+        var passwordHash = _passwordService.HashPassword(password.ToString());
 
         var domainUser = User.Create(
             request.FirstName,
             request.LastName,
             Email.Create(request.Email),
             Phone.Create(request.Phone),
-            passwordHash,
-            new SystemDateTimeProvider()
+            passwordHash
         );
 
         await _userCommand.AddAsync(domainUser);
@@ -82,36 +90,86 @@ public class AuthenticationService : IAuthenticationService
         var email = Email.Create(request.Email);
         var user = await _userQuery.GetByEmailAsync(email);
 
-        if (user is null || !_passwordService.VerifyPassword(request.Password, user.PasswordHash))
+        if (user is null)
         {
-            if (user != null)
-            {
-                user.RegisterFailedLoginAttempt();
-                await _userCommand.SaveChangesAsync();
-
-                if (user.IsLockedOut)
-                    _logger.LogWarning(
-                        "User account {Email} locked due to too many failed login attempts",
-                        request.Email
-                    );
-            }
-
-            _logger.LogWarning("Invalid login attempt for {Email}", request.Email);
+            _logger.LogWarning("Invalid login attempt for unknown user {Email}", request.Email);
             throw new UnauthorizedAccessException("Invalid credentials.");
         }
 
+        var now = _dateTimeProvider.UtcNow;
+
+        // 🔐 Déjà bloqué
+        if (user.IsLockedOut(now))
+        {
+            _logger.LogWarning("Login attempt on locked account {Email}", request.Email);
+
+            await _smtpEmailService.SendAccountLockedEmailAsync(
+                user.Email.ToString(),
+                $"{user.FirstName} {user.LastName}",
+                user.LockoutEnd!.Value
+            );
+
+            throw new UnauthorizedAccessException(
+                $"Account is locked. Try again at {user.LockoutEnd.Value:HH:mm} UTC."
+            );
+        }
+
+        // ❌ Mot de passe incorrect
+        if (!_passwordService.VerifyPassword(request.Password, user.PasswordHash))
+        {
+            var lockoutEnd = user.RegisterFailedLoginAttempt(now);
+            await _userCommand.SaveChangesAsync();
+
+            if (lockoutEnd.HasValue)
+            {
+                _logger.LogWarning(
+                    "User {Email} just got locked out. Now: {Now}, LockoutEnd: {LockoutEnd}, FailedAttempts: {Count}",
+                    request.Email,
+                    now,
+                    lockoutEnd.Value,
+                    user.FailedLoginAttempts
+                );
+
+                await _smtpEmailService.SendAccountLockedEmailAsync(
+                    user.Email.ToString(),
+                    $"{user.FirstName} {user.LastName}",
+                    lockoutEnd.Value
+                );
+
+                throw new UnauthorizedAccessException(
+                    $"Account is locked. Try again at {lockoutEnd.Value:HH:mm} UTC."
+                );
+            }
+
+            if (user.WillBeLockedNextAttempt)
+            {
+                _logger.LogInformation(
+                    "One more attempt before lockout for {Email}",
+                    request.Email
+                );
+
+                throw new UnauthorizedAccessException(
+                    "Invalid credentials. Warning: one more failed attempt will lock your account."
+                );
+            }
+
+            _logger.LogWarning(
+                "Invalid login attempt for {Email}. FailedAttempts: {Count}",
+                request.Email,
+                user.FailedLoginAttempts
+            );
+
+            throw new UnauthorizedAccessException("Invalid credentials.");
+        }
+
+        // 🔒 Compte désactivé
         if (!user.IsActive)
         {
             _logger.LogWarning("Login attempt on inactive account {Email}", request.Email);
             throw new UnauthorizedAccessException("Account is inactive.");
         }
 
-        if (user.IsLockedOut)
-        {
-            _logger.LogWarning("Login attempt on locked account {Email}", request.Email);
-            throw new UnauthorizedAccessException("Account is locked. Try again later.");
-        }
-
+        // 🔄 Changement de mot de passe obligatoire
         if (user.RequirePasswordChange)
         {
             _logger.LogInformation(
@@ -121,7 +179,8 @@ public class AuthenticationService : IAuthenticationService
             throw new UnauthorizedAccessException("Password change required.");
         }
 
-        user.RegisterSuccessfulLogin();
+        // ✅ Succès
+        user.RegisterSuccessfulLogin(now);
         await _userCommand.SaveChangesAsync();
 
         var accessToken = _tokenService.GenerateAccessToken(
@@ -129,6 +188,7 @@ public class AuthenticationService : IAuthenticationService
             user.Email.ToString(),
             user.Role.ToString()
         );
+
         var refreshToken = await _tokenService.GenerateRefreshTokenAsync(
             user.Id,
             ipAddress,
@@ -137,6 +197,107 @@ public class AuthenticationService : IAuthenticationService
 
         return new AuthResponse(CreateUserInfo(user), accessToken, refreshToken);
     }
+
+    // public async Task<AuthResponse> LoginAsync(
+    //     LoginRequest request,
+    //     string ipAddress,
+    //     string userAgent
+    // )
+    // {
+    //     _logger.LogInformation("Attempting login for email {Email}", request.Email);
+
+    //     var email = Email.Create(request.Email);
+    //     var user = await _userQuery.GetByEmailAsync(email);
+
+    //     if (user is null)
+    //     {
+    //         _logger.LogWarning("Invalid login attempt for unknown user {Email}", request.Email);
+    //         throw new UnauthorizedAccessException("Invalid credentials.");
+    //     }
+
+    //     var now = _dateTimeProvider.UtcNow;
+
+    //     // 🔐 Vérifier si déjà bloqué
+    //     if (user.IsLockedOut(now))
+    //     {
+    //         _logger.LogWarning("Login attempt on locked account {Email}", request.Email);
+
+    //         // 👉 Envoi d'email
+    //         await _smtpEmailService.SendAccountLockedEmailAsync(
+    //             user.Email.ToString(),
+    //             $"{user.FirstName} {user.LastName}",
+    //             user.LockoutEnd!.Value
+    //         );
+    //         throw new UnauthorizedAccessException("Account is locked. Try again later.");
+    //     }
+
+    //     // ❌ Mot de passe incorrect
+    //     if (!_passwordService.VerifyPassword(request.Password, user.PasswordHash))
+    //     {
+    //         // Enregistre la tentative échouée
+    //         user.RegisterFailedLoginAttempt(now);
+    //         await _userCommand.SaveChangesAsync();
+
+    //         if (user.IsLockedOut(now))
+    //         {
+    //             _logger.LogWarning(
+    //                 "User {Email} is now locked out due to failed attempts",
+    //                 request.Email
+    //             );
+    //             throw new UnauthorizedAccessException("Account is locked. Try again later.");
+    //         }
+
+    //         if (user.WillBeLockedNextAttempt)
+    //         {
+    //             _logger.LogInformation(
+    //                 "One more attempt before lockout for {Email}",
+    //                 request.Email
+    //             );
+    //             throw new UnauthorizedAccessException(
+    //                 "Invalid credentials. Warning: one more failed attempt will lock your account."
+    //             );
+    //         }
+
+    //         _logger.LogWarning("Invalid login attempt for {Email}", request.Email);
+    //         throw new UnauthorizedAccessException("Invalid credentials.");
+    //     }
+
+    //     // 🔒 Si compte désactivé
+    //     if (!user.IsActive)
+    //     {
+    //         _logger.LogWarning("Login attempt on inactive account {Email}", request.Email);
+    //         throw new UnauthorizedAccessException("Account is inactive.");
+    //     }
+
+    //     // 🔄 Changement de mot de passe obligatoire
+    //     if (user.RequirePasswordChange)
+    //     {
+    //         _logger.LogInformation(
+    //             "User {Email} must change password before continuing",
+    //             request.Email
+    //         );
+    //         throw new UnauthorizedAccessException("Password change required.");
+    //     }
+
+    //     // ✅ Succès : RAZ des échecs + MAJ login date
+    //     user.RegisterSuccessfulLogin(now);
+    //     await _userCommand.SaveChangesAsync();
+
+    //     // 🎟 Génération des tokens
+    //     var accessToken = _tokenService.GenerateAccessToken(
+    //         user.Id,
+    //         user.Email.ToString(),
+    //         user.Role.ToString()
+    //     );
+
+    //     var refreshToken = await _tokenService.GenerateRefreshTokenAsync(
+    //         user.Id,
+    //         ipAddress,
+    //         userAgent
+    //     );
+
+    //     return new AuthResponse(CreateUserInfo(user), accessToken, refreshToken);
+    // }
 
     public async Task<AuthResponse> RefreshTokenAsync(
         string refreshToken,

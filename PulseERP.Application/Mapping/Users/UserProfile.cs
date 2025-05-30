@@ -25,8 +25,6 @@ public class UserProfile : Profile
 
         // Mapping CreateUserRequest → User via factory User.Create
 
-        IDateTimeProvider dateTimeProvider = new SystemDateTimeProvider();
-
         CreateMap<CreateUserRequest, User>()
             .ConstructUsing(cmd =>
                 User.Create(
@@ -34,8 +32,7 @@ public class UserProfile : Profile
                     cmd.LastName,
                     Email.Create(cmd.Email),
                     Phone.Create(cmd.Phone),
-                    cmd.Password,
-                    dateTimeProvider
+                    cmd.Password
                 )
             );
 

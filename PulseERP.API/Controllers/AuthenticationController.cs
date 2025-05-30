@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,12 +12,15 @@ namespace PulseERP.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationService _authService;
         private readonly IPasswordService _passwordService;
 
-        public AuthController(IAuthenticationService authService, IPasswordService passwordService)
+        public AuthenticationController(
+            IAuthenticationService authService,
+            IPasswordService passwordService
+        )
         {
             _authService = authService;
             _passwordService = passwordService;

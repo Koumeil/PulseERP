@@ -1,5 +1,3 @@
-using System;
-
 namespace PulseERP.Domain.Exceptions;
 
 public class UserNotFoundException : Exception

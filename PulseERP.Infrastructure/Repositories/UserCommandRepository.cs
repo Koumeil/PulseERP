@@ -6,27 +6,32 @@ namespace PulseERP.Infrastructure.Repositories;
 
 public class UserCommandRepository : IUserCommandRepository
 {
-    private readonly CoreDbContext _ctx;
+    private readonly CoreDbContext _context;
 
-    public UserCommandRepository(CoreDbContext ctx) => _ctx = ctx;
+    public UserCommandRepository(CoreDbContext context)
+    {
+        _context = context;
+    }
 
     public Task AddAsync(User user)
     {
-        _ctx.Users.Add(user);
-        return Task.CompletedTask;
+        return _context.Users.AddAsync(user).AsTask();
     }
 
     public Task UpdateAsync(User user)
     {
-        _ctx.Users.Update(user);
+        _context.Users.Update(user);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(User user)
     {
-        _ctx.Users.Remove(user);
+        _context.Users.Remove(user);
         return Task.CompletedTask;
     }
 
-    public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
+    public Task<int> SaveChangesAsync()
+    {
+        return _context.SaveChangesAsync();
+    }
 }
