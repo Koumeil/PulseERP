@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Domain.Enums;
+using PulseERP.Domain.Enums.Token;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Infrastructure.Database;

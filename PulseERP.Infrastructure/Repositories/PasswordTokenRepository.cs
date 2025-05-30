@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Enums;
+using PulseERP.Domain.Enums.Token;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Infrastructure.Database;
@@ -33,7 +33,7 @@ public class PasswordResetTokenRepository : IPasswordResetTokenRepository
     public Task<RefreshToken?> GetActiveByTokenAsync(string token) =>
         _ctx.RefreshTokens.SingleOrDefaultAsync(rt =>
             rt.Token == token
-            && rt.TokenType == TokenType.PasswordReset
+            // && rt.TokenType == TokenType.PasswordReset
             && rt.Revoked == null
             && rt.Expires > _time.UtcNow
         );

@@ -1,106 +1,150 @@
 using AutoMapper;
-using PulseERP.Application.Exceptions;
+using PulseERP.Application.Common;
+using PulseERP.Application.Dtos.Product;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
-using PulseERP.Shared.Dtos.Products;
 
 namespace PulseERP.Application.Services;
 
 public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
-    private readonly ISerilogAppLoggerService<ProductService> _logger;
-
-    private readonly IBrandService _brandService;
+    private readonly IBrandRepository _brandRepository;
     private readonly IMapper _mapper;
 
     public ProductService(
         IProductRepository repository,
-        ISerilogAppLoggerService<ProductService> logger,
-        IBrandService brandService,
+        IBrandRepository brandRepository,
         IMapper mapper
     )
     {
         _repository = repository;
-        _logger = logger;
-        _brandService = brandService;
+        _brandRepository = brandRepository;
         _mapper = mapper;
     }
 
-    public async Task<PaginationResult<ProductDto>> GetAllAsync(ProductParams productParams)
+    public async Task<PaginationResult<ProductDto>> GetAllAsync(
+        PaginationParams pagination,
+        ProductParams productParams
+    )
     {
-        var pagedProducts = await _repository.GetAllAsync(productParams);
-        var productsDtos = _mapper.Map<List<ProductDto>>(pagedProducts.Items);
-
+        var pagedProducts = await _repository.GetAllAsync(pagination, productParams);
+        var dtos = _mapper.Map<List<ProductDto>>(pagedProducts.Items);
         return new PaginationResult<ProductDto>(
-            productsDtos,
+            dtos,
             pagedProducts.TotalItems,
-            pagedProducts.PageNumber,
-            pagedProducts.PageSize
+            pagedProducts.PageSize,
+            pagedProducts.PageNumber
         );
     }
 
-    public async Task<ProductDto> GetByIdAsync(Guid id)
+    public async Task<ServiceResult<ProductDto>> GetByIdAsync(Guid id)
     {
         var product = await _repository.GetByIdAsync(id);
         if (product is null)
-            throw new NotFoundException($"Product with id '{id}' was not found.", id);
+            return ServiceResult<ProductDto>.Fail("Product.NotFound", "Produit introuvable");
 
-        return _mapper.Map<ProductDto>(product);
+        return ServiceResult<ProductDto>.Ok(_mapper.Map<ProductDto>(product));
     }
 
-    public async Task<ProductDto> CreateAsync(CreateProductRequest command)
+    public async Task<ServiceResult<ProductDto>> CreateAsync(CreateProductRequest request)
     {
-        var brand = await _brandService.GetOrCreateAsync(command.Brand);
+        var brand = await _brandRepository.GetByNameAsync(request.Brand);
 
-        if (brand is null)
-            brand = Brand.Create(command.Brand);
+        brand ??= Brand.Create(request.Brand);
 
         var product = Product.Create(
-            command.Name,
-            command.Description,
+            request.Name,
+            request.Description,
             brand,
-            command.Price,
-            command.Quantity,
-            command.IsService
+            request.Price,
+            request.Quantity,
+            request.IsService
         );
 
         await _repository.AddAsync(product);
-        _logger.LogInformation("Created product {ProductId}", product.Id);
+        await _repository.SaveChangesAsync();
 
-        return _mapper.Map<ProductDto>(product);
+        return ServiceResult<ProductDto>.Ok(_mapper.Map<ProductDto>(product));
     }
 
-    public async Task<ProductDto> UpdateAsync(Guid id, UpdateProductRequest command)
+    public async Task<ServiceResult<ProductDto>> UpdateAsync(Guid id, UpdateProductRequest request)
     {
         var product = await _repository.GetByIdAsync(id);
         if (product is null)
-            throw new NotFoundException($"Product with id '{id}' was not found.", id);
+            return ServiceResult<ProductDto>.Fail("Product.NotFound", "Produit introuvable");
+
+        Brand? brand = product.Brand;
+        if (request.BrandId.HasValue)
+        {
+            brand = await _brandRepository.GetByIdAsync(request.BrandId.Value);
+            if (brand is null)
+                return ServiceResult<ProductDto>.Fail("Brand.NotFound", "Marque introuvable");
+        }
 
         product.UpdateDetails(
-            command.Name,
-            command.Description,
-            command.Brand,
-            command.Price,
-            command.Quantity
+            name: request.Name ?? product.Name,
+            description: request.Description,
+            brand: brand,
+            price: request.Price ?? product.Price.Value,
+            isService: request.IsService ?? product.IsService
         );
 
-        await _repository.UpdateAsync(product);
-        _logger.LogInformation("Updated product {ProductId}", product.Id);
+        if (request.Quantity.HasValue)
+        {
+            int quantityDiff = request.Quantity.Value - product.Quantity;
+            if (quantityDiff > 0)
+                product.IncreaseStock(quantityDiff);
+            else if (quantityDiff < 0)
+                product.DecreaseStock(-quantityDiff);
+        }
 
-        return _mapper.Map<ProductDto>(product);
+        await _repository.UpdateAsync(product);
+        await _repository.SaveChangesAsync();
+
+        return ServiceResult<ProductDto>.Ok(_mapper.Map<ProductDto>(product));
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task<ServiceResult<bool>> DeleteAsync(Guid id)
     {
         var product = await _repository.GetByIdAsync(id);
         if (product is null)
-            throw new NotFoundException($"Product with id '{id}' was not found.", id);
+            return ServiceResult<bool>.Fail("Product.NotFound", "Produit introuvable");
 
-        await _repository.DeleteAsync(product);
-        _logger.LogInformation("Deleted product {ProductId}", product.Id);
+        product.Discontinue();
+
+        await _repository.UpdateAsync(product);
+        await _repository.SaveChangesAsync();
+
+        return ServiceResult<bool>.Ok(true);
+    }
+
+    public async Task<ServiceResult> ActivateAsync(Guid id)
+    {
+        var product = await _repository.GetByIdAsync(id);
+        if (product is null)
+            return ServiceResult.Fail("Product.NotFound", "Produit introuvable");
+
+        product.Activate();
+        await _repository.UpdateAsync(product);
+        await _repository.SaveChangesAsync();
+
+        return ServiceResult.Ok();
+    }
+
+    public async Task<ServiceResult> DeactivateAsync(Guid id)
+    {
+        var product = await _repository.GetByIdAsync(id);
+        if (product is null)
+            return ServiceResult.Fail("Product.NotFound", "Produit introuvable");
+
+        product.Deactivate();
+        await _repository.UpdateAsync(product);
+        await _repository.SaveChangesAsync();
+
+        return ServiceResult.Ok();
     }
 }

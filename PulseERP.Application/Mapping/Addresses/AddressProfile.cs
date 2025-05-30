@@ -1,6 +1,6 @@
 using AutoMapper;
-using PulseERP.Shared.Dtos.Address;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.Dtos.Address;
 
 namespace PulseERP.Application.Mapping.Addresses;
 

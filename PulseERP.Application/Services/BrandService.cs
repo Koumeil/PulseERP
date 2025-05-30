@@ -1,76 +1,77 @@
 using AutoMapper;
+using PulseERP.Application.Common;
+using PulseERP.Application.Dtos.Brand;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
-using PulseERP.Shared.Dtos.Brands;
 
 namespace PulseERP.Application.Services;
 
 public class BrandService : IBrandService
 {
-    private readonly IBrandRepository _brandRepository;
+    private readonly IBrandRepository _repo;
     private readonly IMapper _mapper;
 
-    public BrandService(IBrandRepository brandRepository, IMapper mapper)
+    public BrandService(IBrandRepository repo, IMapper mapper)
     {
-        _brandRepository = brandRepository;
+        _repo = repo;
         _mapper = mapper;
     }
 
-    public async Task<BrandDto?> GetByIdAsync(Guid id)
+    public async Task<ServiceResult<BrandDto>> CreateAsync(CreateBrandRequest request)
     {
-        var brand = await _brandRepository.GetByIdAsync(id);
-        return _mapper.Map<BrandDto>(brand);
+        var brand = Brand.Create(request.Name);
+        await _repo.AddAsync(brand);
+        await _repo.SaveChangesAsync();
+        return ServiceResult<BrandDto>.Ok(_mapper.Map<BrandDto>(brand));
     }
 
-    public async Task<PaginationResult<BrandDto>> GetAllAsync(PaginationParams paginationParams)
+    public async Task<ServiceResult<BrandDto>> UpdateAsync(Guid id, UpdateBrandRequest request)
     {
-        var brands = await _brandRepository.GetAllAsync(paginationParams);
-        return _mapper.Map<PaginationResult<BrandDto>>(brands);
-    }
-
-    public async Task<BrandDto> CreateAsync(CreateBrandDto dto)
-    {
-        if (await _brandRepository.NameExistsAsync(dto.Name))
-            throw new InvalidOperationException($"Brand with name '{dto.Name}' already exists.");
-
-        var brand = _mapper.Map<Brand>(dto);
-        var createdBrand = await _brandRepository.AddAsync(brand);
-        return _mapper.Map<BrandDto>(createdBrand);
-    }
-
-    public async Task UpdateAsync(UpdateBrandDto dto)
-    {
-        var existingBrand =
-            await _brandRepository.GetByIdAsync(dto.Id)
-            ?? throw new KeyNotFoundException($"Brand with ID {dto.Id} not found.");
-
-        if (existingBrand.Name != dto.Name && await _brandRepository.NameExistsAsync(dto.Name))
-            throw new InvalidOperationException($"Brand with name '{dto.Name}' already exists.");
-
-        _mapper.Map(dto, existingBrand);
-        await _brandRepository.UpdateAsync(existingBrand);
-    }
-
-    public async Task DeleteAsync(Guid id)
-    {
-        if (!await _brandRepository.ExistsAsync(id))
-            throw new KeyNotFoundException($"Brand with ID {id} not found.");
-
-        await _brandRepository.DeleteAsync(id);
-    }
-
-    public async Task<Brand> GetOrCreateAsync(string brandName)
-    {
-        var brand = await _brandRepository.GetByNameAsync(brandName);
-
+        var brand = await _repo.GetByIdAsync(id);
         if (brand is null)
-        {
-            brand = Brand.Create(brandName);
-            await _brandRepository.AddAsync(brand);
-        }
+            return ServiceResult<BrandDto>.Fail("Brand.NotFound", "Marque introuvable");
 
-        return brand;
+        brand.UpdateName(request.Name);
+        await _repo.UpdateAsync(brand);
+        await _repo.SaveChangesAsync();
+
+        return ServiceResult<BrandDto>.Ok(_mapper.Map<BrandDto>(brand));
+    }
+
+    public async Task<ServiceResult<bool>> DeleteAsync(Guid id)
+    {
+        var brand = await _repo.GetByIdAsync(id);
+        if (brand is null)
+            return ServiceResult<bool>.Fail("Brand.NotFound", "Marque introuvable");
+
+        // soft-delete, ou .Deactivate() si tu préfères garder l’historique
+        brand.Deactivate();
+        await _repo.UpdateAsync(brand);
+        await _repo.SaveChangesAsync();
+
+        return ServiceResult<bool>.Ok(true);
+    }
+
+    public async Task<ServiceResult<BrandDto>> GetByIdAsync(Guid id)
+    {
+        var brand = await _repo.GetByIdAsync(id);
+        if (brand is null)
+            return ServiceResult<BrandDto>.Fail("Brand.NotFound", "Marque introuvable");
+
+        return ServiceResult<BrandDto>.Ok(_mapper.Map<BrandDto>(brand));
+    }
+
+    public async Task<PaginationResult<BrandDto>> GetAllAsync(PaginationParams pagination)
+    {
+        var paged = await _repo.GetAllAsync(pagination);
+        var dtos = _mapper.Map<List<BrandDto>>(paged.Items);
+        return new PaginationResult<BrandDto>(
+            dtos,
+            paged.TotalItems,
+            paged.PageSize,
+            paged.PageNumber
+        );
     }
 }

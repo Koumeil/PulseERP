@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos;
+using PulseERP.Application.Dtos.Product;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
-using PulseERP.Shared.Dtos.Products;
 
 namespace PulseERP.API.Controllers;
 
@@ -19,19 +19,20 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
+    [HttpGet]
     public async Task<ActionResult<ApiResponse<PaginationResult<ProductDto>>>> GetAll(
+        [FromQuery] PaginationParams paginationParams,
         [FromQuery] ProductParams productParams
     )
     {
-        var result = await _productService.GetAllAsync(productParams);
-
-        var response = new ApiResponse<PaginationResult<ProductDto>>(
-            Success: true,
-            Data: result,
-            Message: "Products retrieved successfully"
+        var result = await _productService.GetAllAsync(paginationParams, productParams);
+        return Ok(
+            new ApiResponse<PaginationResult<ProductDto>>(
+                Success: true,
+                Data: result,
+                Message: "Products retrieved successfully"
+            )
         );
-
-        return Ok(response);
     }
 
     [HttpGet("{id:guid}")]
@@ -41,7 +42,7 @@ public class ProductsController : ControllerBase
 
         var response = new ApiResponse<ProductDto>(
             Success: true,
-            Data: result,
+            Data: result.Data,
             Message: "Product retrieved successfully"
         );
 
@@ -57,7 +58,7 @@ public class ProductsController : ControllerBase
 
         var response = new ApiResponse<ProductDto>(
             Success: true,
-            Data: result,
+            Data: result.Data,
             Message: "Product created successfully"
         );
 
@@ -74,7 +75,7 @@ public class ProductsController : ControllerBase
 
         var response = new ApiResponse<ProductDto>(
             Success: true,
-            Data: result,
+            Data: result.Data,
             Message: "Product updated successfully"
         );
 

@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using PulseERP.Application.Settings;
+using PulseERP.Shared.Settings;
 
 namespace PulseERP.API.Extensions;
 

@@ -1,7 +1,5 @@
 using System.Text.RegularExpressions;
-using PulseERP.Domain.Exceptions;
-
-namespace PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.Errors;
 
 public sealed class Phone : IEquatable<Phone>
 {
@@ -10,9 +8,6 @@ public sealed class Phone : IEquatable<Phone>
 
     private Phone(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentNullException(nameof(value));
-
         Value = value;
     }
 
@@ -31,34 +26,27 @@ public sealed class Phone : IEquatable<Phone>
         return new Phone(trimmed);
     }
 
-    public bool Equals(Phone? other)
+    /// <summary>
+    /// Retourne la même instance si identique, ou une nouvelle instance validée.
+    /// </summary>
+    public Phone Update(string newValue)
     {
-        if (ReferenceEquals(null, other))
-            return false;
-        if (ReferenceEquals(this, other))
-            return true;
-        return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
+        var trimmed = newValue?.Trim();
+        if (string.Equals(Value, trimmed, StringComparison.OrdinalIgnoreCase))
+            return this;
+        return Create(trimmed!);
     }
 
-    public override bool Equals(object? obj)
-    {
-        return ReferenceEquals(this, obj) || (obj is Phone other && Equals(other));
-    }
+    public bool Equals(Phone? other) =>
+        other is not null && string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
 
-    public override int GetHashCode()
-    {
-        return StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
-    }
+    public override bool Equals(object? obj) => obj is Phone other && Equals(other);
+
+    public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
 
     public override string ToString() => Value;
 
-    public static bool operator ==(Phone? left, Phone? right)
-    {
-        return Equals(left, right);
-    }
+    public static bool operator ==(Phone? left, Phone? right) => Equals(left, right);
 
-    public static bool operator !=(Phone? left, Phone? right)
-    {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(Phone? left, Phone? right) => !Equals(left, right);
 }

@@ -1,5 +1,5 @@
+using PulseERP.Domain.Dtos.Users;
 using PulseERP.Domain.Pagination;
-using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.Application.Interfaces;
 

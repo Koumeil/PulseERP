@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using PulseERP.Domain.Exceptions;
+using PulseERP.Domain.Errors;
 
 namespace PulseERP.Domain.ValueObjects;
 

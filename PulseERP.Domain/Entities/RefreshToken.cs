@@ -1,4 +1,4 @@
-using PulseERP.Domain.Enums;
+using PulseERP.Domain.Enums.Token;
 using PulseERP.Domain.Interfaces.Services;
 
 public class RefreshToken

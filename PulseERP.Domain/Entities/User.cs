@@ -1,4 +1,4 @@
-using PulseERP.Domain.Exceptions;
+using PulseERP.Domain.Errors;
 using PulseERP.Domain.Shared.Roles;
 using PulseERP.Domain.ValueObjects;
 

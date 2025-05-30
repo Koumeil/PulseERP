@@ -1,9 +1,10 @@
 using Hellang.Middleware.ProblemDetails;
 using PulseERP.API.Extensions;
 using PulseERP.Application;
-using PulseERP.Application.Interfaces;
-using PulseERP.Application.Settings;
+using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Infrastructure;
+using PulseERP.Infrastructure.Smtp;
+using PulseERP.Shared.Settings;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

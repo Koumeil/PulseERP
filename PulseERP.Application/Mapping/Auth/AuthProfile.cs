@@ -1,6 +1,6 @@
 using AutoMapper;
-using PulseERP.Shared.Dtos.Auth;
-using PulseERP.Shared.Dtos.Users;
+using PulseERP.Domain.Dtos.Auth;
+using PulseERP.Domain.Dtos.Users;
 
 namespace PulseERP.Application.Mapping.Auth;
 

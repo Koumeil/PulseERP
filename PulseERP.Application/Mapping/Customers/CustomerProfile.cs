@@ -1,5 +1,8 @@
+// Application/Mapping/Customers/CustomerProfile.cs
 using AutoMapper;
-using PulseERP.Shared.Dtos.Customers;
+using PulseERP.Application.Dtos.Customer;
+using PulseERP.Domain.Entities;
+using PulseERP.Domain.Enums.Customer;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
 
@@ -9,46 +12,65 @@ public class CustomerProfile : Profile
 {
     public CustomerProfile()
     {
-        // Mapping Customer → CustomerDto
+        // Domain → DTO
         CreateMap<Customer, CustomerDto>()
-            .ConstructUsing(src => new CustomerDto(
-                src.Id,
-                src.FirstName,
-                src.LastName,
-                src.Email.ToString(),
-                src.Phone.ToString(),
-                src.Address.Street,
-                src.Address.City,
-                src.Address.ZipCode,
-                src.Address.Country
-            ));
+            .ForMember(d => d.Email, o => o.MapFrom(s => s.Email.ToString()))
+            .ForMember(d => d.Phone, o => o.MapFrom(s => s.Phone.ToString()))
+            .ForMember(
+                d => d.Address,
+                o =>
+                    o.MapFrom(s =>
+                        $"{s.Address.Street}, {s.Address.City}, {s.Address.ZipCode}, {s.Address.Country}"
+                    )
+            )
+            .ForMember(d => d.Type, o => o.MapFrom(s => s.Type.ToString()))
+            .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()))
+            .ForMember(d => d.LastInteractionDate, o => o.MapFrom(s => s.LastInteractionDate))
+            .ForMember(d => d.Notes, o => o.MapFrom(s => s.Notes.ToList()))
+            .ForMember(d => d.Tags, o => o.MapFrom(s => s.Tags.ToList()));
 
-        // Mapping CreateCustomerRequest → Customer
+        // CreateCustomerRequest → Domain
         CreateMap<CreateCustomerRequest, Customer>()
             .ConstructUsing(
-                (cmd, context) =>
+                (cmd, ctx) =>
                 {
                     var email = Email.Create(cmd.Email);
                     var phone = Phone.Create(cmd.Phone);
-                    var address = Address.Create(cmd.Street, cmd.City, cmd.ZipCode, cmd.Country);
+                    var address = new Address(cmd.City, cmd.Street, cmd.ZipCode, cmd.Country);
+                    var type = Enum.Parse<CustomerType>(cmd.Type);
+                    var status = Enum.Parse<CustomerStatus>(cmd.Status);
 
-                    return Customer.Create(cmd.FirstName, cmd.LastName, email, phone, address);
+                    var customer = Customer.Create(
+                        cmd.FirstName,
+                        cmd.LastName,
+                        cmd.CompanyName,
+                        email,
+                        phone,
+                        address,
+                        type,
+                        status,
+                        DateTime.UtcNow,
+                        cmd.IsVIP
+                    );
+                    customer.SetIndustry(cmd.Industry);
+                    customer.SetSource(cmd.Source);
+                    return customer;
                 }
             );
 
-        // Mapping PaginationResult<Customer> → PaginationResult<CustomerDto>
+        // UpdateCustomerRequest → Domain (on ignore : on utilise UpdateDetails en service)
+        CreateMap<UpdateCustomerRequest, Customer>().ForAllMembers(o => o.Ignore());
+
+        // PaginationResult<Customer> → PaginationResult<CustomerDto>
         CreateMap<PaginationResult<Customer>, PaginationResult<CustomerDto>>()
             .ConvertUsing(
-                (src, dest, context) =>
-                {
-                    var mappedItems = context.Mapper.Map<List<CustomerDto>>(src.Items);
-                    return new PaginationResult<CustomerDto>(
-                        mappedItems,
+                (src, dest, ctx) =>
+                    new PaginationResult<CustomerDto>(
+                        ctx.Mapper.Map<List<CustomerDto>>(src.Items),
                         src.TotalItems,
                         src.PageNumber,
                         src.PageSize
-                    );
-                }
+                    )
             );
     }
 }

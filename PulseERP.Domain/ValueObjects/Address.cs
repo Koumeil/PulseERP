@@ -1,17 +1,37 @@
+namespace PulseERP.Domain.ValueObjects;
+
 public record Address(string Street, string City, string ZipCode, string Country)
 {
-    public static Address Create(string street, string city, string zipCode, string country)
+    public static Address Create(string rawAddress)
     {
-        if (string.IsNullOrWhiteSpace(street))
-            throw new ArgumentException("Street is required");
-        if (string.IsNullOrWhiteSpace(city))
-            throw new ArgumentException("City is required");
-        if (string.IsNullOrWhiteSpace(zipCode))
-            throw new ArgumentException("ZipCode is required");
-        if (string.IsNullOrWhiteSpace(country))
-            throw new ArgumentException("Country is required");
+        if (string.IsNullOrWhiteSpace(rawAddress))
+            throw new ArgumentException("L'adresse est vide.");
 
-        return new Address(street.Trim(), city.Trim(), zipCode.Trim(), country.Trim());
+        var parts = rawAddress.Split(
+            ',',
+            StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries
+        );
+
+        if (parts.Length != 4)
+            throw new ArgumentException(
+                "L'adresse doit contenir 4 parties : rue, ville, code postal, pays"
+            );
+
+        var street = parts[0];
+        var city = parts[1];
+        var zip = parts[2];
+        var country = parts[3];
+
+        if (string.IsNullOrWhiteSpace(street))
+            throw new ArgumentException("La rue est requise");
+        if (string.IsNullOrWhiteSpace(city))
+            throw new ArgumentException("La ville est requise");
+        if (string.IsNullOrWhiteSpace(zip))
+            throw new ArgumentException("Le code postal est requis");
+        if (string.IsNullOrWhiteSpace(country))
+            throw new ArgumentException("Le pays est requis");
+
+        return new Address(street, city, zip, country);
     }
 
     public Address Update(
@@ -22,14 +42,10 @@ public record Address(string Street, string City, string ZipCode, string Country
     )
     {
         var updated = new Address(
-            street is not null && !string.IsNullOrWhiteSpace(street) ? street.Trim() : this.Street,
-            city is not null && !string.IsNullOrWhiteSpace(city) ? city.Trim() : this.City,
-            zipCode is not null && !string.IsNullOrWhiteSpace(zipCode)
-                ? zipCode.Trim()
-                : this.ZipCode,
-            country is not null && !string.IsNullOrWhiteSpace(country)
-                ? country.Trim()
-                : this.Country
+            !string.IsNullOrWhiteSpace(street) ? street.Trim() : Street,
+            !string.IsNullOrWhiteSpace(city) ? city.Trim() : City,
+            !string.IsNullOrWhiteSpace(zipCode) ? zipCode.Trim() : ZipCode,
+            !string.IsNullOrWhiteSpace(country) ? country.Trim() : Country
         );
 
         return updated.Equals(this) ? this : updated;

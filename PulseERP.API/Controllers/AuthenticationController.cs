@@ -2,11 +2,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos;
-using PulseERP.Application.Interfaces;
+using PulseERP.Domain.Dtos.Auth;
+using PulseERP.Domain.Dtos.Auth.Password;
+using PulseERP.Domain.Dtos.Auth.Token;
 using PulseERP.Domain.Interfaces.Services;
-using PulseERP.Shared.Dtos.Auth;
-using PulseERP.Shared.Dtos.Auth.Password;
-using PulseERP.Shared.Dtos.Auth.Token;
 
 namespace PulseERP.API.Controllers
 {

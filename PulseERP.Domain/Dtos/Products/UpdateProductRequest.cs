@@ -1,0 +1,9 @@
+namespace PulseERP.Domain.Dtos.Products;
+
+public record UpdateProductRequest(
+    string? Name,
+    string? Description,
+    string? Brand,
+    decimal? Price,
+    int? Quantity
+);

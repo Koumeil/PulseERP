@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
-using PulseERP.Application.Exceptions;
-using PulseERP.Application.Interfaces;
+using PulseERP.Domain.Errors;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Domain.ValueObjects;
@@ -14,6 +13,7 @@ public class PasswordService : IPasswordService
     private readonly IUserCommandRepository _userCommand;
     private readonly IPasswordResetTokenRepository _resetRepo;
     private readonly ISmtpEmailService _emailService;
+    private readonly ITokenHasher _tokenHasher;
     private readonly IDateTimeProvider _time;
     private readonly ILogger<PasswordService> _logger;
 
@@ -23,7 +23,8 @@ public class PasswordService : IPasswordService
         IPasswordResetTokenRepository resetRepo,
         ISmtpEmailService emailService,
         IDateTimeProvider time,
-        ILogger<PasswordService> logger
+        ILogger<PasswordService> logger,
+        ITokenHasher tokenHasher
     )
     {
         _userQuery = userQuery;
@@ -32,6 +33,7 @@ public class PasswordService : IPasswordService
         _emailService = emailService;
         _time = time;
         _logger = logger;
+        _tokenHasher = tokenHasher;
     }
 
     public string HashPassword(string plainPassword)
@@ -93,30 +95,54 @@ public class PasswordService : IPasswordService
     public async Task RequestPasswordResetAsync(string email)
     {
         _logger.LogInformation("Password reset requested for email {Email}", email);
-        var user = await _userQuery.GetByEmailAsync(Email.Create(email));
-        if (user == null)
-            return;
 
+        // 1. Recherche de l’utilisateur
+        var user = await _userQuery.GetByEmailAsync(Email.Create(email));
+        if (user is null)
+            throw new NotFoundException("User", email);
+
+        // 2. Génération et stockage du token
         var token = Guid.NewGuid().ToString("N");
-        await _resetRepo.StoreAsync(user.Id, token, _time.UtcNow.AddHours(1));
+        var expiry = _time.UtcNow.AddHours(1);
+
+        await _resetRepo.StoreAsync(user.Id, token, expiry);
         await _userCommand.SaveChangesAsync();
 
-        await _emailService.SendEmailAsync(user.Email.ToString(), "Password Reset", token);
+        // 3. Construction du nom complet
+        var userName = $"{user.FirstName.Trim()} {user.LastName.Trim()}";
+
+        // 4. URL de réinitialisation codée en dur
+        var resetUrl =
+            $"https://app.pulseepr.com/reset-password?token={Uri.EscapeDataString(token)}";
+
+        // 5. Envoi de l’email
+        await _emailService.SendPasswordResetEmailAsync(
+            toEmail: user.Email.ToString(),
+            userFullName: userName,
+            resetUrl: resetUrl,
+            expiresAtUtc: expiry
+        );
     }
 
     public async Task ResetPasswordWithTokenAsync(string resetToken, string newPassword)
     {
         _logger.LogInformation("Resetting password with token");
+
+        var tokenHashed = _tokenHasher.Hash(resetToken);
         var entity =
-            await _resetRepo.GetActiveByTokenAsync(resetToken)
+            await _resetRepo.GetActiveByTokenAsync(tokenHashed)
             ?? throw new UnauthorizedAccessException("Invalid or expired password reset token.");
 
         var user =
             await _userQuery.GetByIdAsync(entity.UserId)
             ?? throw new KeyNotFoundException($"User {entity.UserId} not found.");
 
+        var userName = $"{user.FirstName.Trim()} {user.LastName.Trim()}";
+
         user.UpdatePassword(HashPassword(newPassword));
         user.ClearPasswordResetRequirement();
+
+        await _emailService.SendPasswordChangedEmailAsync(user.Email.ToString(), userName);
 
         await _resetRepo.MarkAsUsedAsync(resetToken);
         await _userCommand.UpdateAsync(user);

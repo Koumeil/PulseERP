@@ -1,10 +1,8 @@
 using AutoMapper;
-using PulseERP.Application.Services;
+using PulseERP.Domain.Dtos.Users;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
-using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.Application.Mapping.Users;
 

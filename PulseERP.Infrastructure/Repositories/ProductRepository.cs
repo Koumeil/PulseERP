@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
@@ -9,44 +8,43 @@ namespace PulseERP.Infrastructure.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly CoreDbContext _context;
-    private readonly ISerilogAppLoggerService<ProductRepository> _logger;
+    private readonly CoreDbContext _ctx;
 
-    public ProductRepository(
-        CoreDbContext context,
-        ISerilogAppLoggerService<ProductRepository> logger
+    public ProductRepository(CoreDbContext ctx) => _ctx = ctx;
+
+    public async Task<PaginationResult<Product>> GetAllAsync(
+        PaginationParams pagination,
+        ProductParams productParams
     )
     {
-        _context = context;
-        _logger = logger;
-    }
+        // 1. On commence la query
+        var query = _ctx.Products.Include(p => p.Brand).AsNoTracking().AsQueryable();
 
-    public async Task<PaginationResult<Product>> GetAllAsync(ProductParams productParams)
-    {
-        var query = _context.Products.Include(p => p.Brand).AsQueryable();
-
+        // 2. Filtre par nom de marque si fourni
         if (!string.IsNullOrWhiteSpace(productParams.Brand))
-            query = query.Where(product => product.Brand.Name.Contains(productParams.Brand));
+            query = query.Where(p => p.Brand.Name.Contains(productParams.Brand));
 
+        // 3. Recherche full-text simple sur nom et description
         if (!string.IsNullOrWhiteSpace(productParams.Search))
         {
             var keyword = $"%{productParams.Search}%";
             query = query.Where(p =>
-                EF.Functions.Like(p.Name, keyword) || EF.Functions.Like(p.Description, keyword)
+                EF.Functions.Like(p.Name, keyword) || EF.Functions.Like(p.Description!, keyword)
             );
         }
 
+        // 4. Tri selon productParams.Sort
         query = productParams.Sort switch
         {
-            "priceAsc" => query.OrderBy(product => product.Price),
-            "priceDesc" => query.OrderByDescending(product => product.Price),
-            _ => query.OrderBy(product => product.Name),
+            "priceAsc" => query.OrderBy(p => p.Price.Value),
+            "priceDesc" => query.OrderByDescending(p => p.Price.Value),
+            _ => query.OrderBy(p => p.Name),
         };
 
-        // Compter le total avant pagination
+        // 5. Comptage avant pagination
         var totalItems = await query.CountAsync();
 
-        // Pagination
+        // 6. Pagination
         var items = await query
             .Skip((productParams.PageNumber - 1) * productParams.PageSize)
             .Take(productParams.PageSize)
@@ -55,89 +53,31 @@ public class ProductRepository : IProductRepository
         return new PaginationResult<Product>(
             items,
             totalItems,
-            productParams.PageNumber,
-            productParams.PageSize
+            pagination.PageNumber,
+            pagination.PageSize
         );
     }
 
-    public async Task<Product?> GetByIdAsync(Guid id)
+    public Task<Product?> GetByIdAsync(Guid id) =>
+        _ctx.Products.Include(p => p.Brand).AsNoTracking().SingleOrDefaultAsync(p => p.Id == id);
+
+    public Task AddAsync(Product product)
     {
-        try
-        {
-            return await _context
-                .Products.Include(p => p.Brand)
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error fetching product by ID: {id}", ex);
-            throw;
-        }
+        _ctx.Products.Add(product);
+        return Task.CompletedTask;
     }
 
-    public async Task AddAsync(Product product)
+    public Task UpdateAsync(Product product)
     {
-        try
-        {
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
-            _context.Entry(product).State = EntityState.Detached;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error adding product {product.Id}", ex);
-            throw;
-        }
+        _ctx.Products.Update(product);
+        return Task.CompletedTask;
     }
 
-    public async Task UpdateAsync(Product product)
+    public Task DeleteAsync(Product product)
     {
-        try
-        {
-            var existing = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
-
-            if (existing is null)
-            {
-                _logger.LogWarning($"Product {product.Id} not found for update");
-                throw new KeyNotFoundException($"Product {product.Id} not found");
-            }
-
-            _context.Entry(existing).CurrentValues.SetValues(product);
-            await _context.SaveChangesAsync();
-            _logger.LogInformation($"Product {product.Id} updated successfully");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error updating product {product.Id}", ex);
-            throw;
-        }
+        _ctx.Products.Remove(product);
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Product product)
-    {
-        try
-        {
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-            _logger.LogInformation($"Product {product.Id} deleted successfully");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error deleting product {product.Id}", ex);
-            throw;
-        }
-    }
-
-    public async Task<bool> ExistsAsync(Guid id)
-    {
-        try
-        {
-            return await _context.Products.AnyAsync(p => p.Id == id);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error checking existence for product {id}", ex);
-            throw;
-        }
-    }
+    public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
 }

@@ -5,12 +5,11 @@ namespace PulseERP.Domain.Interfaces.Repositories;
 
 public interface IBrandRepository
 {
+    Task<PaginationResult<Brand>> GetAllAsync(PaginationParams pagination);
     Task<Brand?> GetByIdAsync(Guid id);
     Task<Brand?> GetByNameAsync(string name);
-    Task<PaginationResult<Brand>> GetAllAsync(PaginationParams paginationParams);
-    Task<Brand> AddAsync(Brand brand);
+    Task AddAsync(Brand brand);
     Task UpdateAsync(Brand brand);
-    Task DeleteAsync(Guid id);
-    Task<bool> ExistsAsync(Guid id);
-    Task<bool> NameExistsAsync(string name);
+    Task DeleteAsync(Brand brand); // ou bien Deactivate en soft-delete
+    Task<int> SaveChangesAsync();
 }

@@ -6,10 +6,13 @@ namespace PulseERP.Domain.Interfaces.Repositories;
 
 public interface IProductRepository
 {
-    Task<PaginationResult<Product>> GetAllAsync(ProductParams productParams);
+    Task<PaginationResult<Product>> GetAllAsync(
+        PaginationParams pagination,
+        ProductParams productParams
+    );
     Task<Product?> GetByIdAsync(Guid id);
     Task AddAsync(Product product);
     Task UpdateAsync(Product product);
     Task DeleteAsync(Product product);
-    Task<bool> ExistsAsync(Guid id);
+    Task<int> SaveChangesAsync();
 }

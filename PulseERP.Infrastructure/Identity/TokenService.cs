@@ -5,11 +5,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PulseERP.Application.Interfaces;
-using PulseERP.Application.Settings;
-using PulseERP.Domain.Enums;
+using PulseERP.Domain.Dtos.Auth.Token;
+using PulseERP.Domain.Enums.Token;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;
-using PulseERP.Shared.Dtos.Auth.Token;
+using PulseERP.Shared.Settings;
 
 namespace PulseERP.Infrastructure.Identity;
 

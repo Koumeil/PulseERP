@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos;
 using PulseERP.Application.Interfaces;
+using PulseERP.Domain.Dtos.Users;
 using PulseERP.Domain.Pagination;
-using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.API.Controllers;
 

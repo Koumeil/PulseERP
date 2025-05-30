@@ -1,6 +1,6 @@
 using AutoMapper;
-using PulseERP.Shared.Dtos.Phones;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.Dtos.Phones;
 
 namespace PulseERP.Application.Mapping.Phones;
 

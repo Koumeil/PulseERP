@@ -1,13 +1,12 @@
 using Microsoft.Extensions.Logging;
-using PulseERP.Application.Exceptions;
 using PulseERP.Application.Interfaces;
-using PulseERP.Application.Services;
+using PulseERP.Domain.Dtos.Auth;
+using PulseERP.Domain.Dtos.Users;
 using PulseERP.Domain.Entities;
+using PulseERP.Domain.Errors;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Domain.ValueObjects;
-using PulseERP.Shared.Dtos.Auth;
-using PulseERP.Shared.Dtos.Users;
 
 namespace PulseERP.Infrastructure.Identity;
 
@@ -28,7 +27,7 @@ public class AuthenticationService : IAuthenticationService
         IUserCommandRepository userCommand,
         ILogger<AuthenticationService> logger,
         IDateTimeProvider dateTimeProvider,
-        ISmtpEmailService smtpEmailService,
+        ISmtpEmailService smtpEmailService
     )
     {
         _passwordService = passwordService;
@@ -48,12 +47,14 @@ public class AuthenticationService : IAuthenticationService
     {
         _logger.LogInformation("Registering new user with email {Email}", request.Email);
 
+        // 1. Vérifier que l'email n'est pas déjà utilisé
         await EnsureEmailNotUsedAsync(request.Email);
 
+        // 2. Hasher le mot de passe
         var password = Password.Create(request.Password);
-
         var passwordHash = _passwordService.HashPassword(password.ToString());
 
+        // 3. Créer l'utilisateur domaine
         var domainUser = User.Create(
             request.FirstName,
             request.LastName,
@@ -62,9 +63,25 @@ public class AuthenticationService : IAuthenticationService
             passwordHash
         );
 
+        // 4. Persister en base
         await _userCommand.AddAsync(domainUser);
         await _userCommand.SaveChangesAsync();
 
+        // 5. Préparer le prénom + nom complet
+        var userName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
+
+        // 6. Générer l'URL de connexion (à adapter selon ton front)
+        var loginUrl =
+            $"https://app.pulseERP.com/login?email={Uri.EscapeDataString(request.Email)}";
+
+        // 7. Envoyer l'email de bienvenue
+        await _smtpEmailService.SendWelcomeEmailAsync(
+            toEmail: request.Email,
+            userFullName: userName,
+            loginUrl: loginUrl
+        );
+
+        // 8. Générer les tokens
         var accessToken = _tokenService.GenerateAccessToken(
             domainUser.Id,
             domainUser.Email.ToString(),
@@ -76,6 +93,7 @@ public class AuthenticationService : IAuthenticationService
             userAgent
         );
 
+        // 9. Retourner la réponse d'authentification
         return new AuthResponse(CreateUserInfo(domainUser), accessToken, refreshToken);
     }
 
@@ -93,7 +111,7 @@ public class AuthenticationService : IAuthenticationService
         if (user is null)
         {
             _logger.LogWarning("Invalid login attempt for unknown user {Email}", request.Email);
-            throw new UnauthorizedAccessException("Invalid credentials.");
+            throw new NotFoundException("Invalid credentials.", email);
         }
 
         var now = _dateTimeProvider.UtcNow;
@@ -198,107 +216,6 @@ public class AuthenticationService : IAuthenticationService
         return new AuthResponse(CreateUserInfo(user), accessToken, refreshToken);
     }
 
-    // public async Task<AuthResponse> LoginAsync(
-    //     LoginRequest request,
-    //     string ipAddress,
-    //     string userAgent
-    // )
-    // {
-    //     _logger.LogInformation("Attempting login for email {Email}", request.Email);
-
-    //     var email = Email.Create(request.Email);
-    //     var user = await _userQuery.GetByEmailAsync(email);
-
-    //     if (user is null)
-    //     {
-    //         _logger.LogWarning("Invalid login attempt for unknown user {Email}", request.Email);
-    //         throw new UnauthorizedAccessException("Invalid credentials.");
-    //     }
-
-    //     var now = _dateTimeProvider.UtcNow;
-
-    //     // 🔐 Vérifier si déjà bloqué
-    //     if (user.IsLockedOut(now))
-    //     {
-    //         _logger.LogWarning("Login attempt on locked account {Email}", request.Email);
-
-    //         // 👉 Envoi d'email
-    //         await _smtpEmailService.SendAccountLockedEmailAsync(
-    //             user.Email.ToString(),
-    //             $"{user.FirstName} {user.LastName}",
-    //             user.LockoutEnd!.Value
-    //         );
-    //         throw new UnauthorizedAccessException("Account is locked. Try again later.");
-    //     }
-
-    //     // ❌ Mot de passe incorrect
-    //     if (!_passwordService.VerifyPassword(request.Password, user.PasswordHash))
-    //     {
-    //         // Enregistre la tentative échouée
-    //         user.RegisterFailedLoginAttempt(now);
-    //         await _userCommand.SaveChangesAsync();
-
-    //         if (user.IsLockedOut(now))
-    //         {
-    //             _logger.LogWarning(
-    //                 "User {Email} is now locked out due to failed attempts",
-    //                 request.Email
-    //             );
-    //             throw new UnauthorizedAccessException("Account is locked. Try again later.");
-    //         }
-
-    //         if (user.WillBeLockedNextAttempt)
-    //         {
-    //             _logger.LogInformation(
-    //                 "One more attempt before lockout for {Email}",
-    //                 request.Email
-    //             );
-    //             throw new UnauthorizedAccessException(
-    //                 "Invalid credentials. Warning: one more failed attempt will lock your account."
-    //             );
-    //         }
-
-    //         _logger.LogWarning("Invalid login attempt for {Email}", request.Email);
-    //         throw new UnauthorizedAccessException("Invalid credentials.");
-    //     }
-
-    //     // 🔒 Si compte désactivé
-    //     if (!user.IsActive)
-    //     {
-    //         _logger.LogWarning("Login attempt on inactive account {Email}", request.Email);
-    //         throw new UnauthorizedAccessException("Account is inactive.");
-    //     }
-
-    //     // 🔄 Changement de mot de passe obligatoire
-    //     if (user.RequirePasswordChange)
-    //     {
-    //         _logger.LogInformation(
-    //             "User {Email} must change password before continuing",
-    //             request.Email
-    //         );
-    //         throw new UnauthorizedAccessException("Password change required.");
-    //     }
-
-    //     // ✅ Succès : RAZ des échecs + MAJ login date
-    //     user.RegisterSuccessfulLogin(now);
-    //     await _userCommand.SaveChangesAsync();
-
-    //     // 🎟 Génération des tokens
-    //     var accessToken = _tokenService.GenerateAccessToken(
-    //         user.Id,
-    //         user.Email.ToString(),
-    //         user.Role.ToString()
-    //     );
-
-    //     var refreshToken = await _tokenService.GenerateRefreshTokenAsync(
-    //         user.Id,
-    //         ipAddress,
-    //         userAgent
-    //     );
-
-    //     return new AuthResponse(CreateUserInfo(user), accessToken, refreshToken);
-    // }
-
     public async Task<AuthResponse> RefreshTokenAsync(
         string refreshToken,
         string ipAddress,
@@ -353,143 +270,3 @@ public class AuthenticationService : IAuthenticationService
             user.Role.ToString()
         );
 }
-
-// using Microsoft.Extensions.Logging;
-// using PulseERP.Application.Exceptions;
-// using PulseERP.Application.Interfaces.Services;
-// using PulseERP.Domain.Entities;
-// using PulseERP.Domain.Interfaces.Repositories;
-// using PulseERP.Domain.Interfaces.Services;
-// using PulseERP.Domain.ValueObjects;
-// using PulseERP.Shared.Dtos.Auth;
-// using PulseERP.Shared.Dtos.Users;
-
-// namespace PulseERP.Infrastructure.Identity.Service;
-
-// public class AuthService : IAuthService
-// {
-//     private readonly IUserPasswordService _passwordService;
-//     private readonly ITokenService _tokenService;
-//     private readonly ISmtpEmailService _emailService;
-//     private readonly ILogger<AuthService> _logger;
-//     private readonly IUserRepository _userRepository;
-
-//     public AuthService(
-//         IUserPasswordService passwordService,
-//         ITokenService tokenService,
-//         ISmtpEmailService emailService,
-//         ILogger<AuthService> logger,
-//         IUserRepository userRepository
-//     )
-//     {
-//         _passwordService = passwordService;
-//         _tokenService = tokenService;
-//         _emailService = emailService;
-//         _logger = logger;
-//         _userRepository = userRepository;
-//     }
-
-//     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
-//     {
-//         _logger.LogInformation("Registering new user with email {Email}", request.Email);
-
-//         await EnsureEmailNotUsedAsync(request.Email);
-
-//         var passwordHash = _passwordService.HashPassword(request.Password);
-//         var domainUser = User.Create(
-//             request.FirstName,
-//             request.LastName,
-//             Email.Create(request.Email),
-//             PhoneNumber.Create(request.Phone),
-//             passwordHash
-//         );
-
-//         await _userRepository.AddAsync(domainUser);
-
-//         var accessToken = _tokenService.GenerateAccessToken(
-//             domainUser.Id,
-//             domainUser.Email.ToString(),
-//             domainUser.Role.ToString()
-//         );
-//         var refreshToken = await _tokenService.GenerateRefreshTokenAsync(domainUser.Id);
-
-//         return new AuthResponse(CreateUserInfo(domainUser), accessToken, refreshToken);
-//     }
-
-//     public async Task<AuthResponse> LoginAsync(LoginRequest request)
-//     {
-//         _logger.LogInformation("Attempting login for email {Email}", request.Email);
-
-//         var email = Email.Create(request.Email);
-//         var user = await _userRepository.GetUserByEmailAsync(email);
-
-//         if (user is null || !_passwordService.VerifyPassword(request.Password, user.PasswordHash))
-//         {
-//             user?.RegisterFailedLoginAttempt();
-//             await _userRepository.SaveChangesAsync();
-
-//             _logger.LogWarning("Invalid login attempt for {Email}", request.Email);
-//             throw new UnauthorizedAccessException("Invalid credentials.");
-//         }
-
-//         if (user.IsLockedOut)
-//             throw new UnauthorizedAccessException("Account is locked. Try again later.");
-
-//         user.RegisterSuccessfulLogin();
-//         await _userRepository.SaveChangesAsync();
-
-//         var accessToken = _tokenService.GenerateAccessToken(
-//             user.Id,
-//             user.Email.ToString(),
-//             user.Role.ToString()
-//         );
-//         var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
-
-//         return new AuthResponse(CreateUserInfo(user), accessToken, refreshToken);
-//     }
-
-//     public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
-//     {
-//         var tokenValidationResult = await _tokenService.ValidateAndRevokeRefreshTokenAsync(
-//             refreshToken
-//         );
-
-//         if (!tokenValidationResult.IsValid || tokenValidationResult.UserId is null)
-//             throw new UnauthorizedAccessException("Invalid or expired refresh token.");
-
-//         var user =
-//             await _userRepository.GetByIdAsync(tokenValidationResult.UserId.Value)
-//             ?? throw new NotFoundException("User", tokenValidationResult.UserId);
-
-//         var newAccessToken = _tokenService.GenerateAccessToken(
-//             user.Id,
-//             user.Email.ToString(),
-//             user.Role.ToString()
-//         );
-//         var newRefreshTokenDto = await _tokenService.GenerateRefreshTokenAsync(user.Id);
-
-//         return new AuthResponse(CreateUserInfo(user), newAccessToken, newRefreshTokenDto);
-//     }
-
-//     public async Task LogoutAsync(string refreshToken)
-//     {
-//         await _tokenService.RevokeRefreshTokenAsync(refreshToken);
-//     }
-
-//     private async Task EnsureEmailNotUsedAsync(string email)
-//     {
-//         var userExist = await _userRepository.GetUserByEmailAsync(Email.Create(email));
-//         if (userExist != null)
-//         {
-//             throw new ValidationException(
-//                 new Dictionary<string, string[]>
-//                 {
-//                     ["email"] = new[] { "Email is already in use." },
-//                 }
-//             );
-//         }
-//     }
-
-//     private static UserInfo CreateUserInfo(User user) =>
-//         new(user.Id, user.FirstName, user.LastName, user.Email.ToString(), user.Role.ToString());
-// }

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Exceptions;
+using PulseERP.Domain.Errors;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Shared.Roles;
 using PulseERP.Domain.ValueObjects;

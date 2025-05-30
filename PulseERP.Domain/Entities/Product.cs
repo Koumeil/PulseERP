@@ -1,5 +1,6 @@
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Exceptions;
+using PulseERP.Domain.Enums.Product;
+using PulseERP.Domain.Errors;
 using PulseERP.Domain.ValueObjects;
 
 public sealed class Product : BaseEntity
@@ -11,8 +12,8 @@ public sealed class Product : BaseEntity
     public int Quantity { get; private set; }
     public bool IsService { get; private set; }
     public bool IsActive { get; private set; }
+    public ProductAvailabilityStatus Status { get; private set; }
 
-    // Constructeur EF Core privé pour ORM
     private Product() { }
 
     public static Product Create(
@@ -29,88 +30,83 @@ public sealed class Product : BaseEntity
         if (brand is null)
             throw new DomainException("Brand is required");
         if (price < 0)
-            throw new DomainException("Price must be a non-negative value");
+            throw new DomainException("Price must be non-negative");
         if (quantity < 0)
-            throw new DomainException("Quantity cannot be negative");
+            throw new DomainException("Quantity must be non-negative");
 
-        return new Product
+        var product = new Product
         {
-            Name = name.Trim(),
-            Description = description?.Trim(),
+            Name = name,
+            Description = description,
             Brand = brand,
             Price = new Money(price),
             Quantity = quantity,
             IsService = isService,
             IsActive = true,
         };
+
+        product.UpdateStatus();
+        return product;
     }
 
     public void UpdateDetails(
-        string? name = null,
-        string? description = null,
-        string? brandName = null,
-        decimal? price = null,
-        int? quantity = null
+        string name,
+        string? description,
+        Brand brand,
+        decimal price,
+        bool isService
     )
     {
-        var changed = false;
-
-        if (!string.IsNullOrWhiteSpace(name) && name.Trim() != Name)
-        {
-            Name = name.Trim();
-            changed = true;
-        }
-
-        if (description != null && description.Trim() != Description)
-        {
-            Description = description.Trim();
-            changed = true;
-        }
-
-        if (brandName != null && brandName != Brand.Name)
-        {
-            Brand.UpdateName(brandName);
-            changed = true;
-        }
-
-        if (price.HasValue)
-        {
-            if (price.Value < 0)
-                throw new DomainException("Price must be a non-negative value");
-
-            if (Price.Value != price.Value)
-            {
-                Price = new Money(price.Value);
-                changed = true;
-            }
-        }
-
-        if (quantity.HasValue)
-        {
-            if (quantity.Value < 0)
-                throw new DomainException("Quantity cannot be negative");
-
-            if (Quantity != quantity.Value)
-            {
-                Quantity = quantity.Value;
-                changed = true;
-            }
-        }
-
-        if (changed)
-            MarkAsUpdated();
+        Name = name;
+        Description = description;
+        Brand = brand;
+        Price = new Money(price);
+        IsService = isService;
     }
 
-    public void Deactivate() => ChangeStatus(false);
-
-    public void Reactivate() => ChangeStatus(true);
-
-    private void ChangeStatus(bool isActive)
+    public void IncreaseStock(int amount)
     {
-        if (IsActive != isActive)
+        if (amount <= 0)
+            throw new DomainException("Amount must be positive");
+        Quantity += amount;
+        UpdateStatus();
+    }
+
+    public void DecreaseStock(int amount)
+    {
+        if (amount <= 0 || amount > Quantity)
+            throw new DomainException("Invalid stock operation");
+        Quantity -= amount;
+        UpdateStatus();
+    }
+
+    public void Discontinue()
+    {
+        IsActive = false;
+        Status = ProductAvailabilityStatus.Discontinued;
+    }
+
+    public void Activate() => IsActive = true;
+
+    public void Deactivate() => IsActive = false;
+
+    private void UpdateStatus()
+    {
+        if (!IsActive)
         {
-            IsActive = isActive;
-            MarkAsUpdated();
+            Status = ProductAvailabilityStatus.Discontinued;
+        }
+        else if (Quantity == 0)
+        {
+            Status = ProductAvailabilityStatus.OutOfStock;
+        }
+        else if (Quantity <= 5)
+        {
+            Status = ProductAvailabilityStatus.LowStock;
+        }
+        else
+        {
+            Status = ProductAvailabilityStatus.InStock;
         }
     }
 }

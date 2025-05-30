@@ -1,5 +1,6 @@
+// Application/Mapping/Products/ProductProfile.cs
 using AutoMapper;
-using PulseERP.Shared.Dtos.Products;
+using PulseERP.Application.Dtos.Product;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Pagination;
 
@@ -9,40 +10,22 @@ public class ProductProfile : Profile
 {
     public ProductProfile()
     {
+        // Domain → DTO
         CreateMap<Product, ProductDto>()
-            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price.Value));
+            .ForMember(d => d.BrandName, o => o.MapFrom(s => s.Brand.Name))
+            .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Value))
+            .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
 
-        CreateMap<CreateProductRequest, Product>()
-            .ConstructUsing(cmd =>
-                Product.Create(
-                    cmd.Name,
-                    cmd.Description,
-                    Brand.Create(cmd.Brand),
-                    cmd.Price,
-                    cmd.Quantity,
-                    cmd.IsService
-                )
-            );
-
-        // Mapping PaginationResult<Product> -> PaginationResult<ProductDto> avec ConvertUsing
+        // PaginationResult<Product> → PaginationResult<ProductDto>
         CreateMap<PaginationResult<Product>, PaginationResult<ProductDto>>()
             .ConvertUsing(
-                (src, dest, context) =>
-                {
-                    var mappedItems = context.Mapper.Map<List<ProductDto>>(src.Items);
-                    return new PaginationResult<ProductDto>(
-                        mappedItems,
+                (src, dest, ctx) =>
+                    new PaginationResult<ProductDto>(
+                        ctx.Mapper.Map<List<ProductDto>>(src.Items),
                         src.TotalItems,
                         src.PageNumber,
                         src.PageSize
-                    );
-                }
+                    )
             );
-        // // Mapping PaginationResult<Product> -> PaginationResult<ProductDto>
-        // CreateMap<PaginationResult<Product>, PaginationResult<ProductDto>>()
-        //     .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items))
-        //     .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.PageNumber))
-        //     .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize))
-        //     .ForMember(dest => dest.TotalItems, opt => opt.MapFrom(src => src.TotalItems));
     }
 }

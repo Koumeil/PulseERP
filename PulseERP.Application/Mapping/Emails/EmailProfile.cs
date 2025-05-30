@@ -1,7 +1,7 @@
 using System;
 using AutoMapper;
-using PulseERP.Shared.Dtos.Emails;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.Dtos.Emails;
 
 namespace PulseERP.Application.Mapping.Emails;
 

@@ -8,72 +8,54 @@ namespace PulseERP.Infrastructure.Repositories;
 
 public class BrandRepository : IBrandRepository
 {
-    private readonly CoreDbContext _context;
+    private readonly CoreDbContext _ctx;
 
-    public BrandRepository(CoreDbContext context)
+    public BrandRepository(CoreDbContext ctx) => _ctx = ctx;
+
+    public async Task<PaginationResult<Brand>> GetAllAsync(PaginationParams pagination)
     {
-        _context = context;
-    }
-
-    public async Task<Brand?> GetByIdAsync(Guid id)
-    {
-        return await _context.Brands.FindAsync(id);
-    }
-
-    public async Task<Brand?> GetByNameAsync(string name)
-    {
-        return await _context.Brands.FirstOrDefaultAsync(b => b.Name == name);
-    }
-
-    public async Task<PaginationResult<Brand>> GetAllAsync(PaginationParams paginationParams)
-    {
-        var query = _context.Brands.AsNoTracking();
-
-        var totalItems = await query.CountAsync();
-
+        var query = _ctx.Brands.AsNoTracking();
+        var total = await query.CountAsync();
         var items = await query
-            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
-            .Take(paginationParams.PageSize)
+            .OrderBy(b => b.Name)
+            .Skip((pagination.PageNumber - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
             .ToListAsync();
 
         return new PaginationResult<Brand>(
             items,
-            totalItems,
-            paginationParams.PageNumber,
-            paginationParams.PageSize
+            total,
+            pagination.PageNumber,
+            pagination.PageSize
         );
     }
 
-    public async Task<Brand> AddAsync(Brand brand)
+    public Task<Brand?> GetByIdAsync(Guid id) =>
+        _ctx.Brands.AsNoTracking().SingleOrDefaultAsync(b => b.Id == id);
+
+    public Task<Brand?> GetByNameAsync(string name)
     {
-        await _context.Brands.AddAsync(brand);
-        await _context.SaveChangesAsync();
-        return brand;
+        var trimmed = name.Trim().ToLower();
+        return _ctx.Brands.AsNoTracking().SingleOrDefaultAsync(b => b.Name.ToLower() == trimmed);
     }
 
-    public async Task UpdateAsync(Brand brand)
+    public Task AddAsync(Brand brand)
     {
-        _context.Brands.Update(brand);
-        await _context.SaveChangesAsync();
+        _ctx.Brands.Add(brand);
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public Task UpdateAsync(Brand brand)
     {
-        var brand = await GetByIdAsync(id);
-        if (brand != null)
-        {
-            _context.Brands.Remove(brand);
-            await _context.SaveChangesAsync();
-        }
+        _ctx.Brands.Update(brand);
+        return Task.CompletedTask;
     }
 
-    public async Task<bool> ExistsAsync(Guid id)
+    public Task DeleteAsync(Brand brand)
     {
-        return await _context.Brands.AnyAsync(b => b.Id == id);
+        _ctx.Brands.Remove(brand);
+        return Task.CompletedTask;
     }
 
-    public async Task<bool> NameExistsAsync(string name)
-    {
-        return await _context.Brands.AnyAsync(b => b.Name == name);
-    }
+    public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
 }

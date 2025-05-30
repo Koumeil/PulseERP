@@ -22,5 +22,6 @@
     <ProjectReference Include="../PulseERP.Application/PulseERP.Application.csproj" />
     <ProjectReference Include="../PulseERP.Domain/PulseERP.Domain.csproj" />
     <ProjectReference Include="../PulseERP.Infrastructure/PulseERP.Infrastructure.csproj" />
+    <ProjectReference Include="../PulseERP.Shared/PulseERP.Shared.csproj" />
   </ItemGroup>
 </Project>
