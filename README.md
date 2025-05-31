@@ -1,6 +1,7 @@
 # PulseERP
 
-> **PulseERP** est un backend complet d'un ERP pour petite entreprise, modulaire et écrit en **C# 13 / .NET 9** suivant les principes **Clean Architecture** & **DDD**. Ce dépôt contient les différentes couches (Domain, Application, Abstractions, Infrastructure, API) + la suite de tests unitaires.
+>**PulseERP** est un back-end ERP modulaire conçu pour les petites et moyennes entreprises, développé en **C# 13 / .NET 9** 
+Il applique rigoureusement les principes **Clean Architecture** & **Domain-Drive-Design**. : les couches Domain, Application, Abstractions, Infrastructure et API sont clairement séparées, testées (xUnit + FluentAssertions) et accompagnées d’une pipeline CI GitHub Actions qui construit, analyse et valide automatiquement chaque commit.
 
 ---
 
