@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using PulseERP.Domain.Errors;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;
-using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Infrastructure.Identity;
 

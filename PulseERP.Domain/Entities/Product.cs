@@ -1,19 +1,26 @@
-using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Product;
 using PulseERP.Domain.Errors;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.ValueObjects.Product;
+
+namespace PulseERP.Domain.Entities;
 
 public sealed class Product : BaseEntity
 {
-    public string Name { get; private set; }
-    public string? Description { get; private set; }
-    public Brand Brand { get; private set; }
-    public Money Price { get; private set; }
+    public ProductName Name { get; private set; } = default!;
+    public ProductDescription? Description { get; private set; }
+    public Brand Brand { get; private set; } = default!;
+    public Money Price { get; private set; } = default!;
+
+    // Types valeur
     public int Quantity { get; private set; }
     public bool IsService { get; private set; }
     public bool IsActive { get; private set; }
+
+    // Enum
     public ProductAvailabilityStatus Status { get; private set; }
 
+    // Constructeur vide pour EF Core
     private Product() { }
 
     public static Product Create(
@@ -25,41 +32,36 @@ public sealed class Product : BaseEntity
         bool isService
     )
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Name is required");
         if (brand is null)
             throw new DomainException("Brand is required");
-        if (price < 0)
-            throw new DomainException("Price must be non-negative");
-        if (quantity < 0)
-            throw new DomainException("Quantity must be non-negative");
 
         var product = new Product
         {
-            Name = name,
-            Description = description,
+            Name = new ProductName(name),
+            Description = description is null ? null : new ProductDescription(description),
             Brand = brand,
             Price = new Money(price),
             Quantity = quantity,
             IsService = isService,
             IsActive = true,
         };
-
         product.UpdateStatus();
         return product;
     }
 
     public void UpdateDetails(
-        string name,
+        string? name,
         string? description,
         Brand brand,
         decimal price,
         bool isService
     )
     {
-        Name = name;
-        Description = description;
-        Brand = brand;
+        if (!string.IsNullOrWhiteSpace(name))
+            Name = new ProductName(name);
+        if (description is not null)
+            Description = new ProductDescription(description);
+        Brand = brand ?? throw new DomainException("Brand is required");
         Price = new Money(price);
         IsService = isService;
     }
@@ -86,27 +88,27 @@ public sealed class Product : BaseEntity
         Status = ProductAvailabilityStatus.Discontinued;
     }
 
-    public void Activate() => IsActive = true;
+    public void Activate()
+    {
+        IsActive = true;
+        UpdateStatus();
+    }
 
-    public void Deactivate() => IsActive = false;
+    public void Deactivate()
+    {
+        IsActive = false;
+        UpdateStatus();
+    }
 
     private void UpdateStatus()
     {
         if (!IsActive)
-        {
             Status = ProductAvailabilityStatus.Discontinued;
-        }
         else if (Quantity == 0)
-        {
             Status = ProductAvailabilityStatus.OutOfStock;
-        }
         else if (Quantity <= 5)
-        {
             Status = ProductAvailabilityStatus.LowStock;
-        }
         else
-        {
             Status = ProductAvailabilityStatus.InStock;
-        }
     }
 }

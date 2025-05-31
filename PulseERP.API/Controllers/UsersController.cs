@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.API.Dtos;
+using PulseERP.Application.Dtos.User;
 using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Dtos.Users;
 using PulseERP.Domain.Pagination;
+using PulseERP.Domain.Query.Users;
 
 namespace PulseERP.API.Controllers;
 
@@ -20,10 +21,10 @@ public class UsersController : ControllerBase
     // GET api/users?pageNumber=1&pageSize=10
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PaginationResult<UserDto>>>> GetAll(
-        [FromQuery] PaginationParams paginationParams
+        [FromQuery] UserParams userParams
     )
     {
-        var result = await _userService.GetAllAsync(paginationParams);
+        var result = await _userService.GetAllAsync(userParams);
         var response = new ApiResponse<PaginationResult<UserDto>>(
             Success: true,
             Data: result,
@@ -34,10 +35,10 @@ public class UsersController : ControllerBase
 
     // GET api/users/{id}
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<UserDto>>> GetById(Guid id)
+    public async Task<ActionResult<ApiResponse<UserDetailsDto>>> GetById(Guid id)
     {
         var result = await _userService.GetByIdAsync(id);
-        var response = new ApiResponse<UserDto>(
+        var response = new ApiResponse<UserDetailsDto>(
             Success: true,
             Data: result,
             Message: "User retrieved successfully"

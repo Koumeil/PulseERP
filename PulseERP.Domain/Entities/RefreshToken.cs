@@ -1,23 +1,23 @@
 using PulseERP.Domain.Enums.Token;
 using PulseERP.Domain.Interfaces.Services;
 
+namespace PulseERP.Domain.Entities;
+
 public class RefreshToken
 {
     public Guid Id { get; private set; }
-    public string Token { get; set; }
+    public string Token { get; set; } = default!;
     public Guid UserId { get; set; }
     public DateTime Expires { get; set; }
     public TokenType TokenType { get; set; }
     public DateTime? Revoked { get; set; }
 
-    // Nouvelles propriétés
     public string? CreatedByIp { get; private set; }
     public string? CreatedByUserAgent { get; private set; }
 
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IDateTimeProvider _dateTimeProvider = default!;
 
     // Constructeur utilisé en Domain
-    // Constructeur principal pour OAuth (inclut IP et UserAgent)
     public RefreshToken(
         IDateTimeProvider dateTimeProvider,
         string createdByIp,
@@ -31,7 +31,6 @@ public class RefreshToken
     }
 
     // Constructeur de compatibilité pour PasswordReset (IP/UserAgent = null)
-    // Appelé depuis PasswordResetTokenRepository.StoreAsync
     public RefreshToken(IDateTimeProvider dateTimeProvider)
         : this(dateTimeProvider, createdByIp: null!, createdByUserAgent: null!)
     {

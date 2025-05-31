@@ -33,10 +33,14 @@ public class BrandRepository : IBrandRepository
     public Task<Brand?> GetByIdAsync(Guid id) =>
         _ctx.Brands.AsNoTracking().SingleOrDefaultAsync(b => b.Id == id);
 
-    public Task<Brand?> GetByNameAsync(string name)
+    public async Task<Brand?> GetByNameAsync(string name)
     {
-        var trimmed = name.Trim().ToLower();
-        return _ctx.Brands.AsNoTracking().SingleOrDefaultAsync(b => b.Name.ToLower() == trimmed);
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        var normalized = name.Trim().ToLower();
+
+        return await _ctx.Brands.SingleOrDefaultAsync(b => b.Name.Trim().ToLower() == normalized);
     }
 
     public Task AddAsync(Brand brand)

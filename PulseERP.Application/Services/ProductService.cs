@@ -1,8 +1,10 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using PulseERP.Application.Common;
 using PulseERP.Application.Dtos.Product;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
+using PulseERP.Domain.Errors;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
@@ -14,16 +16,19 @@ public class ProductService : IProductService
     private readonly IProductRepository _repository;
     private readonly IBrandRepository _brandRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<ProductService> _logger;
 
     public ProductService(
         IProductRepository repository,
         IBrandRepository brandRepository,
-        IMapper mapper
+        IMapper mapper,
+        ILogger<ProductService> logger
     )
     {
         _repository = repository;
         _brandRepository = brandRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<PaginationResult<ProductDto>> GetAllAsync(
@@ -52,23 +57,42 @@ public class ProductService : IProductService
 
     public async Task<ServiceResult<ProductDto>> CreateAsync(CreateProductRequest request)
     {
-        var brand = await _brandRepository.GetByNameAsync(request.Brand);
+        try
+        {
+            var brand = await _brandRepository.GetByNameAsync(request.Brand);
 
-        brand ??= Brand.Create(request.Brand);
+            if (brand is null)
+            {
+                brand = Brand.Create(request.Brand);
+                await _brandRepository.AddAsync(brand);
+                await _brandRepository.SaveChangesAsync();
+            }
 
-        var product = Product.Create(
-            request.Name,
-            request.Description,
-            brand,
-            request.Price,
-            request.Quantity,
-            request.IsService
-        );
+            var product = Product.Create(
+                request.Name,
+                request.Description,
+                brand,
+                request.Price,
+                request.Quantity,
+                request.IsService
+            );
 
-        await _repository.AddAsync(product);
-        await _repository.SaveChangesAsync();
+            await _repository.AddAsync(product);
+            await _repository.SaveChangesAsync();
 
-        return ServiceResult<ProductDto>.Ok(_mapper.Map<ProductDto>(product));
+            _logger.LogInformation(
+                "Product {ProductName} created with ID {ProductId}",
+                product.Name.Value,
+                product.Id
+            );
+
+            return ServiceResult<ProductDto>.Ok(_mapper.Map<ProductDto>(product));
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning("Domain error on create product: {Error}", ex.Message);
+            return ServiceResult<ProductDto>.Fail("DomainError", ex.Message);
+        }
     }
 
     public async Task<ServiceResult<ProductDto>> UpdateAsync(Guid id, UpdateProductRequest request)
@@ -86,7 +110,7 @@ public class ProductService : IProductService
         }
 
         product.UpdateDetails(
-            name: request.Name ?? product.Name,
+            name: request.Name ?? product.Name.Value,
             description: request.Description,
             brand: brand,
             price: request.Price ?? product.Price.Value,
@@ -105,6 +129,8 @@ public class ProductService : IProductService
         await _repository.UpdateAsync(product);
         await _repository.SaveChangesAsync();
 
+        _logger.LogInformation("Product {ProductId} updated", product.Id);
+
         return ServiceResult<ProductDto>.Ok(_mapper.Map<ProductDto>(product));
     }
 
@@ -119,6 +145,8 @@ public class ProductService : IProductService
         await _repository.UpdateAsync(product);
         await _repository.SaveChangesAsync();
 
+        _logger.LogInformation("Product {ProductId} discontinued (deleted)", product.Id);
+
         return ServiceResult<bool>.Ok(true);
     }
 
@@ -131,6 +159,8 @@ public class ProductService : IProductService
         product.Activate();
         await _repository.UpdateAsync(product);
         await _repository.SaveChangesAsync();
+
+        _logger.LogInformation("Product {ProductId} activated", product.Id);
 
         return ServiceResult.Ok();
     }
@@ -145,6 +175,10 @@ public class ProductService : IProductService
         await _repository.UpdateAsync(product);
         await _repository.SaveChangesAsync();
 
+        _logger.LogInformation("Product {ProductId} deactivated", product.Id);
+
         return ServiceResult.Ok();
     }
 }
+
+    

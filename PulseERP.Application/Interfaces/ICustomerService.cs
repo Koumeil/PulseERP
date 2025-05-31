@@ -1,12 +1,17 @@
 using PulseERP.Application.Common;
 using PulseERP.Application.Dtos.Customer;
 using PulseERP.Domain.Pagination;
+using PulseERP.Domain.Query.Customers;
 
 namespace PulseERP.Application.Interfaces;
 
 public interface ICustomerService
 {
-    Task<PaginationResult<CustomerDto>> GetAllAsync(PaginationParams pagination);
+    Task<PaginationResult<CustomerDto>> GetAllAsync(
+        PaginationParams pagination,
+        CustomerParams customerParams
+    );
+
     Task<ServiceResult<CustomerDto>> GetByIdAsync(Guid id);
     Task<ServiceResult<CustomerDto>> CreateAsync(CreateCustomerRequest request);
     Task<ServiceResult<CustomerDto>> UpdateAsync(Guid id, UpdateCustomerRequest request);

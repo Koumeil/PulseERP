@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Dtos.Auth.Token;
+using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Token;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;

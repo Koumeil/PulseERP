@@ -1,38 +1,56 @@
 using AutoMapper;
-using PulseERP.Domain.Dtos.Auth;
-using PulseERP.Domain.Dtos.Users;
+using PulseERP.Application.Dtos.Auth;
+using PulseERP.Application.Dtos.User;
 
-namespace PulseERP.Application.Mapping.Auth;
-
-public class AuthProfile : Profile
+namespace PulseERP.Application.Mapping.Auth
 {
-    public AuthProfile()
+    public class AuthProfile : Profile
     {
-        CreateMap<AuthResponse, UserDto>()
-            .ConstructUsing(src => new UserDto(
-                src.User.Id,
-                src.User.FirstName,
-                src.User.LastName,
-                src.User.Email,
-                src.User.Phone,
-                src.User.Role
-            ));
+        public AuthProfile()
+        {
+            // AuthResponse → UserDto (projection pour frontend si tu veux l'user directement)
+            CreateMap<AuthResponse, UserDto>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.User.Id))
+                .ForMember(d => d.FirstName, o => o.MapFrom(s => s.User.FirstName))
+                .ForMember(d => d.LastName, o => o.MapFrom(s => s.User.LastName))
+                .ForMember(d => d.Email, o => o.MapFrom(s => s.User.Email))
+                .ForMember(d => d.Phone, o => o.MapFrom(s => s.User.Phone))
+                .ForMember(d => d.Role, o => o.MapFrom(s => s.User.Role))
+                // Les champs suivants sont à null car AuthResponse.UserInfo n'a pas ces infos
+                .ForMember(d => d.IsActive, o => o.Ignore())
+                .ForMember(d => d.RequirePasswordChange, o => o.Ignore())
+                .ForMember(d => d.LastLoginDate, o => o.Ignore())
+                .ForMember(d => d.FailedLoginAttempts, o => o.Ignore())
+                .ForMember(d => d.LockoutEnd, o => o.Ignore());
 
-        // Mappage AuthResponse → UserInfo
-        CreateMap<AuthResponse, UserInfo>()
-            .ConstructUsing(src => new UserInfo(
-                src.User.Id,
-                src.User.FirstName,
-                src.User.LastName,
-                src.User.Email,
-                src.User.Phone,
-                src.User.Role
-            ));
+            // AuthResponse → UserInfo (simple mapping)
+            CreateMap<AuthResponse, UserInfo>().ConstructUsing(src => src.User);
 
-        // Mappage inverse si nécessaire (UserInfo → AuthResponse.User)
-        CreateMap<UserInfo, AuthResponse>()
-            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src))
-            .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
-            .ForMember(dest => dest.RefreshToken, opt => opt.Ignore());
+            // UserInfo → UserDto (pour injecter UserInfo là où l'appelant veut un UserDto)
+            CreateMap<UserInfo, UserDto>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
+                .ForMember(d => d.FirstName, o => o.MapFrom(s => s.FirstName))
+                .ForMember(d => d.LastName, o => o.MapFrom(s => s.LastName))
+                .ForMember(d => d.Email, o => o.MapFrom(s => s.Email))
+                .ForMember(d => d.Phone, o => o.MapFrom(s => s.Phone))
+                .ForMember(d => d.Role, o => o.MapFrom(s => s.Role))
+                // Les champs suivants sont à null/inconnus dans UserInfo
+                .ForMember(d => d.IsActive, o => o.Ignore())
+                .ForMember(d => d.RequirePasswordChange, o => o.Ignore())
+                .ForMember(d => d.LastLoginDate, o => o.Ignore())
+                .ForMember(d => d.FailedLoginAttempts, o => o.Ignore())
+                .ForMember(d => d.LockoutEnd, o => o.Ignore());
+
+            // UserDto → UserInfo (reverse, au cas où)
+            CreateMap<UserDto, UserInfo>()
+                .ConstructUsing(src => new UserInfo(
+                    src.Id,
+                    src.FirstName,
+                    src.LastName,
+                    src.Email,
+                    src.Phone,
+                    src.Role
+                ));
+        }
     }
 }

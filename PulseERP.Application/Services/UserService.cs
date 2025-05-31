@@ -1,86 +1,98 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using PulseERP.Application.Dtos.User;
 using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Dtos.Auth;
-using PulseERP.Domain.Dtos.Users;
+using PulseERP.Domain.Entities;
 using PulseERP.Domain.Errors;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Domain.Pagination;
-
-namespace PulseERP.Application.Services;
+using PulseERP.Domain.Query.Users;
+using PulseERP.Domain.Shared.Roles;
 
 public class UserService : IUserService
 {
     private readonly IUserQueryRepository _userQuery;
     private readonly IUserCommandRepository _userCommand;
-    private readonly IAuthenticationService _authService;
+    private readonly IPasswordService _passwordService;
     private readonly IMapper _mapper;
     private readonly ILogger<UserService> _logger;
 
     public UserService(
         IUserQueryRepository userQuery,
         IUserCommandRepository userCommand,
-        IAuthenticationService authService,
+        IPasswordService passwordService,
         IMapper mapper,
         ILogger<UserService> logger
     )
     {
         _userQuery = userQuery;
         _userCommand = userCommand;
-        _authService = authService;
+        _passwordService = passwordService;
         _mapper = mapper;
         _logger = logger;
     }
 
-    public async Task<PaginationResult<UserDto>> GetAllAsync(PaginationParams paginationParams)
+    public async Task<PaginationResult<UserDto>> GetAllAsync(UserParams userParams)
     {
-        var users = await _userQuery.GetAllAsync(paginationParams);
+        var users = await _userQuery.GetAllAsync(userParams);
         return _mapper.Map<PaginationResult<UserDto>>(users);
     }
 
-    public async Task<UserDto> GetByIdAsync(Guid id)
+    public async Task<UserDetailsDto> GetByIdAsync(Guid id)
     {
         var user = await _userQuery.GetByIdAsync(id);
         if (user is null)
             throw new NotFoundException("User", id);
 
-        return _mapper.Map<UserDto>(user);
+        return _mapper.Map<UserDetailsDto>(user);
     }
 
-    public async Task<UserInfo> CreateAsync(CreateUserRequest command)
+    public async Task<UserInfo> CreateAsync(CreateUserRequest request)
     {
-        var registerRequest = new RegisterRequest(
-            command.FirstName,
-            command.LastName,
-            command.Email,
-            command.Phone,
-            command.Password
-        );
+        var passwordHash = _passwordService.HashPassword(request.Password);
 
-        var authResult = await _authService.RegisterAsync(
-            registerRequest,
-            string.Empty,
-            string.Empty
+        var user = User.Create(
+            request.FirstName,
+            request.LastName,
+            Email.Create(request.Email),
+            Phone.Create(request.Phone),
+            passwordHash
         );
-        _logger.LogInformation("User created with email {Email}", command.Email);
+        await _userCommand.AddAsync(user);
+        await _userCommand.SaveChangesAsync();
 
-        return authResult.User;
+        _logger.LogInformation("User created with email {Email}", user.Email.Value);
+        return new UserInfo(
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            user.Email.Value,
+            user.Phone.Value,
+            user.Role.ToString()
+        );
     }
 
-    public async Task<UserDto> UpdateAsync(Guid id, UpdateUserRequest command)
+    public async Task<UserDto> UpdateAsync(Guid id, UpdateUserRequest request)
     {
         var user = await _userQuery.GetByIdAsync(id);
         if (user is null)
             throw new NotFoundException("User", id);
 
-        user.UpdateName(command.FirstName, command.LastName);
+        user.UpdateName(request.FirstName, request.LastName);
 
-        if (!string.IsNullOrWhiteSpace(command.Email))
-            user.UpdateEmail(Email.Create(command.Email));
+        if (!string.IsNullOrWhiteSpace(request.Email))
+            user.UpdateEmail(Email.Create(request.Email));
 
-        if (!string.IsNullOrWhiteSpace(command.Phone))
-            user.UpdatePhone(Phone.Create(command.Phone));
+        if (!string.IsNullOrWhiteSpace(request.Phone))
+            user.UpdatePhone(Phone.Create(request.Phone));
+
+        if (!string.IsNullOrWhiteSpace(request.Role))
+        {
+            var role = SystemRoles.All.FirstOrDefault(r => r.RoleName == request.Role);
+            if (role is not null)
+                user.SetRole(role);
+        }
 
         await _userCommand.UpdateAsync(user);
         await _userCommand.SaveChangesAsync();

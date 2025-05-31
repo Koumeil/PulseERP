@@ -11,10 +11,7 @@ public sealed class Password
     private static readonly Regex HasUpperCase = new(@"[A-Z]", RegexOptions.Compiled);
     private static readonly Regex HasLowerCase = new(@"[a-z]", RegexOptions.Compiled);
     private static readonly Regex HasDigit = new(@"\d", RegexOptions.Compiled);
-    private static readonly Regex HasSpecial = new(
-        @"[!@#$%^&*()\-_=+{}\[\]:;""'<>,.?\\/]",
-        RegexOptions.Compiled
-    );
+    private static readonly Regex HasSpecial = new(@"[^a-zA-Z0-9]", RegexOptions.Compiled);
 
     public string Value { get; }
 

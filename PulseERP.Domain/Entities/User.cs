@@ -8,20 +8,25 @@ public sealed class User : BaseEntity
 {
     private const int MaxFailedLoginAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
+
     public bool WillBeLockedNextAttempt => FailedLoginAttempts + 1 == MaxFailedLoginAttempts;
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
-    public Email Email { get; private set; }
-    public Phone Phone { get; private set; }
+
+    public string FirstName { get; private set; } = default!;
+    public string LastName { get; private set; } = default!;
+    public Email Email { get; private set; } = default!;
+    public Phone Phone { get; private set; } = default!;
+    public string PasswordHash { get; private set; } = default!;
+    public UserRole Role { get; private set; } = default!;
+
+    // Types valeur
     public bool IsActive { get; private set; }
     public bool RequirePasswordChange { get; private set; }
-    public string PasswordHash { get; private set; }
     public DateTime? LastLoginDate { get; private set; }
     public int FailedLoginAttempts { get; private set; }
     public DateTime? LockoutEnd { get; private set; }
-    public UserRole Role { get; private set; }
 
-    private User() { } // Pour EF Core
+    // Constructeur vide pour EF Core
+    private User() { }
 
     public static User Create(
         string firstName,
@@ -42,7 +47,7 @@ public sealed class User : BaseEntity
         if (string.IsNullOrWhiteSpace(passwordHash))
             throw new DomainException("Password hash is required.");
 
-        var user = new User
+        return new User
         {
             FirstName = firstName.Trim(),
             LastName = lastName.Trim(),
@@ -54,11 +59,7 @@ public sealed class User : BaseEntity
             LockoutEnd = null,
             Role = SystemRoles.User,
         };
-
-        return user;
     }
-
-    // --- Connexion / Sécurité ---
 
     public bool IsLockedOut(DateTime nowUtc) => LockoutEnd.HasValue && LockoutEnd > nowUtc;
 
@@ -78,21 +79,6 @@ public sealed class User : BaseEntity
         return LockoutEnd;
     }
 
-    // public void RegisterFailedLoginAttempt(DateTime nowUtc)
-    // {
-    //     if (IsLockedOut(nowUtc))
-    //         return;
-
-    //     FailedLoginAttempts++;
-
-    //     if (FailedLoginAttempts >= MaxFailedLoginAttempts)
-    //     {
-    //         LockoutEnd = nowUtc.Add(LockoutDuration);
-    //     }
-
-    //     MarkAsUpdated();
-    // }
-
     public void RegisterSuccessfulLogin(DateTime nowUtc)
     {
         FailedLoginAttempts = 0;
@@ -107,8 +93,6 @@ public sealed class User : BaseEntity
         LockoutEnd = null;
         MarkAsUpdated();
     }
-
-    // --- Mot de passe ---
 
     public void RequirePasswordReset()
     {
@@ -137,8 +121,6 @@ public sealed class User : BaseEntity
         MarkAsUpdated();
     }
 
-    // --- Rôle ---
-
     public void SetRole(UserRole newRole)
     {
         if (newRole is null)
@@ -155,8 +137,6 @@ public sealed class User : BaseEntity
     {
         return roleToCheck != null && Role != null && Role.Equals(roleToCheck);
     }
-
-    // --- Profil utilisateur ---
 
     public void UpdateName(string? firstName, string? lastName)
     {

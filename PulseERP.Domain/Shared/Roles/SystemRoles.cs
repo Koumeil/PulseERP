@@ -1,6 +1,6 @@
-using PulseERP.Domain.ValueObjects;
-
 namespace PulseERP.Domain.Shared.Roles;
+
+using PulseERP.Domain.ValueObjects;
 
 public static class SystemRoles
 {

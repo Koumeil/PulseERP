@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces.Repositories;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
@@ -9,39 +11,49 @@ namespace PulseERP.Infrastructure.Repositories;
 public class ProductRepository : IProductRepository
 {
     private readonly CoreDbContext _ctx;
+    private readonly ILogger<ProductRepository> _logger;
 
-    public ProductRepository(CoreDbContext ctx) => _ctx = ctx;
+    public ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> logger)
+    {
+        _ctx = ctx;
+        _logger = logger;
+    }
 
     public async Task<PaginationResult<Product>> GetAllAsync(
         PaginationParams pagination,
         ProductParams productParams
     )
     {
-        // 1. On commence la query
+        // 1. On construit la requête de base, incluant Brand et en lecture seule
         var query = _ctx.Products.Include(p => p.Brand).AsNoTracking().AsQueryable();
 
-        // 2. Filtre par nom de marque si fourni
+        // 2. Filtre sur le nom de la marque (Contains sur la colonne Brand.Name)
         if (!string.IsNullOrWhiteSpace(productParams.Brand))
-            query = query.Where(p => p.Brand.Name.Contains(productParams.Brand));
+        {
+            var brandFilter = productParams.Brand.Trim().ToLower();
+            query = query.Where(p => p.Brand.Name.ToLower().Contains(brandFilter));
+        }
 
-        // 3. Recherche full-text simple sur nom et description
+        // 3. Recherche “full‐text” LINQ portable sur Name ou Description
         if (!string.IsNullOrWhiteSpace(productParams.Search))
         {
-            var keyword = $"%{productParams.Search}%";
+            var keyword = $"%{productParams.Search.Trim().ToLower()}%";
+
             query = query.Where(p =>
-                EF.Functions.Like(p.Name, keyword) || EF.Functions.Like(p.Description!, keyword)
+                EF.Functions.Like(p.Name, keyword)
+                || (p.Description != null && EF.Functions.Like(p.Description, keyword))
             );
         }
 
-        // 4. Tri selon productParams.Sort
+        // 4. Tri dynamique (OrderBy sur p.Price.Value ou sur p.Name directement)
         query = productParams.Sort switch
         {
             "priceAsc" => query.OrderBy(p => p.Price.Value),
             "priceDesc" => query.OrderByDescending(p => p.Price.Value),
-            _ => query.OrderBy(p => p.Name),
+            _ => query.OrderBy(p => p.Name), // Trier sur p.Name (conversion en string)
         };
 
-        // 5. Comptage avant pagination
+        // 5. Comptage total avant pagination
         var totalItems = await query.CountAsync();
 
         // 6. Pagination
@@ -58,24 +70,30 @@ public class ProductRepository : IProductRepository
         );
     }
 
-    public Task<Product?> GetByIdAsync(Guid id) =>
-        _ctx.Products.Include(p => p.Brand).AsNoTracking().SingleOrDefaultAsync(p => p.Id == id);
+    public async Task<Product?> GetByIdAsync(Guid id) =>
+        await _ctx
+            .Products.Include(p => p.Brand)
+            .AsNoTracking()
+            .SingleOrDefaultAsync(p => p.Id == id);
 
     public Task AddAsync(Product product)
     {
         _ctx.Products.Add(product);
+        _logger.LogInformation("Product {ProductId} added to context", product.Id);
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(Product product)
     {
         _ctx.Products.Update(product);
+        _logger.LogInformation("Product {ProductId} updated in context", product.Id);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Product product)
     {
         _ctx.Products.Remove(product);
+        _logger.LogInformation("Product {ProductId} removed from context", product.Id);
         return Task.CompletedTask;
     }
 

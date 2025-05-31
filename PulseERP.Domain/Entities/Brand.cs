@@ -1,22 +1,25 @@
-namespace PulseERP.Domain.Entities;
-
 using PulseERP.Domain.Errors;
+
+namespace PulseERP.Domain.Entities;
 
 public sealed class Brand : BaseEntity
 {
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
+
     private readonly List<Product> _products = new();
     public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
+
+    // Type valeur (bool)
     public bool IsActive { get; private set; }
 
+    // Constructeur vide pour EF Core
     private Brand() { }
 
     private Brand(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Brand name required");
-
-        Name = name;
+        Name = name.Trim();
         IsActive = true;
     }
 
@@ -26,8 +29,7 @@ public sealed class Brand : BaseEntity
     {
         if (string.IsNullOrWhiteSpace(newName))
             throw new DomainException("Brand name required");
-
-        Name = newName;
+        Name = newName.Trim();
     }
 
     public void AddProduct(Product product)

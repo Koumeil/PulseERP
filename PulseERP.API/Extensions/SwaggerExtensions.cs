@@ -1,16 +1,24 @@
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace PulseERP.API.Extensions;
 
 public static class SwaggerExtensions
 {
     /// <summary>
-    /// Configure Swagger/OpenAPI with JWT Bearer support.
+    /// Configure Swagger/OpenAPI with JWT Bearer support and utilise FullName (namespace + nom de type) pour les schemaIds.
     /// </summary>
     public static IServiceCollection AddCustomSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(c =>
         {
+            // Déclarez votre document Swagger (v1 ici)
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "PulseERP API", Version = "v1" });
+
+            // Utiliser FullName pour désambiguïser les noms de schéma
+            c.CustomSchemaIds(type => type.FullName!);
+
+            // Configuration JWT Bearer
             c.AddSecurityDefinition(
                 "Bearer",
                 new OpenApiSecurityScheme
@@ -23,6 +31,7 @@ public static class SwaggerExtensions
                     Description = "Entrez 'Bearer {token}'",
                 }
             );
+
             c.AddSecurityRequirement(
                 new OpenApiSecurityRequirement
                 {
@@ -54,6 +63,7 @@ public static class SwaggerExtensions
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "PulseERP API V1");
         });
+
         return app;
     }
 }

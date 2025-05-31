@@ -1,4 +1,3 @@
-// Domain/Entities/Customer.cs
 using PulseERP.Domain.Enums.Customer;
 using PulseERP.Domain.Errors;
 using PulseERP.Domain.ValueObjects;
@@ -7,13 +6,14 @@ namespace PulseERP.Domain.Entities;
 
 public sealed class Customer : BaseEntity
 {
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
-    public string CompanyName { get; private set; }
-    public Email Email { get; private set; }
-    public Phone Phone { get; private set; }
-    public Address Address { get; private set; }
+    public string FirstName { get; private set; } = default!;
+    public string LastName { get; private set; } = default!;
+    public string CompanyName { get; private set; } = default!;
+    public Email Email { get; private set; } = default!;
+    public Phone Phone { get; private set; } = default!;
+    public Address Address { get; private set; } = default!;
 
+    // Types valeur ou enum
     public CustomerType Type { get; private set; }
     public CustomerStatus Status { get; private set; }
     public DateTime FirstContactDate { get; private set; }
@@ -23,6 +23,7 @@ public sealed class Customer : BaseEntity
     public string? Industry { get; private set; }
     public string? Source { get; private set; }
     public bool IsVIP { get; private set; }
+    public bool IsActive { get; private set; }
 
     private readonly List<string> _notes = new();
     public IReadOnlyCollection<string> Notes => _notes.AsReadOnly();
@@ -30,8 +31,7 @@ public sealed class Customer : BaseEntity
     private readonly List<string> _tags = new();
     public IReadOnlyCollection<string> Tags => _tags.AsReadOnly();
 
-    public bool IsActive { get; private set; }
-
+    // Constructeur vide pour EF Core
     private Customer() { }
 
     public static Customer Create(
@@ -53,6 +53,12 @@ public sealed class Customer : BaseEntity
             throw new DomainException("Last name required");
         if (string.IsNullOrWhiteSpace(companyName))
             throw new DomainException("Company name required");
+        if (email is null)
+            throw new DomainException("Email required");
+        if (phone is null)
+            throw new DomainException("Phone required");
+        if (address is null)
+            throw new DomainException("Address required");
 
         return new Customer
         {
@@ -120,9 +126,17 @@ public sealed class Customer : BaseEntity
 
     public void UpdateStatus(CustomerStatus newStatus) => Status = newStatus;
 
-    public void RecordInteraction() => LastInteractionDate = DateTime.UtcNow;
+    public void RecordInteraction()
+    {
+        LastInteractionDate = DateTime.UtcNow;
+    }
 
-    public void AssignTo(Guid userId) => AssignedToUserId = userId;
+    public void AssignTo(Guid userId)
+    {
+        if (userId == Guid.Empty)
+            throw new DomainException("Assigned user id invalid");
+        AssignedToUserId = userId;
+    }
 
     public void AddNote(string note)
     {

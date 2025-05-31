@@ -5,20 +5,19 @@ using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Pagination;
 using PulseERP.Domain.Query.Products;
 
-namespace PulseERP.API.Controllers;
-
 [ApiController]
 [Route("api/products")]
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly ILogger<ProductsController> _logger;
 
-    public ProductsController(IProductService productService)
+    public ProductsController(IProductService productService, ILogger<ProductsController> logger)
     {
         _productService = productService;
+        _logger = logger;
     }
 
-    [HttpGet]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PaginationResult<ProductDto>>>> GetAll(
         [FromQuery] PaginationParams paginationParams,
@@ -26,6 +25,7 @@ public class ProductsController : ControllerBase
     )
     {
         var result = await _productService.GetAllAsync(paginationParams, productParams);
+        _logger.LogInformation("Retrieved products list: {Count} items", result.Items.Count);
         return Ok(
             new ApiResponse<PaginationResult<ProductDto>>(
                 Success: true,
@@ -39,13 +39,12 @@ public class ProductsController : ControllerBase
     public async Task<ActionResult<ApiResponse<ProductDto>>> GetById(Guid id)
     {
         var result = await _productService.GetByIdAsync(id);
-
         var response = new ApiResponse<ProductDto>(
             Success: true,
             Data: result.Data,
             Message: "Product retrieved successfully"
         );
-
+        _logger.LogInformation("Retrieved product {ProductId}", id);
         return Ok(response);
     }
 
@@ -57,12 +56,17 @@ public class ProductsController : ControllerBase
         var result = await _productService.CreateAsync(request);
 
         var response = new ApiResponse<ProductDto>(
-            Success: true,
+            Success: result.Success,
             Data: result.Data,
-            Message: "Product created successfully"
+            Message: result.Success ? "Product created successfully" : result.ErrorMessage
         );
 
-        return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
+        if (!result.Success)
+            _logger.LogWarning("Product creation failed: {ErrorMessage}", result.ErrorMessage);
+        else
+            _logger.LogInformation("Product created: {ProductName}", request.Name);
+
+        return CreatedAtAction(nameof(GetById), new { id = response.Data?.Id }, response);
     }
 
     [HttpPut("{id:guid}")]
@@ -74,10 +78,19 @@ public class ProductsController : ControllerBase
         var result = await _productService.UpdateAsync(id, request);
 
         var response = new ApiResponse<ProductDto>(
-            Success: true,
+            Success: result.Success,
             Data: result.Data,
-            Message: "Product updated successfully"
+            Message: result.Success ? "Product updated successfully" : result.ErrorMessage
         );
+
+        if (!result.Success)
+            _logger.LogWarning(
+                "Product update failed for {ProductId}: {ErrorMessage}",
+                id,
+                result.ErrorMessage
+            );
+        else
+            _logger.LogInformation("Product updated: {ProductId}", id);
 
         return Ok(response);
     }
@@ -92,6 +105,8 @@ public class ProductsController : ControllerBase
             Data: null,
             Message: "Product deleted successfully"
         );
+
+        _logger.LogInformation("Product deleted: {ProductId}", id);
 
         return Ok(response);
     }

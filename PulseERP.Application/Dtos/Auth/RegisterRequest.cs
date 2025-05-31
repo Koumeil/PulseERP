@@ -1,8 +1,9 @@
-namespace PulseERP.Domain.Dtos.Auth;
+namespace PulseERP.Application.Dtos.Auth;
 
 public record RegisterRequest(
     string FirstName,
     string LastName,
     string Email,
     string Phone,
-    string Password);
+    string Password
+);

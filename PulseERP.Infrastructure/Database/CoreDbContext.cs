@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.ValueObjects.Product;
 
 namespace PulseERP.Infrastructure.Database;
 
@@ -30,18 +31,25 @@ public class CoreDbContext : DbContext
             u.Property(x => x.LastName).IsRequired().HasMaxLength(100);
             u.Property(x => x.IsActive).HasDefaultValue(true);
 
-            // Value Objects avec conversion
+            // Email (Value Object) avec conversion
             u.Property(x => x.Email)
                 .IsRequired()
-                .HasConversion(v => v.Value, v => Email.Create(v))
+                .HasConversion(
+                    v => v.Value, // Stocker en base : Email.Value (string)
+                    v => Email.Create(v) // Relecture : créer un Email à partir du string
+                )
                 .HasMaxLength(255);
 
+            // Phone (Value Object) avec conversion
             u.Property(x => x.Phone)
                 .IsRequired()
-                .HasConversion(v => v.Value, v => Phone.Create(v))
+                .HasConversion(
+                    v => v.Value, // Stocker en base : Phone.Value (string)
+                    v => Phone.Create(v) // Relecture : créer un Phone à partir du string
+                )
                 .HasMaxLength(20);
 
-            // Configuration du UserRole en tant que Value Object Owned
+            // UserRole (Value Object) comme Owned Entity
             u.OwnsOne(
                 x => x.Role,
                 role =>
@@ -49,12 +57,11 @@ public class CoreDbContext : DbContext
                     role.Property(r => r.RoleName)
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnName("RoleName"); // colonne dans la table User
-
-                    // Si tu veux, tu peux configurer des index ou contraintes ici
+                        .HasColumnName("RoleName");
                 }
             );
-            // Index
+
+            // Index sur Email
             u.HasIndex(x => x.Email).IsUnique();
         });
 
@@ -68,18 +75,25 @@ public class CoreDbContext : DbContext
             c.Property(x => x.LastName).IsRequired().HasMaxLength(100);
             c.Property(x => x.IsActive).HasDefaultValue(true);
 
-            // Value Objects avec conversion
+            // Email (Value Object) avec conversion
             c.Property(x => x.Email)
                 .IsRequired()
-                .HasConversion(v => v.Value, v => Email.Create(v))
+                .HasConversion(
+                    v => v.Value, // Stocker en base : Email.Value
+                    v => Email.Create(v) // Relecture : recréer Email
+                )
                 .HasMaxLength(255);
 
+            // Phone (Value Object) avec conversion
             c.Property(x => x.Phone)
                 .IsRequired()
-                .HasConversion(v => v.Value, v => Phone.Create(v))
+                .HasConversion(
+                    v => v.Value, // Stocker en base : Phone.Value
+                    v => Phone.Create(v) // Relecture : recréer Phone
+                )
                 .HasMaxLength(20);
 
-            // Address comme Owned Entity
+            // Address en tant qu’Owned Entity (Value Object)
             c.OwnsOne(
                 x => x.Address,
                 a =>
@@ -91,7 +105,7 @@ public class CoreDbContext : DbContext
                 }
             );
 
-            // Index
+            // Index sur Email
             c.HasIndex(x => x.Email).IsUnique();
         });
 
@@ -100,12 +114,28 @@ public class CoreDbContext : DbContext
         // ==============================================
         builder.Entity<Product>(p =>
         {
-            p.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            p.Property(x => x.Description).HasMaxLength(500);
+            // Conversion pour ProductName ⇄ string
+            p.Property(x => x.Name)
+                .IsRequired()
+                .HasConversion(
+                    v => v.Value, // quand on écrit en base, on stocke ProductName.Value (string)
+                    v => new ProductName(v) // quand on lit de la base, on reconstruit ProductName(v)
+                )
+                .HasMaxLength(100);
+
+            // Conversion pour ProductDescription ⇄ string
+            p.Property(x => x.Description)
+                .HasConversion(
+                    v => v == null ? null : v.Value,
+                    v => v == null ? null : new ProductDescription(v)
+                )
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
             p.Property(x => x.IsActive).HasDefaultValue(true);
             p.Property(x => x.Quantity).HasDefaultValue(0);
 
-            // Money Value Object
+            // Conversion pour Money ⇄ decimal
             p.Property(x => x.Price)
                 .HasConversion(v => v.Value, v => new Money(v))
                 .HasColumnType("decimal(18,2)");
@@ -123,8 +153,16 @@ public class CoreDbContext : DbContext
         // ==============================================
         builder.Entity<Brand>(b =>
         {
+            b.Property(x => x.Id).ValueGeneratedNever();
+
+            // 2) Nom obligatoire, longueur max
             b.Property(x => x.Name).IsRequired().HasMaxLength(100);
+
+            // 3) Index sur Name pour garantir l'unicité des noms de marque
             b.HasIndex(x => x.Name).IsUnique();
+
+            // 4) Par convention, IsActive par défaut true
+            b.Property(x => x.IsActive).HasDefaultValue(true);
         });
 
         // ==============================================
@@ -135,87 +173,9 @@ public class CoreDbContext : DbContext
             rt.HasIndex(x => x.Token).IsUnique();
             rt.HasIndex(x => x.UserId);
             rt.Property(x => x.Expires).IsRequired();
+
+            // Pour garder l’ID auto-généré, EF Core inferera la clé primaire automatiquement
+            // à partir de la convention (Id comme PK).
         });
     }
-} // using Microsoft.AspNetCore.Identity;
-// using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-// using Microsoft.EntityFrameworkCore;
-// using PulseERP.Domain.Entities;
-// using PulseERP.Domain.ValueObjects;
-// using PulseERP.Infrastructure.Identity.Entities;
-
-// namespace PulseERP.Infrastructure.Database;
-
-// public class CoreDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
-// {
-//     public CoreDbContext(DbContextOptions<CoreDbContext> options)
-//         : base(options) { }
-
-//     public DbSet<User> DomainUsers { get; set; }
-//     public DbSet<RefreshToken> RefreshTokens { get; set; }
-//     public DbSet<Product> Products { get; set; }
-//     public DbSet<Customer> Customers { get; set; }
-//     public DbSet<Brand> Brands { get; set; }
-
-//     protected override void OnModelCreating(ModelBuilder builder)
-//     {
-//         base.OnModelCreating(builder);
-
-//         // Relation
-//         builder
-//             .Entity<ApplicationUser>()
-//             .HasOne(u => u.DomainUser)
-//             .WithOne()
-//             .HasForeignKey<ApplicationUser>(u => u.DomainUserId);
-
-//         // ValueObjects (version corrigée)
-//         builder.Entity<User>(u =>
-//         {
-//             u.Property(x => x.Email).IsRequired().HasConversion(v => v.Value, v => Email.Create(v));
-
-//             u.Property(x => x.Phone)
-//                 .IsRequired()
-//                 .HasConversion(v => v.Value, v => PhoneNumber.Create(v));
-//         });
-
-//         builder.Entity<Product>(entity =>
-//         {
-//             entity
-//                 .Property(p => p.Price)
-//                 .HasConversion(
-//                     v => v.Value, // Convert Money → decimal (to store)
-//                     v => new Money(v) // Convert decimal → Money (when reading)
-//                 );
-//         });
-
-//         builder.Entity<Customer>(c =>
-//         {
-//             // Adresse en tant que Value Object possédé
-//             c.OwnsOne(
-//                 c => c.Address,
-//                 a =>
-//                 {
-//                     a.Property(p => p.Street).HasColumnName("Street");
-//                     a.Property(p => p.City).HasColumnName("City");
-//                     a.Property(p => p.ZipCode).HasColumnName("PostalCode");
-//                     a.Property(p => p.Country).HasColumnName("Country");
-//                 }
-//             );
-
-//             // Email (ValueObject)
-//             c.Property(x => x.Email)
-//                 .IsRequired()
-//                 .HasConversion(v => v.Value, v => Email.Create(v));
-
-//             // Phone (non-nullable ValueObject)
-//             c.Property(x => x.Phone)
-//                 .IsRequired()
-//                 .HasConversion(v => v.Value, v => PhoneNumber.Create(v));
-//         });
-
-//         builder.Entity<Product>(entity =>
-//         {
-//             entity.HasOne(p => p.Brand).WithMany().HasForeignKey("BrandId").IsRequired();
-//         });
-//     }
-// }
+}
