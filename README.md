@@ -1,3 +1,5 @@
+![build](https://github.com/Kouumss/PulseERP/actions/workflows/ci.yml/badge.svg)
+
 # PulseERP
 
 >**PulseERP** est un back-end ERP modulaire conçu pour les petites et moyennes entreprises, développé en **C# 13 / .NET 9** 
@@ -150,3 +152,5 @@ Distribué sous **MIT**. Voir `LICENSE`.
 ---
 
 > Made with ❤️ & ☕ by the PulseERP maintainers.
+
+![build](https://github.com/Kouumss/PulseERP/actions/workflows/ci.yml/badge.svg)
