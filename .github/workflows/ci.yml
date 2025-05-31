@@ -1,0 +1,47 @@
+name: build-test
+
+on:
+  push:
+    branches: [ main ]        # chaque commit sur main déclenche la CI
+
+permissions:
+  contents: read              # sécurité : juste ce qu’il faut
+  checks: write               # publier les résultats de tests
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupération du code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Installation du SDK .NET 9
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4      # :contentReference[oaicite:0]{index=0}
+        with:
+          dotnet-version: 9.0.x            
+
+      # 3. Restore / build / test
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test & collect coverage
+        run: dotnet test --no-restore --collect:"XPlat Code Coverage"
+
+      # 4. Upload du rapport de couverture (Codecov ou artifact GitHub)
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage.cobertura.xml
+          path: |
+            **/TestResults/**/coverage.cobertura.xml
+        if: always()   # rapport même si les tests échouent
+
+      # 5. Analyse statique (format + analyzers)
+      - name: dotnet format (analysers)
+        run: dotnet format --verify-no-changes
