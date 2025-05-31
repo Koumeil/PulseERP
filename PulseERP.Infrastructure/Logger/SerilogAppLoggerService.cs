@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using PulseERP.Domain.Interfaces.Services;
+using PulseERP.Abstractions.Security.Interfaces;
 
 namespace PulseERP.Infrastructure.Logging;
 

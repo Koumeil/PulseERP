@@ -1,28 +1,25 @@
 using PulseERP.Domain.Enums.Product;
 using PulseERP.Domain.Errors;
 using PulseERP.Domain.ValueObjects;
-using PulseERP.Domain.ValueObjects.Product;
+using PulseERP.Domain.ValueObjects.Products;
 
 namespace PulseERP.Domain.Entities;
 
 public sealed class Product : BaseEntity
 {
+    #region Properties
     public ProductName Name { get; private set; } = default!;
     public ProductDescription? Description { get; private set; }
     public Brand Brand { get; private set; } = default!;
     public Money Price { get; private set; } = default!;
-
-    // Types valeur
     public int Quantity { get; private set; }
     public bool IsService { get; private set; }
     public bool IsActive { get; private set; }
-
-    // Enum
     public ProductAvailabilityStatus Status { get; private set; }
+    #endregion
 
-    // Constructeur vide pour EF Core
-    private Product() { }
-
+    private Product() { } // EF Core
+    #region Factory
     public static Product Create(
         string name,
         string? description,
@@ -48,44 +45,51 @@ public sealed class Product : BaseEntity
         product.UpdateStatus();
         return product;
     }
+    #endregion
+
+    #region Updates
+    public void SetBrand(Brand brand) =>
+        Brand = brand ?? throw new DomainException("Brand is required");
 
     public void UpdateDetails(
-        string? name,
-        string? description,
-        Brand brand,
-        decimal price,
-        bool isService
+        string? name = null,
+        string? description = null,
+        decimal? price = null,
+        bool? isService = null
     )
     {
-        if (!string.IsNullOrWhiteSpace(name))
+        if (name is not null)
             Name = new ProductName(name);
         if (description is not null)
             Description = new ProductDescription(description);
-        Brand = brand ?? throw new DomainException("Brand is required");
-        Price = new Money(price);
-        IsService = isService;
+        if (price.HasValue)
+            Price = new Money(price.Value);
+        if (isService.HasValue)
+            IsService = isService.Value;
     }
+    #endregion
 
-    public void IncreaseStock(int amount)
+    #region Stock & Status helpers
+    public void Restock(int amount)
     {
         if (amount <= 0)
             throw new DomainException("Amount must be positive");
         Quantity += amount;
+        IsActive = true;
         UpdateStatus();
     }
 
-    public void DecreaseStock(int amount)
+    public void MarkOutOfStock()
     {
-        if (amount <= 0 || amount > Quantity)
-            throw new DomainException("Invalid stock operation");
-        Quantity -= amount;
+        Quantity = 0;
+        IsActive = true;
         UpdateStatus();
     }
 
     public void Discontinue()
     {
         IsActive = false;
-        Status = ProductAvailabilityStatus.Discontinued;
+        UpdateStatus(); // sets Discontinued
     }
 
     public void Activate()
@@ -99,16 +103,19 @@ public sealed class Product : BaseEntity
         IsActive = false;
         UpdateStatus();
     }
+    #endregion
 
+    #region Private
     private void UpdateStatus()
     {
-        if (!IsActive)
-            Status = ProductAvailabilityStatus.Discontinued;
-        else if (Quantity == 0)
-            Status = ProductAvailabilityStatus.OutOfStock;
-        else if (Quantity <= 5)
-            Status = ProductAvailabilityStatus.LowStock;
-        else
-            Status = ProductAvailabilityStatus.InStock;
+        Status = !IsActive
+            ? ProductAvailabilityStatus.Discontinued
+            : Quantity switch
+            {
+                0 => ProductAvailabilityStatus.OutOfStock,
+                <= 5 => ProductAvailabilityStatus.LowStock,
+                _ => ProductAvailabilityStatus.InStock,
+            };
     }
+    #endregion
 }

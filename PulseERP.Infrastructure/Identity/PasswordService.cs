@@ -1,8 +1,9 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Errors;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Interfaces.Services;
+using PulseERP.Domain.Interfaces;
+using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Infrastructure.Identity;
 
@@ -11,7 +12,7 @@ public class PasswordService : IPasswordService
     private readonly IUserQueryRepository _userQuery;
     private readonly IUserCommandRepository _userCommand;
     private readonly IPasswordResetTokenRepository _resetRepo;
-    private readonly ISmtpEmailService _emailService;
+    private readonly IEmailSenderService _emailService;
     private readonly ITokenHasher _tokenHasher;
     private readonly IDateTimeProvider _time;
     private readonly ILogger<PasswordService> _logger;
@@ -20,7 +21,7 @@ public class PasswordService : IPasswordService
         IUserQueryRepository userQuery,
         IUserCommandRepository userCommand,
         IPasswordResetTokenRepository resetRepo,
-        ISmtpEmailService emailService,
+        IEmailSenderService emailService,
         IDateTimeProvider time,
         ILogger<PasswordService> logger,
         ITokenHasher tokenHasher
@@ -82,7 +83,7 @@ public class PasswordService : IPasswordService
     {
         _logger.LogInformation("Force resetting password for email {Email}", email);
         var user =
-            await _userQuery.GetByEmailAsync(Email.Create(email))
+            await _userQuery.GetByEmailAsync(EmailAddress.Create(email))
             ?? throw new KeyNotFoundException($"User with email {email} not found.");
 
         user.UpdatePassword(HashPassword(newPassword));
@@ -96,7 +97,7 @@ public class PasswordService : IPasswordService
         _logger.LogInformation("Password reset requested for email {Email}", email);
 
         // 1. Recherche de l’utilisateur
-        var user = await _userQuery.GetByEmailAsync(Email.Create(email));
+        var user = await _userQuery.GetByEmailAsync(EmailAddress.Create(email));
         if (user is null)
             throw new NotFoundException("User", email);
 

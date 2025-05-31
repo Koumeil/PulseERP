@@ -1,15 +1,16 @@
 using AutoMapper;
-using PulseERP.Application.Dtos.Customer;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Application.Customers.Commands;
+using PulseERP.Application.Customers.Models;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Customer;
-using PulseERP.Domain.Pagination;
 using PulseERP.Domain.ValueObjects;
 
 public class CustomerProfile : Profile
 {
     public CustomerProfile()
     {
-        CreateMap<Customer, CustomerDto>()
+        CreateMap<Customer, CustomerSummary>()
             .ForMember(d => d.Email, o => o.MapFrom(s => s.Email.ToString()))
             .ForMember(d => d.Phone, o => o.MapFrom(s => s.Phone.ToString()))
             .ForMember(d => d.Address, o => o.MapFrom(s => s.Address.ToString()))
@@ -18,13 +19,13 @@ public class CustomerProfile : Profile
             .ForMember(d => d.Notes, o => o.MapFrom(s => s.Notes.ToList()))
             .ForMember(d => d.Tags, o => o.MapFrom(s => s.Tags.ToList()));
 
-        CreateMap<CreateCustomerRequest, Customer>()
+        CreateMap<CreateCustomerCommand, Customer>()
             .ConstructUsing(cmd =>
                 Customer.Create(
                     cmd.FirstName,
                     cmd.LastName,
                     cmd.CompanyName,
-                    Email.Create(cmd.Email),
+                    EmailAddress.Create(cmd.Email),
                     Phone.Create(cmd.Phone),
                     new Address(cmd.Street, cmd.City, cmd.ZipCode, cmd.Country),
                     Enum.Parse<CustomerType>(cmd.Type),
@@ -34,17 +35,18 @@ public class CustomerProfile : Profile
                 )
             );
 
-        CreateMap<UpdateCustomerRequest, Customer>().ForAllMembers(o => o.Ignore());
+        CreateMap<UpdateCustomerCommand, Customer>().ForAllMembers(o => o.Ignore());
 
-        CreateMap<PaginationResult<Customer>, PaginationResult<CustomerDto>>()
+        CreateMap<PagedResult<Customer>, PagedResult<CustomerSummary>>()
             .ConvertUsing(
                 (src, dest, ctx) =>
-                    new PaginationResult<CustomerDto>(
-                        ctx.Mapper.Map<List<CustomerDto>>(src.Items),
-                        src.TotalItems,
-                        src.PageNumber,
-                        src.PageSize
-                    )
+                    new PagedResult<CustomerSummary>
+                    {
+                        Items = ctx.Mapper.Map<List<CustomerSummary>>(src.Items),
+                        PageNumber = src.PageNumber,
+                        PageSize = src.PageSize,
+                        TotalItems = src.TotalItems,
+                    }
             );
     }
 }

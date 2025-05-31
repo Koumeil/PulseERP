@@ -1,7 +1,7 @@
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
+using PulseERP.Abstractions.Settings;
 using PulseERP.Domain.Errors;
-using PulseERP.Shared.Settings;
 
 namespace PulseERP.API.Extensions;
 

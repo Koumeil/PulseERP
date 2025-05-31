@@ -1,8 +1,8 @@
 // Application/Mapping/Products/ProductProfile.cs
 using AutoMapper;
-using PulseERP.Application.Dtos.Product;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Application.Products.Models;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Pagination;
 
 namespace PulseERP.Application.Mapping.Products;
 
@@ -12,7 +12,7 @@ public class ProductProfile : Profile
     {
         // Domain → DTO
 
-        CreateMap<Product, ProductDto>()
+        CreateMap<Product, ProductSummary>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(
                 dest => dest.Description,
@@ -24,15 +24,16 @@ public class ProductProfile : Profile
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
         // PaginationResult<Product> → PaginationResult<ProductDto>
-        CreateMap<PaginationResult<Product>, PaginationResult<ProductDto>>()
+        CreateMap<PagedResult<Product>, PagedResult<ProductSummary>>()
             .ConvertUsing(
                 (src, dest, ctx) =>
-                    new PaginationResult<ProductDto>(
-                        ctx.Mapper.Map<List<ProductDto>>(src.Items),
-                        src.TotalItems,
-                        src.PageNumber,
-                        src.PageSize
-                    )
+                    new PagedResult<ProductSummary>
+                    {
+                        Items = ctx.Mapper.Map<List<ProductSummary>>(src.Items),
+                        PageNumber = src.PageNumber,
+                        PageSize = src.PageSize,
+                        TotalItems = src.TotalItems,
+                    }
             );
     }
 }

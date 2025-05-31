@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.ValueObjects;
-using PulseERP.Domain.ValueObjects.Product;
+using PulseERP.Domain.ValueObjects.Products;
 
 namespace PulseERP.Infrastructure.Database;
 
@@ -36,7 +36,7 @@ public class CoreDbContext : DbContext
                 .IsRequired()
                 .HasConversion(
                     v => v.Value, // Stocker en base : Email.Value (string)
-                    v => Email.Create(v) // Relecture : créer un Email à partir du string
+                    v => EmailAddress.Create(v) // Relecture : créer un Email à partir du string
                 )
                 .HasMaxLength(255);
 
@@ -49,19 +49,17 @@ public class CoreDbContext : DbContext
                 )
                 .HasMaxLength(20);
 
-            // UserRole (Value Object) comme Owned Entity
-            u.OwnsOne(
-                x => x.Role,
-                role =>
-                {
-                    role.Property(r => r.RoleName)
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnName("RoleName");
-                }
-            );
+            // CoreDbContext.OnModelCreating
+            // Role (Value Object) → string
+            u.Property(x => x.Role)
+                .IsRequired()
+                .HasConversion(
+                    role => role.Value, // ← stocké dans la colonne
+                    value => Role.Create(value)
+                )
+                .HasMaxLength(50)
+                .HasColumnName("RoleName");
 
-            // Index sur Email
             u.HasIndex(x => x.Email).IsUnique();
         });
 
@@ -80,7 +78,7 @@ public class CoreDbContext : DbContext
                 .IsRequired()
                 .HasConversion(
                     v => v.Value, // Stocker en base : Email.Value
-                    v => Email.Create(v) // Relecture : recréer Email
+                    v => EmailAddress.Create(v) // Relecture : recréer Email
                 )
                 .HasMaxLength(255);
 

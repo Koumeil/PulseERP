@@ -2,13 +2,13 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using PulseERP.Domain.Interfaces.Services;
+using PulseERP.Abstractions.Security.Interfaces;
+using PulseERP.Abstractions.Settings;
 using PulseERP.Infrastructure.Smtp.Template;
-using PulseERP.Shared.Settings;
 
 namespace PulseERP.Infrastructure.Smtp;
 
-public class SmtpEmailService : ISmtpEmailService
+public class SmtpEmailService : IEmailSenderService
 {
     private readonly EmailSettings _settings;
 

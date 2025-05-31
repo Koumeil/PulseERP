@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Logging;
-using PulseERP.Application.Interfaces;
+using PulseERP.Abstractions.Security.DTOs;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Errors;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Shared.Roles;
+using PulseERP.Domain.Identity;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Infrastructure.Identity;
@@ -51,10 +52,10 @@ public class RoleService : IRoleService
             await _userQuery.GetByIdAsync(targetUserId)
             ?? throw new DomainException("Target user does not exist.");
 
-        if (!targetUser.HasRole(oldRole))
+        if (!targetUser.HasRole(Role.Create(oldRole.Name)))
             throw new DomainException($"Target user does not have role '{oldRole}'.");
 
-        targetUser.SetRole(newRole);
+        targetUser.SetRole(Role.Create(newRole.Name));
         await _userCommand.UpdateAsync(targetUser);
         await _userCommand.SaveChangesAsync();
 
@@ -70,6 +71,6 @@ public class RoleService : IRoleService
     public async Task<bool> UserHasRoleAsync(Guid userId, UserRole role)
     {
         var user = await _userQuery.GetByIdAsync(userId);
-        return user?.HasRole(role) ?? false;
+        return user?.HasRole(Role.Create(role.Name)) ?? false;
     }
 }

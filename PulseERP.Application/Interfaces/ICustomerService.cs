@@ -1,21 +1,20 @@
-using PulseERP.Application.Common;
-using PulseERP.Application.Dtos.Customer;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Customers;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Application.Customers.Commands;
+using PulseERP.Application.Customers.Models;
 
 namespace PulseERP.Application.Interfaces;
 
 public interface ICustomerService
 {
-    Task<PaginationResult<CustomerDto>> GetAllAsync(
-        PaginationParams pagination,
-        CustomerParams customerParams
+    Task<PagedResult<CustomerSummary>> GetAllAsync(
+        PaginationParams paginationParams,
+        CustomerFilter customerFilter
     );
-
-    Task<ServiceResult<CustomerDto>> GetByIdAsync(Guid id);
-    Task<ServiceResult<CustomerDto>> CreateAsync(CreateCustomerRequest request);
-    Task<ServiceResult<CustomerDto>> UpdateAsync(Guid id, UpdateCustomerRequest request);
-    Task<ServiceResult<bool>> DeleteAsync(Guid id);
-    Task<ServiceResult> AssignToUserAsync(Guid customerId, Guid userId);
-    Task<ServiceResult> RecordInteractionAsync(Guid customerId, string note);
+    Task<CustomerDetails> GetByIdAsync(Guid id);
+    Task<CustomerDetails> CreateAsync(CreateCustomerCommand cmd);
+    Task<CustomerDetails> UpdateAsync(Guid id, UpdateCustomerCommand cmd);
+    Task DeleteAsync(Guid id);
+    Task AssignToUserAsync(Guid customerId, Guid userId);
+    Task RecordInteractionAsync(Guid customerId, string note);
 }

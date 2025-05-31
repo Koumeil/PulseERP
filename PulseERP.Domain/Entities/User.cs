@@ -1,5 +1,4 @@
 using PulseERP.Domain.Errors;
-using PulseERP.Domain.Shared.Roles;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Domain.Entities;
@@ -13,10 +12,10 @@ public sealed class User : BaseEntity
 
     public string FirstName { get; private set; } = default!;
     public string LastName { get; private set; } = default!;
-    public Email Email { get; private set; } = default!;
+    public EmailAddress Email { get; private set; } = default!;
     public Phone Phone { get; private set; } = default!;
     public string PasswordHash { get; private set; } = default!;
-    public UserRole Role { get; private set; } = default!;
+    public Role Role { get; private set; } = default!;
 
     // Types valeur
     public bool IsActive { get; private set; }
@@ -31,7 +30,7 @@ public sealed class User : BaseEntity
     public static User Create(
         string firstName,
         string lastName,
-        Email email,
+        EmailAddress email,
         Phone phone,
         string passwordHash
     )
@@ -57,7 +56,7 @@ public sealed class User : BaseEntity
             IsActive = true,
             FailedLoginAttempts = 0,
             LockoutEnd = null,
-            Role = SystemRoles.User,
+            Role = Role.User,
         };
     }
 
@@ -121,22 +120,21 @@ public sealed class User : BaseEntity
         MarkAsUpdated();
     }
 
-    public void SetRole(UserRole newRole)
+    public void SetRole(Role newRole)
     {
-        if (newRole is null)
-            throw new DomainException("Role cannot be null.");
+        // Si on reçoit un struct par défaut, on le considère invalide
+        if (string.IsNullOrWhiteSpace(newRole.Value))
+            throw new DomainException("Role cannot be empty.");
 
-        if (Role != null && Role.Equals(newRole))
+        if (Role == newRole)
             return;
 
         Role = newRole;
         MarkAsUpdated();
     }
 
-    public bool HasRole(UserRole roleToCheck)
-    {
-        return roleToCheck != null && Role != null && Role.Equals(roleToCheck);
-    }
+    public bool HasRole(Role roleToCheck) =>
+        !string.IsNullOrWhiteSpace(roleToCheck.Value) && Role == roleToCheck;
 
     public void UpdateName(string? firstName, string? lastName)
     {
@@ -158,7 +156,7 @@ public sealed class User : BaseEntity
             MarkAsUpdated();
     }
 
-    public void UpdateEmail(Email newEmail)
+    public void UpdateEmail(EmailAddress newEmail)
     {
         if (newEmail is null)
             throw new DomainException("Email cannot be null.");

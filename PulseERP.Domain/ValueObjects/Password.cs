@@ -3,49 +3,28 @@ using PulseERP.Domain.Errors;
 
 namespace PulseERP.Domain.ValueObjects;
 
-public sealed class Password
+public sealed record Password
 {
-    private const int MinLength = 8;
-    private const int MaxLength = 20;
-
-    private static readonly Regex HasUpperCase = new(@"[A-Z]", RegexOptions.Compiled);
-    private static readonly Regex HasLowerCase = new(@"[a-z]", RegexOptions.Compiled);
-    private static readonly Regex HasDigit = new(@"\d", RegexOptions.Compiled);
-    private static readonly Regex HasSpecial = new(@"[^a-zA-Z0-9]", RegexOptions.Compiled);
-
+    private const int Min = 8,
+        Max = 20;
+    private static readonly Regex U = new(@"[A-Z]"),
+        L = new(@"[a-z]"),
+        D = new(@"\d"),
+        S = new(@"[^a-zA-Z0-9]");
     public string Value { get; }
 
-    private Password(string value) => Value = value;
+    private Password(string v) => Value = v;
 
-    public static Password Create(string plainText)
+    public static Password Create(string plain)
     {
-        if (string.IsNullOrWhiteSpace(plainText))
-            throw new DomainException("Password cannot be empty.");
-
-        if (plainText.Length < MinLength)
-            throw new DomainException($"Password must be at least {MinLength} characters long.");
-
-        if (plainText.Length > MaxLength)
-            throw new DomainException($"Password must not exceed {MaxLength} characters.");
-
-        if (!HasUpperCase.IsMatch(plainText))
-            throw new DomainException("Password must contain at least one uppercase letter.");
-
-        if (!HasLowerCase.IsMatch(plainText))
-            throw new DomainException("Password must contain at least one lowercase letter.");
-
-        if (!HasDigit.IsMatch(plainText))
-            throw new DomainException("Password must contain at least one digit.");
-
-        if (!HasSpecial.IsMatch(plainText))
-            throw new DomainException("Password must contain at least one special character.");
-
-        return new Password(plainText);
+        if (plain is null)
+            throw new DomainException("Pwd vide.");
+        if (plain.Length is < Min or > Max)
+            throw new DomainException($"Pwd {Min}-{Max} car.");
+        if (!U.IsMatch(plain) || !L.IsMatch(plain) || !D.IsMatch(plain) || !S.IsMatch(plain))
+            throw new DomainException("Pwd doit contenir maj, min, chiffre, spécial.");
+        return new Password(plain);
     }
 
-    public override string ToString() => Value;
-
-    public override bool Equals(object? obj) => obj is Password other && Value == other.Value;
-
-    public override int GetHashCode() => Value.GetHashCode();
+    public override string ToString() => "***";
 }

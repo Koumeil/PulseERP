@@ -1,7 +1,7 @@
 using AutoMapper;
-using PulseERP.Application.Dtos.User;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Application.Users.Models;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Pagination;
 
 namespace PulseERP.Application.Mapping.Users;
 
@@ -10,7 +10,7 @@ public class UserProfile : Profile
     public UserProfile()
     {
         // User → UserDto
-        CreateMap<User, UserDto>()
+        CreateMap<User, UserSummary>()
             .ForMember(d => d.Email, opt => opt.MapFrom(s => s.Email.ToString()))
             .ForMember(d => d.Phone, opt => opt.MapFrom(s => s.Phone.ToString()))
             .ForMember(d => d.Role, opt => opt.MapFrom(s => s.Role.ToString()))
@@ -24,7 +24,7 @@ public class UserProfile : Profile
             .ForMember(d => d.LockoutEnd, opt => opt.MapFrom(s => s.LockoutEnd));
 
         // User → UserDetailsDto
-        CreateMap<User, UserDetailsDto>()
+        CreateMap<User, UserDetails>()
             .ForMember(d => d.Email, opt => opt.MapFrom(s => s.Email.ToString()))
             .ForMember(d => d.Phone, opt => opt.MapFrom(s => s.Phone.ToString()))
             .ForMember(d => d.Role, opt => opt.MapFrom(s => s.Role.ToString()))
@@ -34,27 +34,29 @@ public class UserProfile : Profile
             .ForMember(d => d.FailedLoginAttempts, opt => opt.MapFrom(s => s.FailedLoginAttempts));
 
         // PaginationResult<User> → PaginationResult<UserDto>
-        CreateMap<PaginationResult<User>, PaginationResult<UserDto>>()
+        CreateMap<PagedResult<User>, PagedResult<UserSummary>>()
             .ConvertUsing(
                 (src, _, context) =>
-                    new PaginationResult<UserDto>(
-                        context.Mapper.Map<List<UserDto>>(src.Items),
-                        src.TotalItems,
-                        src.PageNumber,
-                        src.PageSize
-                    )
+                    new PagedResult<UserSummary>
+                    {
+                        Items = context.Mapper.Map<List<UserSummary>>(src.Items),
+                        PageNumber = src.PageNumber,
+                        PageSize = src.PageSize,
+                        TotalItems = src.TotalItems,
+                    }
             );
 
         // PaginationResult<User> → PaginationResult<UserDetailsDto>
-        CreateMap<PaginationResult<User>, PaginationResult<UserDetailsDto>>()
+        CreateMap<PagedResult<User>, PagedResult<UserDetails>>()
             .ConvertUsing(
                 (src, _, context) =>
-                    new PaginationResult<UserDetailsDto>(
-                        context.Mapper.Map<List<UserDetailsDto>>(src.Items),
-                        src.TotalItems,
-                        src.PageNumber,
-                        src.PageSize
-                    )
+                    new PagedResult<UserDetails>
+                    {
+                        Items = context.Mapper.Map<List<UserDetails>>(src.Items),
+                        PageNumber = src.PageNumber,
+                        PageSize = src.PageSize,
+                        TotalItems = src.TotalItems,
+                    }
             );
     }
 }

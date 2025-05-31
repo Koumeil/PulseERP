@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
-using PulseERP.Domain.Interfaces.Services;
+using PulseERP.Abstractions.Security.Interfaces;
 
 namespace PulseERP.Infrastructure.Identity;
 

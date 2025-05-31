@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using PulseERP.Abstractions.Common.Pagination;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Pagination;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
@@ -12,22 +12,23 @@ public class BrandRepository : IBrandRepository
 
     public BrandRepository(CoreDbContext ctx) => _ctx = ctx;
 
-    public async Task<PaginationResult<Brand>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<Brand>> GetAllAsync(PaginationParams paginationParams)
     {
         var query = _ctx.Brands.AsNoTracking();
         var total = await query.CountAsync();
         var items = await query
             .OrderBy(b => b.Name)
-            .Skip((pagination.PageNumber - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
             .ToListAsync();
 
-        return new PaginationResult<Brand>(
-            items,
-            total,
-            pagination.PageNumber,
-            pagination.PageSize
-        );
+        return new PagedResult<Brand>
+        {
+            Items = items,
+            PageNumber = paginationParams.PageNumber,
+            PageSize = paginationParams.PageSize,
+            TotalItems = total
+        };
     }
 
     public Task<Brand?> GetByIdAsync(Guid id) =>

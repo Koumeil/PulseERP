@@ -4,13 +4,12 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Dtos.Auth.Token;
+using PulseERP.Abstractions.Security.DTOs;
+using PulseERP.Abstractions.Security.Interfaces;
+using PulseERP.Abstractions.Settings;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Token;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Interfaces.Services;
-using PulseERP.Shared.Settings;
+using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Infrastructure.Identity;
 
@@ -47,7 +46,7 @@ public class TokenService : ITokenService
         _logger = logger;
     }
 
-    public AccessTokenDto GenerateAccessToken(Guid userId, string email, string role)
+    public AccessToken GenerateAccessToken(Guid userId, string email, string role)
     {
         _logger.LogInformation("Generating access token for user {UserId}", userId);
 
@@ -74,7 +73,7 @@ public class TokenService : ITokenService
         );
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-        return new AccessTokenDto(token, expires);
+        return new AccessToken(token, expires);
     }
 
     public async Task<RefreshTokenDto> GenerateRefreshTokenAsync(
@@ -105,7 +104,7 @@ public class TokenService : ITokenService
         };
 
         await _repo.AddAsync(entity);
-        
+
         return new RefreshTokenDto(rawToken, entity.Expires);
     }
 
@@ -116,7 +115,7 @@ public class TokenService : ITokenService
 
         var hash = _hasher.Hash(token);
         var entity = await _repo.GetByTokenAsync(hash);
-        if (entity == null || !entity.IsActive)
+        if (entity is null || !entity.IsActive)
             return new RefreshTokenValidationResult(false, null);
 
         await _repo.RevokeForUserAsync(entity.UserId);

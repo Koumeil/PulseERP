@@ -1,8 +1,10 @@
 // Application/Mapping/Brands/BrandProfile.cs
 using AutoMapper;
-using PulseERP.Application.Dtos.Brand;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Application.Brands.Commands;
+using PulseERP.Application.Brands.Models;
+using PulseERP.Application.Common.Models;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Pagination;
 
 namespace PulseERP.Application.Mapping.Brands;
 
@@ -11,8 +13,8 @@ public class BrandProfile : Profile
     public BrandProfile()
     {
         // Domain → DTO
-        CreateMap<Brand, BrandDto>()
-            .ConstructUsing(src => new BrandDto(
+        CreateMap<Brand, BrandSummary>()
+            .ConstructUsing(src => new BrandSummary(
                 src.Id,
                 src.Name,
                 src.IsActive,
@@ -20,18 +22,19 @@ public class BrandProfile : Profile
             ));
 
         // CreateBrandRequest → Domain
-        CreateMap<CreateBrandRequest, Brand>().ConstructUsing(cmd => Brand.Create(cmd.Name));
+        CreateMap<CreateBrandCommand, Brand>().ConstructUsing(cmd => Brand.Create(cmd.Name));
 
         // PaginationResult<Brand> → PaginationResult<BrandDto>
-        CreateMap<PaginationResult<Brand>, PaginationResult<BrandDto>>()
+        CreateMap<PagedResult<Brand>, PagedResult<BrandSummary>>()
             .ConvertUsing(
                 (src, dest, ctx) =>
-                    new PaginationResult<BrandDto>(
-                        ctx.Mapper.Map<List<BrandDto>>(src.Items),
-                        src.TotalItems,
-                        src.PageNumber,
-                        src.PageSize
-                    )
+                    new PagedResult<BrandSummary>
+                    {
+                        Items = ctx.Mapper.Map<List<BrandSummary>>(src.Items),
+                        PageNumber = src.PageNumber,
+                        PageSize = src.PageSize,
+                        TotalItems = src.TotalItems,
+                    }
             );
     }
 }

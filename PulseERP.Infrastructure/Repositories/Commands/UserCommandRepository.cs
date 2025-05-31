@@ -1,5 +1,5 @@
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Repositories;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories.Commands;

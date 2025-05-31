@@ -1,191 +1,166 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-using PulseERP.Application.Common;
-using PulseERP.Application.Dtos.Customer;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Application.Customers.Commands;
+using PulseERP.Application.Customers.Models;
 using PulseERP.Application.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Customer;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Customers;
+using PulseERP.Domain.Errors;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Application.Services;
 
-public class CustomerService : ICustomerService
+/// <inheritdoc />
+public sealed class CustomerService : ICustomerService
 {
-    private readonly ICustomerRepository _repository;
+    private readonly ICustomerRepository _repo;
     private readonly IMapper _mapper;
-    private readonly ILogger<CustomerService> _logger;
+    private readonly ILogger<CustomerService> _log;
 
-    public CustomerService(
-        ICustomerRepository repository,
-        IMapper mapper,
-        ILogger<CustomerService> logger
-    )
+    public CustomerService(ICustomerRepository repo, IMapper mapper, ILogger<CustomerService> log)
     {
-        _repository = repository;
+        _repo = repo;
         _mapper = mapper;
-        _logger = logger;
+        _log = log;
     }
 
-    public async Task<PaginationResult<CustomerDto>> GetAllAsync(
-        PaginationParams pagination,
-        CustomerParams customerParams
+    #region READ
+
+    public async Task<PagedResult<CustomerSummary>> GetAllAsync(
+        PaginationParams paginationParams,
+        CustomerFilter customerFilter
     )
     {
-        var paged = await _repository.GetAllAsync(pagination, customerParams);
-        var dtos = _mapper.Map<List<CustomerDto>>(paged.Items);
-        _logger.LogInformation(
-            "Retrieved {Count} customers (Page {Page})",
-            dtos.Count,
-            customerParams.PageNumber
-        );
-        return new PaginationResult<CustomerDto>(
-            dtos,
-            paged.TotalItems,
-            paged.PageSize,
+        var paged = await _repo.GetAllAsync(paginationParams, customerFilter);
+
+        var summaries = _mapper.Map<IReadOnlyList<CustomerSummary>>(paged.Items);
+
+        _log.LogInformation(
+            "Retrieved {Count} customers (page {Page})",
+            summaries.Count,
             paged.PageNumber
         );
+
+        return new PagedResult<CustomerSummary>
+        {
+            Items = summaries,
+            TotalItems = paged.TotalItems,
+            PageNumber = paged.PageNumber,
+            PageSize = paged.PageSize,
+        };
     }
 
-    public async Task<ServiceResult<CustomerDto>> GetByIdAsync(Guid id)
+    public async Task<CustomerDetails> GetByIdAsync(Guid id)
     {
-        var customer = await _repository.GetByIdAsync(id);
-        if (customer is null)
-            return ServiceResult<CustomerDto>.Fail("Customer.NotFound", "Client introuvable");
-
-        return ServiceResult<CustomerDto>.Ok(_mapper.Map<CustomerDto>(customer));
+        var customer = await _repo.GetByIdAsync(id) ?? throw new NotFoundException("Customer", id);
+        return _mapper.Map<CustomerDetails>(customer);
     }
 
-    public async Task<ServiceResult<CustomerDto>> CreateAsync(CreateCustomerRequest request)
+    #endregion
+    #region CREATE
+
+    public async Task<CustomerDetails> CreateAsync(CreateCustomerCommand cmd)
     {
         var customer = Customer.Create(
-            request.FirstName,
-            request.LastName,
-            request.CompanyName,
-            Email.Create(request.Email),
-            Phone.Create(request.Phone),
-            new Address(request.Street, request.City, request.ZipCode, request.Country),
-            Enum.Parse<CustomerType>(request.Type),
-            Enum.Parse<CustomerStatus>(request.Status),
+            cmd.FirstName,
+            cmd.LastName,
+            cmd.CompanyName,
+            EmailAddress.Create(cmd.Email),
+            Phone.Create(cmd.Phone),
+            new Address(cmd.Street, cmd.City, cmd.ZipCode, cmd.Country),
+            Enum.Parse<CustomerType>(cmd.Type),
+            Enum.Parse<CustomerStatus>(cmd.Status),
             DateTime.UtcNow,
-            request.IsVIP
+            cmd.IsVIP
         );
 
-        customer.SetIndustry(request.Industry);
-        customer.SetSource(request.Source);
+        customer.SetIndustry(cmd.Industry);
+        customer.SetSource(cmd.Source);
 
-        await _repository.AddAsync(customer);
-        await _repository.SaveChangesAsync();
+        await _repo.AddAsync(customer);
+        await _repo.SaveChangesAsync();
 
-        _logger.LogInformation("Customer {CustomerId} created", customer.Id);
+        _log.LogInformation("Customer {CustomerId} created", customer.Id);
 
-        return ServiceResult<CustomerDto>.Ok(_mapper.Map<CustomerDto>(customer));
+        return _mapper.Map<CustomerDetails>(customer);
     }
 
-    public async Task<ServiceResult<CustomerDto>> UpdateAsync(
-        Guid id,
-        UpdateCustomerRequest request
-    )
-    {
-        var customer = await _repository.GetByIdAsync(id);
-        if (customer is null)
-            return ServiceResult<CustomerDto>.Fail("Customer.NotFound", "Client introuvable");
+    #endregion
+    #region UPDATE
 
-        // Update VO (construit uniquement si champs présents)
-        Email? newEmail = !string.IsNullOrWhiteSpace(request.Email)
-            ? Email.Create(request.Email)
-            : null;
-        Phone? newPhone = !string.IsNullOrWhiteSpace(request.Phone)
-            ? Phone.Create(request.Phone)
-            : null;
-        Address? newAddress =
-            (
-                request.Street != null
-                && request.City != null
-                && request.ZipCode != null
-                && request.Country != null
-            )
-                ? new Address(request.Street, request.City, request.ZipCode, request.Country)
-                : null;
-        CustomerType? newType = !string.IsNullOrWhiteSpace(request.Type)
-            ? Enum.Parse<CustomerType>(request.Type)
-            : null;
-        CustomerStatus? newStatus = !string.IsNullOrWhiteSpace(request.Status)
-            ? Enum.Parse<CustomerStatus>(request.Status)
-            : null;
+    public async Task<CustomerDetails> UpdateAsync(Guid id, UpdateCustomerCommand cmd)
+    {
+        var customer = await _repo.GetByIdAsync(id) ?? throw new NotFoundException("Customer", id);
 
         customer.UpdateDetails(
-            firstName: request.FirstName,
-            lastName: request.LastName,
-            companyName: request.CompanyName,
-            email: newEmail,
-            phone: newPhone,
-            address: newAddress,
-            type: newType,
-            status: newStatus,
-            isVIP: request.IsVIP,
-            industry: request.Industry,
-            source: request.Source
+            firstName: cmd.FirstName,
+            lastName: cmd.LastName,
+            companyName: cmd.CompanyName,
+            email: cmd.Email is null ? null : EmailAddress.Create(cmd.Email),
+            phone: cmd.Phone is null ? null : Phone.Create(cmd.Phone),
+            address: (cmd.Street, cmd.City, cmd.ZipCode, cmd.Country) switch
+            {
+                ({ } s, { } c, { } z, { } co) => new Address(s, c, z, co),
+                _ => null,
+            },
+            type: cmd.Type is null ? null : Enum.Parse<CustomerType>(cmd.Type),
+            status: cmd.Status is null ? null : Enum.Parse<CustomerStatus>(cmd.Status),
+            isVIP: cmd.IsVIP,
+            industry: cmd.Industry,
+            source: cmd.Source
         );
 
-        await _repository.UpdateAsync(customer);
-        await _repository.SaveChangesAsync();
+        await _repo.UpdateAsync(customer);
+        await _repo.SaveChangesAsync();
 
-        _logger.LogInformation("Customer {CustomerId} updated", customer.Id);
+        _log.LogInformation("Customer {CustomerId} updated", customer.Id);
 
-        return ServiceResult<CustomerDto>.Ok(_mapper.Map<CustomerDto>(customer));
+        return _mapper.Map<CustomerDetails>(customer);
     }
 
-    public async Task<ServiceResult<bool>> DeleteAsync(Guid id)
-    {
-        var customer = await _repository.GetByIdAsync(id);
-        if (customer is null)
-            return ServiceResult<bool>.Fail("Customer.NotFound", "Client introuvable");
+    #endregion
+    #region DELETE / OTHER
 
-        // Soft delete recommandé (désactivation)
+    public async Task DeleteAsync(Guid id)
+    {
+        var customer = await _repo.GetByIdAsync(id) ?? throw new NotFoundException("Customer", id);
+
         customer.Deactivate();
-        await _repository.UpdateAsync(customer);
-        await _repository.SaveChangesAsync();
+        await _repo.UpdateAsync(customer);
+        await _repo.SaveChangesAsync();
 
-        _logger.LogInformation("Customer {CustomerId} deactivated", customer.Id);
-
-        return ServiceResult<bool>.Ok(true);
+        _log.LogInformation("Customer {CustomerId} deactivated", customer.Id);
     }
 
-    public async Task<ServiceResult> AssignToUserAsync(Guid customerId, Guid userId)
+    public async Task AssignToUserAsync(Guid customerId, Guid userId)
     {
-        var customer = await _repository.GetByIdAsync(customerId);
-        if (customer is null)
-            return ServiceResult.Fail("Customer.NotFound", "Client introuvable");
+        var customer =
+            await _repo.GetByIdAsync(customerId)
+            ?? throw new NotFoundException("Customer", customerId);
 
         customer.AssignTo(userId);
-        await _repository.UpdateAsync(customer);
-        await _repository.SaveChangesAsync();
+        await _repo.UpdateAsync(customer);
+        await _repo.SaveChangesAsync();
 
-        _logger.LogInformation(
-            "Customer {CustomerId} assigned to user {UserId}",
-            customerId,
-            userId
-        );
-
-        return ServiceResult.Ok();
+        _log.LogInformation("Customer {CustomerId} assigned to user {UserId}", customerId, userId);
     }
 
-    public async Task<ServiceResult> RecordInteractionAsync(Guid customerId, string note)
+    public async Task RecordInteractionAsync(Guid customerId, string note)
     {
-        var customer = await _repository.GetByIdAsync(customerId);
-        if (customer is null)
-            return ServiceResult.Fail("Customer.NotFound", "Client introuvable");
+        var customer =
+            await _repo.GetByIdAsync(customerId)
+            ?? throw new NotFoundException("Customer", customerId);
 
         customer.RecordInteraction();
         customer.AddNote(note);
-        await _repository.UpdateAsync(customer);
-        await _repository.SaveChangesAsync();
+        await _repo.UpdateAsync(customer);
+        await _repo.SaveChangesAsync();
 
-        _logger.LogInformation("Customer {CustomerId} interaction recorded", customerId);
-
-        return ServiceResult.Ok();
+        _log.LogInformation("Interaction recorded for customer {CustomerId}", customerId);
     }
+
+    #endregion
 }

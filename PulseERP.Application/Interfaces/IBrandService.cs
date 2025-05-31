@@ -1,14 +1,14 @@
-using PulseERP.Application.Common;
-using PulseERP.Application.Dtos.Brand;
-using PulseERP.Domain.Pagination;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Application.Brands.Commands;
+using PulseERP.Application.Brands.Models;
 
 namespace PulseERP.Application.Interfaces;
 
 public interface IBrandService
 {
-    Task<ServiceResult<BrandDto>> CreateAsync(CreateBrandRequest request);
-    Task<ServiceResult<BrandDto>> UpdateAsync(Guid id, UpdateBrandRequest request);
-    Task<ServiceResult<bool>> DeleteAsync(Guid id);
-    Task<ServiceResult<BrandDto>> GetByIdAsync(Guid id);
-    Task<PaginationResult<BrandDto>> GetAllAsync(PaginationParams pagination);
+    Task<BrandSummary> CreateAsync(CreateBrandCommand command);
+    Task<BrandSummary> UpdateAsync(Guid id, UpdateBrandCommand command);
+    Task DeleteAsync(Guid id);
+    Task<BrandSummary> GetByIdAsync(Guid id);
+    Task<PagedResult<BrandSummary>> GetAllAsync(PaginationParams pagination);
 }

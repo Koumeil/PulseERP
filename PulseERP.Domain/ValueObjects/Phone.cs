@@ -1,52 +1,29 @@
 using System.Text.RegularExpressions;
 using PulseERP.Domain.Errors;
 
-public sealed class Phone : IEquatable<Phone>
-{
-    public string Value { get; }
-    private static readonly Regex PhoneRegex = new(@"^\+?[0-9]{5,15}$", RegexOptions.Compiled);
+namespace PulseERP.Domain.ValueObjects;
 
-    private Phone(string value)
-    {
-        Value = value;
-    }
+public sealed record Phone
+{
+    private static readonly Regex Rx = new(@"^\+?[0-9]{5,15}$", RegexOptions.Compiled);
+    public string Value { get; }
+
+    private Phone(string v) => Value = v;
 
     public static Phone Create(string number)
     {
-        if (string.IsNullOrWhiteSpace(number))
-            throw new DomainException("Phone number cannot be empty.");
-
-        var trimmed = number.Trim();
-
-        if (!PhoneRegex.IsMatch(trimmed))
-            throw new DomainException(
-                "Invalid phone number format. It must contain 5-15 digits and optionally start with a '+'."
-            );
-
-        return new Phone(trimmed);
+        var n = number?.Trim();
+        if (string.IsNullOrWhiteSpace(n) || !Rx.IsMatch(n))
+            throw new DomainException("Téléphone invalide (5-15 chiffres, option +).");
+        return new Phone(n);
     }
 
-    /// <summary>
-    /// Retourne la même instance si identique, ou une nouvelle instance validée.
-    /// </summary>
-    public Phone Update(string newValue)
-    {
-        var trimmed = newValue?.Trim();
-        if (string.Equals(Value, trimmed, StringComparison.OrdinalIgnoreCase))
-            return this;
-        return Create(trimmed!);
-    }
-
-    public bool Equals(Phone? other) =>
-        other is not null && string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
-
-    public override bool Equals(object? obj) => obj is Phone other && Equals(other);
-
-    public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
+    public Phone Update(string newValue) =>
+        string.Equals(Value, newValue?.Trim(), StringComparison.OrdinalIgnoreCase)
+            ? this
+            : Create(newValue!);
 
     public override string ToString() => Value;
 
-    public static bool operator ==(Phone? left, Phone? right) => Equals(left, right);
-
-    public static bool operator !=(Phone? left, Phone? right) => !Equals(left, right);
+    public static implicit operator Phone(string v) => Create(v);
 }

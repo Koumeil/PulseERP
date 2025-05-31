@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Customer;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Customers;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
@@ -20,17 +20,17 @@ public class CustomerRepository : ICustomerRepository
         _logger = logger;
     }
 
-    public async Task<PaginationResult<Customer>> GetAllAsync(
+    public async Task<PagedResult<Customer>> GetAllAsync(
         PaginationParams pagination,
-        CustomerParams customerParams
+        CustomerFilter customerFilter
     )
     {
         var query = _ctx.Customers.AsNoTracking();
 
         // Recherche texte (sur tous les champs utiles)
-        if (!string.IsNullOrWhiteSpace(customerParams.Search))
+        if (!string.IsNullOrWhiteSpace(customerFilter.Search))
         {
-            var lower = customerParams.Search.ToLowerInvariant();
+            var lower = customerFilter.Search.ToLowerInvariant();
             query = query.Where(c =>
                 c.FirstName.ToLower().Contains(lower)
                 || c.LastName.ToLower().Contains(lower)
@@ -40,39 +40,40 @@ public class CustomerRepository : ICustomerRepository
         }
         // Filtrage par status
         if (
-            !string.IsNullOrWhiteSpace(customerParams.Status)
-            && Enum.TryParse<CustomerStatus>(customerParams.Status, out var status)
+            !string.IsNullOrWhiteSpace(customerFilter.Status)
+            && Enum.TryParse<CustomerStatus>(customerFilter.Status, out var status)
         )
             query = query.Where(c => c.Status == status);
 
         // Filtrage par type
         if (
-            !string.IsNullOrWhiteSpace(customerParams.Type)
-            && Enum.TryParse<CustomerType>(customerParams.Type, out var type)
+            !string.IsNullOrWhiteSpace(customerFilter.Type)
+            && Enum.TryParse<CustomerType>(customerFilter.Type, out var type)
         )
             query = query.Where(c => c.Type == type);
 
         // Filtrage par VIP
-        if (customerParams.IsVIP.HasValue)
-            query = query.Where(c => c.IsVIP == customerParams.IsVIP);
+        if (customerFilter.IsVIP.HasValue)
+            query = query.Where(c => c.IsVIP == customerFilter.IsVIP);
 
         // Filtrage par user assigné
-        if (customerParams.AssignedToUserId.HasValue)
-            query = query.Where(c => c.AssignedToUserId == customerParams.AssignedToUserId);
+        if (customerFilter.AssignedToUserId.HasValue)
+            query = query.Where(c => c.AssignedToUserId == customerFilter.AssignedToUserId);
 
         var total = await query.CountAsync();
         var items = await query
             .OrderBy(c => c.LastName)
-            .Skip((customerParams.PageNumber - 1) * customerParams.PageSize)
-            .Take(customerParams.PageSize)
+            .Skip((customerFilter.PageNumber - 1) * customerFilter.PageSize)
+            .Take(customerFilter.PageSize)
             .ToListAsync();
 
-        return new PaginationResult<Customer>(
-            items,
-            total,
-            customerParams.PageNumber,
-            customerParams.PageSize
-        );
+        return new PagedResult<Customer>
+        {
+            Items = items,
+            PageNumber = customerFilter.PageNumber,
+            PageSize = customerFilter.PageSize,
+            TotalItems = total,
+        };
     }
 
     public async Task<Customer?> GetByIdAsync(Guid id) =>

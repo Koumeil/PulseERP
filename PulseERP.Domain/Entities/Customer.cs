@@ -9,7 +9,7 @@ public sealed class Customer : BaseEntity
     public string FirstName { get; private set; } = default!;
     public string LastName { get; private set; } = default!;
     public string CompanyName { get; private set; } = default!;
-    public Email Email { get; private set; } = default!;
+    public EmailAddress Email { get; private set; } = default!;
     public Phone Phone { get; private set; } = default!;
     public Address Address { get; private set; } = default!;
 
@@ -38,7 +38,7 @@ public sealed class Customer : BaseEntity
         string firstName,
         string lastName,
         string companyName,
-        Email email,
+        EmailAddress email,
         Phone phone,
         Address address,
         CustomerType type,
@@ -80,7 +80,7 @@ public sealed class Customer : BaseEntity
         string? firstName = null,
         string? lastName = null,
         string? companyName = null,
-        Email? email = null,
+        EmailAddress? email = null,
         Phone? phone = null,
         Address? address = null,
         CustomerType? type = null,

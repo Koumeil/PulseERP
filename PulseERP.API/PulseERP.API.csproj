@@ -6,6 +6,7 @@
     <UserSecretsId>19ad8bae-7b68-4cf5-b5c8-aa36453d2338</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
@@ -22,6 +23,5 @@
     <ProjectReference Include="../PulseERP.Application/PulseERP.Application.csproj" />
     <ProjectReference Include="../PulseERP.Domain/PulseERP.Domain.csproj" />
     <ProjectReference Include="../PulseERP.Infrastructure/PulseERP.Infrastructure.csproj" />
-    <ProjectReference Include="../PulseERP.Shared/PulseERP.Shared.csproj" />
   </ItemGroup>
 </Project>

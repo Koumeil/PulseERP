@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.API.Dtos;
-using PulseERP.Application.Dtos.User;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Abstractions.Security.DTOs;
+using PulseERP.API.Contracts;
 using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Users;
+using PulseERP.Application.Users.Commands;
+using PulseERP.Application.Users.Models;
 
 namespace PulseERP.API.Controllers;
 
@@ -20,12 +22,12 @@ public class UsersController : ControllerBase
 
     // GET api/users?pageNumber=1&pageSize=10
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<PaginationResult<UserDto>>>> GetAll(
-        [FromQuery] UserParams userParams
+    public async Task<ActionResult<ApiResponse<PagedResult<UserSummary>>>> GetAll(
+        [FromQuery] UserFilter userFilter
     )
     {
-        var result = await _userService.GetAllAsync(userParams);
-        var response = new ApiResponse<PaginationResult<UserDto>>(
+        var result = await _userService.GetAllAsync(userFilter);
+        var response = new ApiResponse<PagedResult<UserSummary>>(
             Success: true,
             Data: result,
             Message: "Users retrieved successfully"
@@ -35,10 +37,10 @@ public class UsersController : ControllerBase
 
     // GET api/users/{id}
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<UserDetailsDto>>> GetById(Guid id)
+    public async Task<ActionResult<ApiResponse<UserDetails>>> GetById(Guid id)
     {
         var result = await _userService.GetByIdAsync(id);
-        var response = new ApiResponse<UserDetailsDto>(
+        var response = new ApiResponse<UserDetails>(
             Success: true,
             Data: result,
             Message: "User retrieved successfully"
@@ -49,7 +51,7 @@ public class UsersController : ControllerBase
     // POST api/users
     [HttpPost]
     public async Task<ActionResult<ApiResponse<UserInfo>>> Create(
-        [FromBody] CreateUserRequest request
+        [FromBody] CreateUserCommand request
     )
     {
         var result = await _userService.CreateAsync(request);
@@ -64,13 +66,13 @@ public class UsersController : ControllerBase
 
     // PUT api/users/{id}
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<UserDto>>> Update(
+    public async Task<ActionResult<ApiResponse<UserDetails>>> Update(
         Guid id,
-        [FromBody] UpdateUserRequest request
+        [FromBody] UpdateUserCommand request
     )
     {
         var result = await _userService.UpdateAsync(id, request);
-        var response = new ApiResponse<UserDto>(
+        var response = new ApiResponse<UserDetails>(
             Success: true,
             Data: result,
             Message: "User updated successfully"

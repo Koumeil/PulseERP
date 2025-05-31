@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Token;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Interfaces.Services;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;

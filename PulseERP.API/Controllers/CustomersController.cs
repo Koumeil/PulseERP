@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.API.Dtos;
-using PulseERP.Application.Dtos.Customer;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.API.Contracts;
+using PulseERP.Application.Customers.Commands;
+using PulseERP.Application.Customers.Models;
 using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Customers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -22,18 +23,18 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<PaginationResult<CustomerDto>>>> GetAll(
+    public async Task<ActionResult<ApiResponse<PagedResult<CustomerSummary>>>> GetAll(
         [FromQuery] PaginationParams paginationParams,
-        [FromQuery] CustomerParams customerParams
+        [FromQuery] CustomerFilter customerFilter
     )
     {
-        var result = await _customerService.GetAllAsync(paginationParams, customerParams);
+        var result = await _customerService.GetAllAsync(paginationParams, customerFilter);
         _logger.LogInformation(
             "API: Customers list fetched with params: {@CustomerParams}",
-            customerParams
+            customerFilter
         );
         return Ok(
-            new ApiResponse<PaginationResult<CustomerDto>>(
+            new ApiResponse<PagedResult<CustomerSummary>>(
                 true,
                 result,
                 "Customers retrieved successfully"
@@ -42,37 +43,37 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<CustomerDto>>> GetById(Guid id)
+    public async Task<ActionResult<ApiResponse<CustomerDetails>>> GetById(Guid id)
     {
         var result = await _customerService.GetByIdAsync(id);
         return Ok(
-            new ApiResponse<CustomerDto>(true, result.Data, "Customer retrieved successfully")
+            new ApiResponse<CustomerDetails>(true, result, "Customer retrieved successfully")
         );
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<CustomerDto>>> Create(
-        [FromBody] CreateCustomerRequest request
+    public async Task<ActionResult<ApiResponse<CustomerDetails>>> Create(
+        [FromBody] CreateCustomerCommand request
     )
     {
         var result = await _customerService.CreateAsync(request);
         _logger.LogInformation("Customer created: {Customer}", request.Email);
         return CreatedAtAction(
             nameof(GetById),
-            new { id = result.Data!.Id },
-            new ApiResponse<CustomerDto>(true, result.Data, "Customer created successfully")
+            new { id = result.Id },
+            new ApiResponse<CustomerDetails>(true, result, "Customer created successfully")
         );
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<CustomerDto>>> Update(
+    public async Task<ActionResult<ApiResponse<CustomerDetails>>> Update(
         Guid id,
-        [FromBody] UpdateCustomerRequest request
+        [FromBody] UpdateCustomerCommand request
     )
     {
         var result = await _customerService.UpdateAsync(id, request);
         _logger.LogInformation("Customer updated: {CustomerId}", id);
-        return Ok(new ApiResponse<CustomerDto>(true, result.Data, "Customer updated successfully"));
+        return Ok(new ApiResponse<CustomerDetails>(true, result, "Customer updated successfully"));
     }
 
     [HttpDelete("{id:guid}")]

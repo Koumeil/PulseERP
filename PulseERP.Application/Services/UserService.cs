@@ -1,14 +1,17 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-using PulseERP.Application.Dtos.User;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Abstractions.Security.DTOs;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Application.Interfaces;
+using PulseERP.Application.Users.Commands;
+using PulseERP.Application.Users.Models;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Errors;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Interfaces.Services;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Users;
-using PulseERP.Domain.Shared.Roles;
+using PulseERP.Domain.Identity;
+using PulseERP.Domain.Interfaces;
+using PulseERP.Domain.ValueObjects;
 
 public class UserService : IUserService
 {
@@ -33,30 +36,30 @@ public class UserService : IUserService
         _logger = logger;
     }
 
-    public async Task<PaginationResult<UserDto>> GetAllAsync(UserParams userParams)
+    public async Task<PagedResult<UserSummary>> GetAllAsync(UserFilter userFilter)
     {
-        var users = await _userQuery.GetAllAsync(userParams);
-        return _mapper.Map<PaginationResult<UserDto>>(users);
+        var users = await _userQuery.GetAllAsync(userFilter);
+        return _mapper.Map<PagedResult<UserSummary>>(users);
     }
 
-    public async Task<UserDetailsDto> GetByIdAsync(Guid id)
+    public async Task<UserDetails> GetByIdAsync(Guid id)
     {
         var user = await _userQuery.GetByIdAsync(id);
         if (user is null)
             throw new NotFoundException("User", id);
 
-        return _mapper.Map<UserDetailsDto>(user);
+        return _mapper.Map<UserDetails>(user);
     }
 
-    public async Task<UserInfo> CreateAsync(CreateUserRequest request)
+    public async Task<UserInfo> CreateAsync(CreateUserCommand cmd)
     {
-        var passwordHash = _passwordService.HashPassword(request.Password);
+        var passwordHash = _passwordService.HashPassword(cmd.Password);
 
         var user = User.Create(
-            request.FirstName,
-            request.LastName,
-            Email.Create(request.Email),
-            Phone.Create(request.Phone),
+            cmd.FirstName,
+            cmd.LastName,
+            EmailAddress.Create(cmd.Email),
+            Phone.Create(cmd.Phone),
             passwordHash
         );
         await _userCommand.AddAsync(user);
@@ -73,24 +76,24 @@ public class UserService : IUserService
         );
     }
 
-    public async Task<UserDto> UpdateAsync(Guid id, UpdateUserRequest request)
+    public async Task<UserDetails> UpdateAsync(Guid id, UpdateUserCommand cmd)
     {
         var user = await _userQuery.GetByIdAsync(id);
         if (user is null)
             throw new NotFoundException("User", id);
 
-        user.UpdateName(request.FirstName, request.LastName);
+        user.UpdateName(cmd.FirstName, cmd.LastName);
 
-        if (!string.IsNullOrWhiteSpace(request.Email))
-            user.UpdateEmail(Email.Create(request.Email));
+        if (!string.IsNullOrWhiteSpace(cmd.Email))
+            user.UpdateEmail(EmailAddress.Create(cmd.Email));
 
-        if (!string.IsNullOrWhiteSpace(request.Phone))
-            user.UpdatePhone(Phone.Create(request.Phone));
+        if (!string.IsNullOrWhiteSpace(cmd.Phone))
+            user.UpdatePhone(Phone.Create(cmd.Phone));
 
-        if (!string.IsNullOrWhiteSpace(request.Role))
+        if (!string.IsNullOrWhiteSpace(cmd.Role))
         {
-            var role = SystemRoles.All.FirstOrDefault(r => r.RoleName == request.Role);
-            if (role is not null)
+            var role = SystemRoles.All.FirstOrDefault(r => r.Value == cmd.Role);
+            if (role.Value is not null)
                 user.SetRole(role);
         }
 
@@ -98,7 +101,7 @@ public class UserService : IUserService
         await _userCommand.SaveChangesAsync();
 
         _logger.LogInformation("Updated user {UserId}", user.Id);
-        return _mapper.Map<UserDto>(user);
+        return _mapper.Map<UserDetails>(user);
     }
 
     public async Task DeleteAsync(Guid id)

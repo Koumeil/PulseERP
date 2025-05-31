@@ -1,9 +1,10 @@
+using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Products;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
@@ -19,25 +20,25 @@ public class ProductRepository : IProductRepository
         _logger = logger;
     }
 
-    public async Task<PaginationResult<Product>> GetAllAsync(
-        PaginationParams pagination,
-        ProductParams productParams
+    public async Task<PagedResult<Product>> GetAllAsync(
+        PaginationParams paginationParams,
+        ProductFilter productFilter
     )
     {
         // 1. On construit la requête de base, incluant Brand et en lecture seule
         var query = _ctx.Products.Include(p => p.Brand).AsNoTracking().AsQueryable();
 
         // 2. Filtre sur le nom de la marque (Contains sur la colonne Brand.Name)
-        if (!string.IsNullOrWhiteSpace(productParams.Brand))
+        if (!string.IsNullOrWhiteSpace(productFilter.Brand))
         {
-            var brandFilter = productParams.Brand.Trim().ToLower();
+            var brandFilter = productFilter.Brand.Trim().ToLower();
             query = query.Where(p => p.Brand.Name.ToLower().Contains(brandFilter));
         }
 
         // 3. Recherche “full‐text” LINQ portable sur Name ou Description
-        if (!string.IsNullOrWhiteSpace(productParams.Search))
+        if (!string.IsNullOrWhiteSpace(productFilter.Search))
         {
-            var keyword = $"%{productParams.Search.Trim().ToLower()}%";
+            var keyword = $"%{productFilter.Search.Trim().ToLower()}%";
 
             query = query.Where(p =>
                 EF.Functions.Like(p.Name, keyword)
@@ -46,7 +47,7 @@ public class ProductRepository : IProductRepository
         }
 
         // 4. Tri dynamique (OrderBy sur p.Price.Value ou sur p.Name directement)
-        query = productParams.Sort switch
+        query = productFilter.Sort switch
         {
             "priceAsc" => query.OrderBy(p => p.Price.Value),
             "priceDesc" => query.OrderByDescending(p => p.Price.Value),
@@ -54,20 +55,21 @@ public class ProductRepository : IProductRepository
         };
 
         // 5. Comptage total avant pagination
-        var totalItems = await query.CountAsync();
+        var total = await query.CountAsync();
 
         // 6. Pagination
         var items = await query
-            .Skip((productParams.PageNumber - 1) * productParams.PageSize)
-            .Take(productParams.PageSize)
+            .Skip((productFilter.PageNumber - 1) * productFilter.PageSize)
+            .Take(productFilter.PageSize)
             .ToListAsync();
 
-        return new PaginationResult<Product>(
-            items,
-            totalItems,
-            pagination.PageNumber,
-            pagination.PageSize
-        );
+        return new PagedResult<Product>
+        {
+            Items = items,
+            PageNumber = productFilter.PageNumber,
+            PageSize = productFilter.PageSize,
+            TotalItems = total,
+        };
     }
 
     public async Task<Product?> GetByIdAsync(Guid id) =>

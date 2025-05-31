@@ -1,11 +1,9 @@
 using Microsoft.Extensions.Logging;
-using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Dtos.Auth;
-using PulseERP.Domain.Dtos.Users;
+using PulseERP.Abstractions.Security.DTOs;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Errors;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Interfaces.Services;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Infrastructure.Identity;
@@ -18,7 +16,7 @@ public class AuthenticationService : IAuthenticationService
     private readonly IUserCommandRepository _userCommand;
     private readonly ILogger<AuthenticationService> _logger;
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly ISmtpEmailService _smtpEmailService;
+    private readonly IEmailSenderService _smtpEmailService;
 
     public AuthenticationService(
         IPasswordService passwordService,
@@ -27,7 +25,7 @@ public class AuthenticationService : IAuthenticationService
         IUserCommandRepository userCommand,
         ILogger<AuthenticationService> logger,
         IDateTimeProvider dateTimeProvider,
-        ISmtpEmailService smtpEmailService
+        IEmailSenderService smtpEmailService
     )
     {
         _passwordService = passwordService;
@@ -58,7 +56,7 @@ public class AuthenticationService : IAuthenticationService
         var domainUser = User.Create(
             request.FirstName,
             request.LastName,
-            Email.Create(request.Email),
+            EmailAddress.Create(request.Email),
             Phone.Create(request.Phone),
             passwordHash
         );
@@ -105,7 +103,7 @@ public class AuthenticationService : IAuthenticationService
     {
         _logger.LogInformation("Attempting login for email {Email}", request.Email);
 
-        var email = Email.Create(request.Email);
+        var email = EmailAddress.Create(request.Email);
         var user = await _userQuery.GetByEmailAsync(email);
 
         if (user is null)
@@ -253,7 +251,7 @@ public class AuthenticationService : IAuthenticationService
 
     private async Task EnsureEmailNotUsedAsync(string email)
     {
-        var exist = await _userQuery.GetByEmailAsync(Email.Create(email));
+        var exist = await _userQuery.GetByEmailAsync(EmailAddress.Create(email));
         if (exist != null)
             throw new ValidationException(
                 new Dictionary<string, string[]> { ["email"] = ["Email is already in use."] }

@@ -1,10 +1,10 @@
 using Hellang.Middleware.ProblemDetails;
+using PulseERP.Abstractions.Security.Interfaces;
+using PulseERP.Abstractions.Settings;
 using PulseERP.API.Extensions;
 using PulseERP.Application;
-using PulseERP.Domain.Interfaces.Services;
 using PulseERP.Infrastructure;
 using PulseERP.Infrastructure.Smtp;
-using PulseERP.Shared.Settings;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +25,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-builder.Services.AddTransient<ISmtpEmailService, SmtpEmailService>();
+builder.Services.AddTransient<IEmailSenderService, SmtpEmailService>();
 builder.Services.AddApplication().AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();

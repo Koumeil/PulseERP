@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.API.Dtos;
-using PulseERP.Application.Dtos.Product;
+using PulseERP.Abstractions.Common.Filters;
+using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.API.Contracts;
 using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Pagination;
-using PulseERP.Domain.Query.Products;
+using PulseERP.Application.Products.Commands;
+using PulseERP.Application.Products.Models;
 
 [ApiController]
 [Route("api/products")]
@@ -19,15 +20,15 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<PaginationResult<ProductDto>>>> GetAll(
+    public async Task<ActionResult<ApiResponse<PagedResult<ProductSummary>>>> GetAll(
         [FromQuery] PaginationParams paginationParams,
-        [FromQuery] ProductParams productParams
+        [FromQuery] ProductFilter productFilter
     )
     {
-        var result = await _productService.GetAllAsync(paginationParams, productParams);
+        var result = await _productService.GetAllAsync(paginationParams, productFilter);
         _logger.LogInformation("Retrieved products list: {Count} items", result.Items.Count);
         return Ok(
-            new ApiResponse<PaginationResult<ProductDto>>(
+            new ApiResponse<PagedResult<ProductSummary>>(
                 Success: true,
                 Data: result,
                 Message: "Products retrieved successfully"
@@ -36,12 +37,12 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<ProductDto>>> GetById(Guid id)
+    public async Task<ActionResult<ApiResponse<ProductDetails>>> GetById(Guid id)
     {
         var result = await _productService.GetByIdAsync(id);
-        var response = new ApiResponse<ProductDto>(
+        var response = new ApiResponse<ProductDetails>(
             Success: true,
-            Data: result.Data,
+            Data: result,
             Message: "Product retrieved successfully"
         );
         _logger.LogInformation("Retrieved product {ProductId}", id);
@@ -49,20 +50,20 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<ProductDto>>> Create(
-        [FromBody] CreateProductRequest request
+    public async Task<ActionResult<ApiResponse<ProductDetails>>> Create(
+        [FromBody] CreateProductCommand request
     )
     {
         var result = await _productService.CreateAsync(request);
 
-        var response = new ApiResponse<ProductDto>(
-            Success: result.Success,
-            Data: result.Data,
-            Message: result.Success ? "Product created successfully" : result.ErrorMessage
+        var response = new ApiResponse<ProductDetails>(
+            Success: true,
+            Data: result,
+            Message: "Product created successfully"
         );
 
-        if (!result.Success)
-            _logger.LogWarning("Product creation failed: {ErrorMessage}", result.ErrorMessage);
+        if (result is null)
+            _logger.LogWarning("Product creation failed");
         else
             _logger.LogInformation("Product created: {ProductName}", request.Name);
 
@@ -70,25 +71,20 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<ProductDto>>> Update(
+    public async Task<ActionResult<ApiResponse<ProductDetails>>> Update(
         Guid id,
-        [FromBody] UpdateProductRequest request
+        [FromBody] UpdateProductCommand request
     )
     {
         var result = await _productService.UpdateAsync(id, request);
 
-        var response = new ApiResponse<ProductDto>(
-            Success: result.Success,
-            Data: result.Data,
-            Message: result.Success ? "Product updated successfully" : result.ErrorMessage
+        var response = new ApiResponse<ProductDetails>(
+            Success: true,
+            Data: result,
+            Message: "Product updated successfully"
         );
-
-        if (!result.Success)
-            _logger.LogWarning(
-                "Product update failed for {ProductId}: {ErrorMessage}",
-                id,
-                result.ErrorMessage
-            );
+        if (result is null)
+            _logger.LogWarning("Product update failed for {ProductId}", id);
         else
             _logger.LogInformation("Product updated: {ProductId}", id);
 

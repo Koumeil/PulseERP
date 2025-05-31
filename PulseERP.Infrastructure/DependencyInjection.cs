@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Interfaces.Repositories;
-using PulseERP.Domain.Interfaces.Services;
+using PulseERP.Abstractions.Security.Interfaces;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 using PulseERP.Infrastructure.Identity;
 using PulseERP.Infrastructure.Logging;

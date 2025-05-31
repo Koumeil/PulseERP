@@ -1,5 +1,5 @@
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Enums.Token;
-using PulseERP.Domain.Interfaces.Services;
 
 namespace PulseERP.Domain.Entities;
 
