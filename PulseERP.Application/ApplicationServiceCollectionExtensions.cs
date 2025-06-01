@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Application.Interfaces;
 using PulseERP.Application.Mapping.Addresses;
 using PulseERP.Application.Mapping.Auth;
@@ -23,19 +24,21 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IBrandService, BrandService>();
 
         // AutoMapper configuration
-        services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
-        services.AddAutoMapper(cfg =>
-        {
-            cfg.AddMaps(typeof(ProductProfile).Assembly);
-            cfg.AddMaps(typeof(AddressProfile).Assembly);
-            cfg.AddMaps(typeof(AuthProfile).Assembly);
-            cfg.AddMaps(typeof(BrandProfile).Assembly);
-            cfg.AddMaps(typeof(CustomerProfile).Assembly);
-            cfg.AddMaps(typeof(EmailProfile).Assembly);
-            cfg.AddMaps(typeof(PhoneNumberProfile).Assembly);
-            cfg.AddMaps(typeof(UserProfile).Assembly);
-        });
+        services.AddAutoMapper(
+            (sp, cfg) =>
+            {
+                cfg.AddProfile(new UserProfile());
+                cfg.AddProfile(new PhoneNumberProfile());
+                cfg.AddProfile(new CustomerProfile());
+                cfg.AddProfile(new ProductProfile());
+                cfg.AddProfile(new BrandProfile());
+                cfg.AddProfile(new EmailProfile());
+                cfg.AddProfile(new AddressProfile());
+                cfg.AddProfile(new AuthProfile());
+            },
+            // On passe un tableau vide d'Assembly pour désactiver le scan automatique
+            Array.Empty<Assembly>()
+        );
 
         return services;
     }

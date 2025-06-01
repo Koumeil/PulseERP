@@ -13,13 +13,12 @@ public class BrandProfile : Profile
     public BrandProfile()
     {
         // Domain → DTO
+        // Configuration pour Brand → BrandSummary
         CreateMap<Brand, BrandSummary>()
-            .ConstructUsing(src => new BrandSummary(
-                src.Id,
-                src.Name,
-                src.IsActive,
-                src.Products.Select(p => p.Id).ToList()
-            ));
+            .ForMember(
+                dest => dest.ProductIds,
+                opt => opt.MapFrom(src => src.Products.Select(p => p.Id).ToList())
+            );
 
         // CreateBrandRequest → Domain
         CreateMap<CreateBrandCommand, Brand>().ConstructUsing(cmd => Brand.Create(cmd.Name));

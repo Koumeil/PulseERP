@@ -25,7 +25,9 @@ namespace PulseERP.Domain.Entities
         /// <summary>
         /// Brand of the product.
         /// </summary>
-        public Brand Brand { get; private set; } = default!;
+        public Brand Brand { get; private set; }
+
+        public Guid BrandId { get; private set; }
 
         /// <summary>
         /// Price of the product.

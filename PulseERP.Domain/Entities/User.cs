@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using PulseERP.Domain.Errors;
 using PulseERP.Domain.ValueObjects;
 
@@ -81,8 +82,9 @@ namespace PulseERP.Domain.Entities
 
         #region Constructors
 
+
         /// <summary>
-        /// Private constructor for EF Core.
+        /// (1) Constructeur privé parameterless pour EF Core et pour l’object‐initializer.
         /// </summary>
         private User() { }
 

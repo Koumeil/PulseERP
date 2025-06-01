@@ -21,6 +21,9 @@ public class CoreDbContext : DbContext
     {
         base.OnModelCreating(builder);
 
+        // Appliquer le converter global pour DateTime ↔ UTC/Local
+        UtcLocalDateTimeConverter.ApplyConversions(builder);
+
         // ==============================================
         // User - Configuration
         // ==============================================
@@ -31,34 +34,27 @@ public class CoreDbContext : DbContext
             u.Property(x => x.LastName).IsRequired().HasMaxLength(100);
             u.Property(x => x.IsActive).HasDefaultValue(true);
 
-            // Email (Value Object) avec conversion
+            // Email (Value Object) ↔ string - CORRECTION ICI
             u.Property(x => x.Email)
                 .IsRequired()
+                .HasMaxLength(255)
                 .HasConversion(
-                    v => v.Value, // Stocker en base : Email.Value (string)
-                    v => EmailAddress.Create(v) // Relecture : créer un Email à partir du string
-                )
-                .HasMaxLength(255);
+                    vo => vo.ToString(), // Convertit l'EmailAddress en string
+                    str => EmailAddress.Create(str) // Convertit la string en EmailAddress
+                );
 
-            // Phone (Value Object) avec conversion
+            // Phone (Value Object) ↔ string
             u.Property(x => x.Phone)
                 .IsRequired()
-                .HasConversion(
-                    v => v.Value, // Stocker en base : Phone.Value (string)
-                    v => Phone.Create(v) // Relecture : créer un Phone à partir du string
-                )
-                .HasMaxLength(20);
+                .HasMaxLength(20)
+                .HasConversion(vo => vo.Value, str => Phone.Create(str));
 
-            // CoreDbContext.OnModelCreating
-            // Role (Value Object) → string
+            // Role (Value Object) ↔ string (colonne "RoleName")
             u.Property(x => x.Role)
                 .IsRequired()
-                .HasConversion(
-                    role => role.Value, // ← stocké dans la colonne
-                    value => Role.Create(value)
-                )
                 .HasMaxLength(50)
-                .HasColumnName("RoleName");
+                .HasColumnName("RoleName")
+                .HasConversion(vo => vo.Value, str => Role.Create(str));
 
             u.HasIndex(x => x.Email).IsUnique();
         });
@@ -68,30 +64,23 @@ public class CoreDbContext : DbContext
         // ==============================================
         builder.Entity<Customer>(c =>
         {
-            // Propriétés standards
             c.Property(x => x.FirstName).IsRequired().HasMaxLength(100);
             c.Property(x => x.LastName).IsRequired().HasMaxLength(100);
             c.Property(x => x.IsActive).HasDefaultValue(true);
 
-            // Email (Value Object) avec conversion
+            // Email (Value Object) ↔ string - CORRECTION ICI AUSSI
             c.Property(x => x.Email)
                 .IsRequired()
-                .HasConversion(
-                    v => v.Value, // Stocker en base : Email.Value
-                    v => EmailAddress.Create(v) // Relecture : recréer Email
-                )
-                .HasMaxLength(255);
+                .HasMaxLength(255)
+                .HasConversion(vo => vo.ToString(), str => EmailAddress.Create(str));
 
-            // Phone (Value Object) avec conversion
+            // Phone (Value Object) ↔ string
             c.Property(x => x.Phone)
                 .IsRequired()
-                .HasConversion(
-                    v => v.Value, // Stocker en base : Phone.Value
-                    v => Phone.Create(v) // Relecture : recréer Phone
-                )
-                .HasMaxLength(20);
+                .HasMaxLength(20)
+                .HasConversion(vo => vo.Value, str => Phone.Create(str));
 
-            // Address en tant qu’Owned Entity (Value Object)
+            // Address en tant qu'Owned Entity (Value Object)
             c.OwnsOne(
                 x => x.Address,
                 a =>
@@ -103,7 +92,6 @@ public class CoreDbContext : DbContext
                 }
             );
 
-            // Index sur Email
             c.HasIndex(x => x.Email).IsUnique();
         });
 
@@ -112,36 +100,38 @@ public class CoreDbContext : DbContext
         // ==============================================
         builder.Entity<Product>(p =>
         {
-            // Conversion pour ProductName ⇄ string
+            // ProductName (Value Object) ↔ string
             p.Property(x => x.Name)
                 .IsRequired()
-                .HasConversion(
-                    v => v.Value, // quand on écrit en base, on stocke ProductName.Value (string)
-                    v => new ProductName(v) // quand on lit de la base, on reconstruit ProductName(v)
-                )
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .HasConversion(vo => vo.Value, str => new ProductName(str));
 
-            // Conversion pour ProductDescription ⇄ string
+            p.HasOne(pr => pr.Brand) // Propriété de navigation
+                .WithMany(b => b.Products) // Navigation inverse
+                .HasForeignKey(pr => pr.BrandId) // Propriété FK explicite
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+            // ProductDescription (Value Object) ↔ string?
             p.Property(x => x.Description)
-                .HasConversion(
-                    v => v == null ? null : v.Value,
-                    v => v == null ? null : new ProductDescription(v)
-                )
                 .HasMaxLength(500)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .HasConversion(
+                    vo => vo == null ? null : vo.Value,
+                    str => str == null ? null : new ProductDescription(str)
+                );
 
             p.Property(x => x.IsActive).HasDefaultValue(true);
             p.Property(x => x.Quantity).HasDefaultValue(0);
 
-            // Conversion pour Money ⇄ decimal
+            // Money (Value Object) ↔ decimal
             p.Property(x => x.Price)
-                .HasConversion(v => v.Value, v => new Money(v))
-                .HasColumnType("decimal(18,2)");
+                .HasColumnType("decimal(18,2)")
+                .HasConversion(vo => vo.Value, dec => new Money(dec));
 
-            // Relation avec Brand
+            // Relation avec Brand - CORRECTION DU CONFLIT BrandId/BrandId1
             p.HasOne(x => x.Brand)
                 .WithMany()
-                .HasForeignKey("BrandId")
+                .HasForeignKey(x => x.BrandId) // Utilise la propriété explicite
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
         });
@@ -151,15 +141,10 @@ public class CoreDbContext : DbContext
         // ==============================================
         builder.Entity<Brand>(b =>
         {
+            // Clé primaire non générée automatiquement
             b.Property(x => x.Id).ValueGeneratedNever();
-
-            // 2) Nom obligatoire, longueur max
             b.Property(x => x.Name).IsRequired().HasMaxLength(100);
-
-            // 3) Index sur Name pour garantir l'unicité des noms de marque
             b.HasIndex(x => x.Name).IsUnique();
-
-            // 4) Par convention, IsActive par défaut true
             b.Property(x => x.IsActive).HasDefaultValue(true);
         });
 
@@ -171,9 +156,6 @@ public class CoreDbContext : DbContext
             rt.HasIndex(x => x.Token).IsUnique();
             rt.HasIndex(x => x.UserId);
             rt.Property(x => x.Expires).IsRequired();
-
-            // Pour garder l’ID auto-généré, EF Core inferera la clé primaire automatiquement
-            // à partir de la convention (Id comme PK).
         });
     }
 }

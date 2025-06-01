@@ -69,7 +69,7 @@ namespace PulseERP.Domain.Entities
         /// <summary>
         /// Protected constructor for EF Core.
         /// </summary>
-        protected RefreshToken() { }
+        private RefreshToken() { }
 
         #endregion
 

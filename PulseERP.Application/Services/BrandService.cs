@@ -58,7 +58,7 @@ public class BrandService : IBrandService
         var paged = await _repo.GetAllAsync(pagination);
 
         // mapping des entités -> DTO
-        var items = _mapper.Map<IReadOnlyList<BrandSummary>>(paged.Items);
+        var items = _mapper.Map<List<BrandSummary>>(paged.Items);
 
         // initialisation par propriétés
         return new PagedResult<BrandSummary>

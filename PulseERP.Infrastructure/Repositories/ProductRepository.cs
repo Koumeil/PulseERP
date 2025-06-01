@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -85,33 +84,10 @@ public class ProductRepository : IProductRepository
     /// <inheritdoc/>
     public async Task<Product?> GetByIdAsync(Guid id)
     {
-        if (id == Guid.Empty)
-        {
-            return null;
-        }
-
-        string cacheKey = string.Format(ProductByIdKeyTemplate, id);
-        string? cachedJson = await _cache.GetStringAsync(cacheKey);
-        if (!string.IsNullOrEmpty(cachedJson))
-        {
-            return JsonSerializer.Deserialize<Product>(cachedJson);
-        }
-
         Product? product = await _ctx
             .Products.Include(p => p.Brand)
             .AsNoTracking()
             .SingleOrDefaultAsync(p => p.Id == id);
-
-        if (product is not null)
-        {
-            string json = JsonSerializer.Serialize(product);
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-            };
-            await _cache.SetStringAsync(cacheKey, json, options);
-        }
-
         return product;
     }
 
@@ -120,8 +96,6 @@ public class ProductRepository : IProductRepository
     {
         _ctx.Products.Add(product);
         _logger.LogInformation("Product {ProductId} added to context", product.Id);
-        string cacheKey = string.Format(ProductByIdKeyTemplate, product.Id);
-        _cache.Remove(cacheKey);
         return Task.CompletedTask;
     }
 

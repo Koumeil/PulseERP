@@ -36,9 +36,7 @@ public class TokenService : ITokenService
         if (string.IsNullOrWhiteSpace(_settings.SecretKey))
             throw new InvalidOperationException("JWT SecretKey must be configured.");
 
-        // _key = Convert.FromBase64String(_settings.SecretKey);
         _key = Encoding.UTF8.GetBytes(_settings.SecretKey);
-
         _repo = repo;
         _gen = gen;
         _hasher = hasher;
@@ -63,17 +61,25 @@ public class TokenService : ITokenService
             SecurityAlgorithms.HmacSha256Signature
         );
 
-        var expires = _time.UtcNow.AddMinutes(_settings.AccessTokenExpirationMinutes);
+        // 1) Calcul de l’expiration UTC
+        var expiresUtc = _time.UtcNow.AddMinutes(_settings.AccessTokenExpirationMinutes);
+
+        // 2) Création du JWT avec l’heure UTC
         var jwt = new JwtSecurityToken(
             issuer: _settings.Issuer,
             audience: _settings.Audience,
             claims: claims,
-            expires: expires,
+            expires: expiresUtc,
             signingCredentials: creds
         );
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-        return new AccessToken(token, expires);
+
+        // 3) Conversion de l’expiration en heure locale (Bruxelles)
+        var expiresLocal = _time.ConvertToLocal(expiresUtc);
+
+        // 4) On renvoie l’AccessToken avec l’heure locale dans le champ Expires
+        return new AccessToken(token, expiresLocal);
     }
 
     public async Task<RefreshTokenDto> GenerateRefreshTokenAsync(
@@ -94,21 +100,27 @@ public class TokenService : ITokenService
         var existing = await _repo.GetActiveByUserIdAsync(userId);
         if (existing != null)
             await _repo.RevokeForUserAsync(userId);
-        var expires = _time.UtcNow.AddDays(_settings.RefreshTokenExpirationDays);
 
+        // 1) Calcul de l’expiration UTC pour le refresh token
+        var expiresUtc = _time.UtcNow.AddDays(_settings.RefreshTokenExpirationDays);
+
+        // 2) Création de l’entité avec l’expiration UTC
         var entity = RefreshToken.Create(
             _time,
             userId,
             hash,
             TokenType.Refresh,
-            expires,
+            expiresUtc,
             userAgent,
             ipAddress
         );
 
         await _repo.AddAsync(entity);
 
-        return new RefreshTokenDto(rawToken, entity.Expires);
+        // 3) Conversion de l’expiration en heure locale
+        var expiresLocal = _time.ConvertToLocal(expiresUtc);
+
+        return new RefreshTokenDto(rawToken, expiresLocal);
     }
 
     public async Task<RefreshTokenValidationResult> ValidateAndRevokeRefreshTokenAsync(string token)

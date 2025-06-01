@@ -41,7 +41,7 @@ public sealed class ProductService : IProductService
 
         return new PagedResult<ProductSummary>
         {
-            Items = _mapper.Map<IReadOnlyList<ProductSummary>>(paged.Items),
+            Items = _mapper.Map<List<ProductSummary>>(paged.Items),
             TotalItems = paged.TotalItems,
             PageNumber = paged.PageNumber,
             PageSize = paged.PageSize,

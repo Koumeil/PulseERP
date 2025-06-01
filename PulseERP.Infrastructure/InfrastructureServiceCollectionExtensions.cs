@@ -32,7 +32,7 @@ public static class InfrastructureServiceCollectionExtensions
         );
 
         // DateTime provider
-        services.AddScoped<IDateTimeProvider, SystemDateTimeProvider>();
+        services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
         // Repositories
         services.AddScoped<IUserQueryRepository, UserQueryRepository>();

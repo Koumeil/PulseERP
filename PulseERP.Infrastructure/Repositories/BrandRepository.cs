@@ -32,8 +32,9 @@ public class BrandRepository : IBrandRepository
     /// <inheritdoc/>
     public async Task<PagedResult<Brand>> GetAllAsync(PaginationParams paginationParams)
     {
-        var query = _ctx.Brands.AsNoTracking();
+        var query = _ctx.Brands.AsNoTracking().Include(b => b.Products);
         int total = await query.CountAsync();
+
         var items = await query
             .OrderBy(b => b.Name)
             .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
@@ -52,63 +53,17 @@ public class BrandRepository : IBrandRepository
     /// <inheritdoc/>
     public async Task<Brand?> GetByIdAsync(Guid id)
     {
-        if (id == Guid.Empty)
-        {
-            return null;
-        }
-
-        string cacheKey = string.Format(BrandByIdKeyTemplate, id);
-        string? cachedJson = await _cache.GetStringAsync(cacheKey);
-        if (!string.IsNullOrEmpty(cachedJson))
-        {
-            return JsonSerializer.Deserialize<Brand>(cachedJson);
-        }
-
         Brand? brand = await _ctx.Brands.AsNoTracking().SingleOrDefaultAsync(b => b.Id == id);
-
-        if (brand is not null)
-        {
-            string json = JsonSerializer.Serialize(brand);
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-            };
-            await _cache.SetStringAsync(cacheKey, json, options);
-        }
-
         return brand;
     }
 
     /// <inheritdoc/>
     public async Task<Brand?> GetByNameAsync(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return null;
-        }
-
         string normalized = name.Trim().ToLowerInvariant();
-        string cacheKey = string.Format(BrandByNameKeyTemplate, normalized);
-        string? cachedJson = await _cache.GetStringAsync(cacheKey);
-        if (!string.IsNullOrEmpty(cachedJson))
-        {
-            return JsonSerializer.Deserialize<Brand>(cachedJson);
-        }
-
         Brand? brand = await _ctx
             .Brands.AsNoTracking()
             .SingleOrDefaultAsync(b => b.Name.Trim().ToLower() == normalized);
-
-        if (brand is not null)
-        {
-            string json = JsonSerializer.Serialize(brand);
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-            };
-            await _cache.SetStringAsync(cacheKey, json, options);
-        }
-
         return brand;
     }
 

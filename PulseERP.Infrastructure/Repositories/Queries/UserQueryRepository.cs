@@ -35,48 +35,60 @@ public class UserQueryRepository : IUserQueryRepository
     /// <inheritdoc/>
     public async Task<PagedResult<User>> GetAllAsync(UserFilter userFilter)
     {
+        // 1) Construire l’IQueryable<User> en mode “no tracking”
         var query = _context.Users.AsNoTracking();
 
+        // 2) Filtre “Search” sur FirstName, LastName, Email, Phone
         if (!string.IsNullOrWhiteSpace(userFilter.Search))
         {
-            string lower = userFilter.Search.ToLowerInvariant();
+            var pattern = $"%{userFilter.Search}%";
+
             query = query.Where(u =>
-                u.FirstName.ToLower().Contains(lower)
-                || u.LastName.ToLower().Contains(lower)
-                || u.Email.Value.ToLower().Contains(lower)
-                || u.Phone.Value.ToLower().Contains(lower)
+                // On applique LIKE sur les strings “brutes” de la colonne Email et Phone
+                EF.Functions.Like(u.FirstName, pattern)
+                || EF.Functions.Like(u.LastName, pattern)
+                || EF.Functions.Like(EF.Property<string>(u, "Email"), pattern)
+                || EF.Functions.Like(EF.Property<string>(u, "Phone"), pattern)
             );
         }
 
+        // 3) Filtre sur Role
         if (!string.IsNullOrWhiteSpace(userFilter.Role))
         {
-            query = query.Where(u => u.Role.Value == userFilter.Role);
+            // La colonne a été nommée “RoleName” → on récupère EF.Property<string>(u, "RoleName")
+            query = query.Where(u => EF.Property<string>(u, "RoleName") == userFilter.Role);
         }
 
+        // 4) Filtre sur IsActive
         if (userFilter.IsActive.HasValue)
         {
             query = query.Where(u => u.IsActive == userFilter.IsActive.Value);
         }
 
+        // 5) Tri selon userFilter.Sort
         query = userFilter.Sort switch
         {
             "firstNameAsc" => query.OrderBy(u => u.FirstName),
             "firstNameDesc" => query.OrderByDescending(u => u.FirstName),
             "lastNameAsc" => query.OrderBy(u => u.LastName),
             "lastNameDesc" => query.OrderByDescending(u => u.LastName),
-            "emailAsc" => query.OrderBy(u => u.Email.Value),
-            "emailDesc" => query.OrderByDescending(u => u.Email.Value),
-            "roleAsc" => query.OrderBy(u => u.Role.Value),
-            "roleDesc" => query.OrderByDescending(u => u.Role.Value),
+            "emailAsc" => query.OrderBy(u => EF.Property<string>(u, "Email")),
+            "emailDesc" => query.OrderByDescending(u => EF.Property<string>(u, "Email")),
+            "roleAsc" => query.OrderBy(u => EF.Property<string>(u, "RoleName")),
+            "roleDesc" => query.OrderByDescending(u => EF.Property<string>(u, "RoleName")),
             _ => query.OrderBy(u => u.LastName),
         };
 
-        int total = await query.CountAsync();
+        // 6) Comptage total
+        var total = await query.CountAsync();
+
+        // 7) Pagination + materialization
         var items = await query
             .Skip((userFilter.PageNumber - 1) * userFilter.PageSize)
             .Take(userFilter.PageSize)
-            .ToListAsync();
+            .ToListAsync(); // ← EF réhydrate chacun en User, Email/Phone sont convertis via HasConversion
 
+        // 8) Retour du PagedResult<User>
         return new PagedResult<User>
         {
             Items = items,
@@ -89,64 +101,14 @@ public class UserQueryRepository : IUserQueryRepository
     /// <inheritdoc/>
     public async Task<User?> GetByIdAsync(Guid id)
     {
-        if (id == Guid.Empty)
-        {
-            return null;
-        }
-
-        string cacheKey = string.Format(UserByIdKeyTemplate, id);
-        string? cachedJson = await _cache.GetStringAsync(cacheKey);
-        if (!string.IsNullOrEmpty(cachedJson))
-        {
-            return JsonSerializer.Deserialize<User>(cachedJson);
-        }
-
-        User? user = await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
-
-        if (user is not null)
-        {
-            string json = JsonSerializer.Serialize(user);
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-            };
-            await _cache.SetStringAsync(cacheKey, json, options);
-        }
-
+        User? user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
         return user;
     }
 
     /// <inheritdoc/>
-    public async Task<User?> GetByEmailAsync(EmailAddress email)
+    public Task<User?> GetByEmailAsync(EmailAddress email)
     {
-        if (email is null)
-        {
-            return null;
-        }
-
-        string normalized = email.Value.Trim().ToLowerInvariant();
-        string cacheKey = string.Format(UserByEmailKeyTemplate, normalized);
-        string? cachedJson = await _cache.GetStringAsync(cacheKey);
-        if (!string.IsNullOrEmpty(cachedJson))
-        {
-            return JsonSerializer.Deserialize<User>(cachedJson);
-        }
-
-        User? user = await _context
-            .Users.AsNoTracking()
-            .SingleOrDefaultAsync(u => u.Email.Value.ToLower() == normalized);
-
-        if (user is not null)
-        {
-            string json = JsonSerializer.Serialize(user);
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-            };
-            await _cache.SetStringAsync(cacheKey, json, options);
-        }
-
-        return user;
+        return _context.Users.SingleOrDefaultAsync(u => u.Email == email);
     }
 
     /// <inheritdoc/>

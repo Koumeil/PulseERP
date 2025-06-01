@@ -36,7 +36,7 @@ public sealed class CustomerService : ICustomerService
     {
         var paged = await _repo.GetAllAsync(paginationParams, customerFilter);
 
-        var summaries = _mapper.Map<IReadOnlyList<CustomerSummary>>(paged.Items);
+        var summaries = _mapper.Map<List<CustomerSummary>>(paged.Items);
 
         _log.LogInformation(
             "Retrieved {Count} customers (page {Page})",

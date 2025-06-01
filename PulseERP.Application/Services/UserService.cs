@@ -20,13 +20,15 @@ public class UserService : IUserService
     private readonly IPasswordService _passwordService;
     private readonly IMapper _mapper;
     private readonly ILogger<UserService> _logger;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public UserService(
         IUserQueryRepository userQuery,
         IUserCommandRepository userCommand,
         IPasswordService passwordService,
         IMapper mapper,
-        ILogger<UserService> logger
+        ILogger<UserService> logger,
+        IDateTimeProvider dateTimeProvider
     )
     {
         _userQuery = userQuery;
@@ -34,6 +36,7 @@ public class UserService : IUserService
         _passwordService = passwordService;
         _mapper = mapper;
         _logger = logger;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<PagedResult<UserSummary>> GetAllAsync(UserFilter userFilter)

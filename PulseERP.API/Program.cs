@@ -28,28 +28,25 @@ builder.Configuration.AddEnvironmentVariables();
 // Memory Cache:
 builder.Services.AddMemoryCache();
 
-// Redis:
+// Redis
 
-// 1. Lier la section "RedisSettings" à la classe RedisSettings
-builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("RedisSettings"));
+var redisConfig = builder.Configuration["RedisSettings:Configuration"];
+var redisInstance = builder.Configuration["RedisSettings:InstanceName"];
 
-// 2. Ajouter Redis comme cache distribué
+// 2. Vérifier qu’on n’est pas en null
+if (string.IsNullOrWhiteSpace(redisConfig))
+{
+    throw new InvalidOperationException(
+        "RedisSettings:Configuration est null ou vide. Veuillez le configurer dans appsettings ou via une variable d’environnement."
+    );
+}
+
+// 2) Enregistrement du cache Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    var redisConfig = builder.Configuration.GetSection("RedisSettings")["Configuration"]!;
-    var redisInstance = builder.Configuration.GetSection("RedisSettings")["InstanceName"]!;
     options.Configuration = redisConfig;
     options.InstanceName = redisInstance;
 });
-
-// var redisConfig = builder.Configuration.GetSection("RedisSettings")["Configuration"];
-// var redisInstance = builder.Configuration.GetSection("RedisSettings")["InstanceName"];
-
-// builder.Services.AddStackExchangeRedisCache(options =>
-// {
-//     options.Configuration = redisConfig;
-//     options.InstanceName = redisInstance;
-// });
 
 // ─── Services ───────────────────────────────────────────────────────────────
 builder.Services.AddOptions();
