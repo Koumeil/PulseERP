@@ -2,17 +2,21 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copier la solution et tous les projets
+# Copier la solution
 COPY PulseERP.sln .
-COPY PulseERP.*/*.csproj ./PulseERP.*
 
-# Restaurer les dépendances à partir de la solution
+# Copier tous les dossiers de projets
+COPY PulseERP.API ./PulseERP.API
+COPY PulseERP.Domain ./PulseERP.Domain
+COPY PulseERP.Application ./PulseERP.Application
+COPY PulseERP.Infrastructure ./PulseERP.Infrastructure
+COPY PulseERP.Tests ./PulseERP.Tests
+COPY PulseERP.Abstractions ./PulseERP.Abstractions
+
+# Restaurer les dépendances
 RUN dotnet restore PulseERP.sln
 
-# Copier le reste du code
-COPY . .
-
-# Build & publish du projet principal (PulseERP.API)
+# Publier l'API
 WORKDIR /src/PulseERP.API
 RUN dotnet publish -c Release -o /app
 
