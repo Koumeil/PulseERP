@@ -24,14 +24,14 @@ services:
 
   pulseerp-api:
     build:
-      context: .
-      dockerfile: PulseERP.API/Dockerfile
+      context: .         
+      dockerfile: Dockerfile
     container_name: pulseerp-api
     depends_on:
       - redis
       - sqlserver
     ports:
-      - "5000:80"
+      - "5001:80"
     environment:
       # Chaîne de connexion à SQL Server (utilise le nom du service "sqlserver")
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=PulseERP;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
