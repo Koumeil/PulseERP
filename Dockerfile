@@ -6,7 +6,8 @@ WORKDIR /app
 COPY *.sln .
 COPY PulseERP.*/*.csproj ./PulseERP/
 WORKDIR /app/PulseERP
-RUN dotnet restore
+RUN dotnet restore PulseERP.sln
+
 
 # Copie du reste du code source
 WORKDIR /app
