@@ -106,43 +106,6 @@ graph LR
 
 ### 3. Sous-modules internes (Infrastructure & Application)
 
-```mermaid
-graph TB
-    subgraph Infrastructure
-      Data[Data (DbContext + Migrations)]
-      Repos[Repositories]
-      Prov[Providers]
-      SMTP[Smtp (EmailSender)]
-    end
-    subgraph Application
-      Prods[Products (Commands, Models, Services)]
-      Cust[Customers (Commands, Models, Services)]
-      Map[Mapping (Profils AutoMapper)]
-    end
-    subgraph Domain
-      Ent[Entities]
-      VO[ValueObjects]
-      Err[Errors / Exceptions]
-    end
-    subgraph API
-      Contracts[Contracts (API DTOs)]
-      Swagger[Swagger / OpenAPI]
-    end
-
-    Data -->|utilise| Ent
-    Repos -->|implémente| Data
-    Repos -->|cache| Redis[(Redis)]
-    Prov -->|fournit| Ent
-    SMTP -->|envoi d’emails| Prov
-
-    Prods --> Ent
-    Cust --> Ent
-    Map --> Ent
-
-    Contracts -->|expose| Prods
-    Contracts -->|expose| Cust
-    Swagger -->|doc| API
-```
 
 ---
 
