@@ -1,0 +1,25 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'      # déclenche sur tout tag de type vX.Y.Z
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            **Changelog automatique**  
+            Vous pouvez personnaliser ce bloc pour lister les commits entre les versions.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
