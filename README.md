@@ -1,17 +1,13 @@
-from pathlib import Path
-
-readme_content = """![build](https://github.com/Kouumss/PulseERP/actions/workflows/ci.yml/badge.svg)
-
 # PulseERP
 
-> **PulseERP** est un back-end ERP modulaire, développé en **C# 13 / .NET 9**, destiné aux petites et moyennes entreprises.  
+> **PulseERP** est un back-end ERP modulaire, développé en **C# 13 / .NET 9**, destiné aux petites et moyennes entreprises.
 > Construit selon les principes de la **Clean Architecture** et du **Domain-Driven Design**, il se compose de couches Domain, Application, Abstractions, Infrastructure et API, couvertes par une suite de tests (xUnit + FluentAssertions) et une pipeline CI GitHub Actions qui compile et vérifie chaque commit.
 
 ---
 
-## 🏗️ Structure du dépôt
+## 🏡‍💻 Structure du dépôt
 
-```txt
+````txt
 PulseERP/
 ├─ .github/workflows/ci.yml         # Pipeline CI/CD (build + tests + couverture)
 ├─ docker-compose.yml               # Orchestration : Redis, SQL Server, API
@@ -36,7 +32,7 @@ PulseERP/
 │   ├─ Data/                        # DbContext EF Core + Migrations
 │   ├─ Repositories/                # Repos EF Core (avec cache Redis)
 │   ├─ Providers/                   # DateTimeProvider, TokenHasher…
-│   └─ Smtp/                        # EmailSender + templates MIME
+│        └─ Smtp/                        # EmailSender + templates MIME
 │
 ├─ PulseERP.API/                    # ASP.NET Core 9 – endpoints REST
 │   ├─ Contracts/                   # DTOs spécifiques à l’API (ApiResponse, etc.)
@@ -46,29 +42,33 @@ PulseERP/
 │
 ├─ PulseERP.Tests/                  # xUnit + FluentAssertions (tests unitaires + intégration)
 └─ README.md                        # Document de présentation (ci-dessous)
-⚙️ Prérequis
-Outil	Version
-.NET SDK	9.0.300
-EF Core Tools	9.0.*
-Docker & Docker Compose	≥ 24.0
 
-🔧 Installation & configuration locale
-Cloner le dépôt
+---
 
-bash
+## ⚙️ Prérequis
 
+| Outil    | Version           |
+|----------|-------------------|
+| .NET SDK | 9.0.300           |
+| EF Core Tools | 9.0.*        |
+| Docker & Docker Compose | ≥ 24.0 |
 
-Copier
-git clone https://github.com/Kouumss/PulseERP.git
-cd PulseERP
-Configurer les secrets (hors Docker)
+---
 
-Les fichiers appsettings*.json contiennent des clés vides pour les secrets :
+## 🔨 Installation & configuration locale
 
-jsonc
+1. Cloner le dépôt
 
+```bash
+ git clone https://github.com/Kouumss/PulseERP.git
+ cd PulseERP
+````
 
-Copier
+2. Configurer les secrets (hors Docker)
+
+Les fichiers `appsettings*.json` contiennent des clés vides pour les secrets :
+
+```jsonc
 {
   "ConnectionStrings": {
     "DefaultConnection": ""
@@ -78,56 +78,55 @@ Copier
     "InstanceName": "PulseERP:"
   }
 }
+```
+
 En développement, utilisez les User Secrets pour stocker la chaîne de connexion locale, la clé JWT, le mot de passe SMTP, etc. :
 
-bash
+```bash
+ cd PulseERP.API
+ dotnet user-secrets init
+ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\\mssqllocaldb;Database=PulseERP;Trusted_Connection=True;"
+ dotnet user-secrets set "Jwt:SecretKey"        "V3ryLongR@ndomKey..."
+ dotnet user-secrets set "Email:Password"        "VotreMotDePasseSMTP"
+```
 
+3. Compiler et exécuter sans Docker
 
-Copier
-cd PulseERP.API
-dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\\mssqllocaldb;Database=PulseERP;Trusted_Connection=True;"
-dotnet user-secrets set "Jwt:SecretKey"        "V3ryLongR@ndomKey..."
-dotnet user-secrets set "Email:Password"        "VotreMotDePasseSMTP"
-Compiler et exécuter sans Docker
+```bash
+ dotnet restore
+ dotnet build -c Release
+ dotnet test
+ cd PulseERP.API
+ dotnet run --launch-profile https
+```
 
-bash
+L’API sera accessible sur `https://localhost:5001/swagger`.
 
+### Variables d’environnement (hors Docker)
 
-Copier
-dotnet restore
-dotnet build -c Release
-dotnet test
-cd PulseERP.API
-dotnet run --launch-profile https
-L’API sera accessible sur https://localhost:5001/swagger.
-
-Variables d’environnement (hors Docker)
 Si vous ne souhaitez pas User Secrets en local, vous pouvez définir explicitement :
 
-bash
+```bash
+ export ConnectionStrings__DefaultConnection="Server=.;Database=PulseERP;Trusted_Connection=True;"
+ export Jwt__SecretKey="V3ryLongR@ndomKey..."
+ export Email__Password="VotreMotDePasseSMTP"
+ export RedisSettings__Configuration="localhost:6379"
+ export RedisSettings__InstanceName="PulseERP:"
+```
 
+---
 
-Copier
-export ConnectionStrings__DefaultConnection="Server=.;Database=PulseERP;Trusted_Connection=True;"
-export Jwt__SecretKey="V3ryLongR@ndomKey..."
-export Email__Password="VotreMotDePasseSMTP"
-export RedisSettings__Configuration="localhost:6379"
-export RedisSettings__InstanceName="PulseERP:"
-📦 Exécution via Docker Compose
-Le fichier docker-compose.yml permet de lancer, en une seule commande :
+## 📦 Exécution via Docker Compose
 
-Redis (cache distribué)
+Le fichier `docker-compose.yml` permet de lancer, en une seule commande :
 
-SQL Server (base de données)
+* Redis (cache distribué)
+* SQL Server (base de données)
+* API PulseERP
 
-API PulseERP
+### 1. Exemple de `docker-compose.yml`
 
-1. Exemple de docker-compose.yml
-yaml
-
-
-Copier
+```yaml
 version: "3.9"
 
 services:
@@ -175,65 +174,65 @@ volumes:
 networks:
   pulseerp-net:
     driver: bridge
-redis : instance Redis (cache).
+```
 
-sqlserver : SQL Server 2022, mot de passe SA injecté via la variable d’environnement ${SQL_SA_PASSWORD}.
+* **redis** : instance Redis (cache).
+* **sqlserver** : SQL Server 2022, mot de passe SA injecté via la variable d’environnement `${SQL_SA_PASSWORD}`.
+* **pulseerp-api** : construit depuis `PulseERP.API/Dockerfile`, dépend de Redis et SQL, injecte la chaîne de connexion via `${SQL_SA_CONNECTION_STRING}`, et les paramètres Redis.
 
-pulseerp-api : construit depuis PulseERP.API/Dockerfile, dépend de Redis et SQL, injecte la chaîne de connexion via ${SQL_SA_CONNECTION_STRING}, et les paramètres Redis.
+> **Important** :
+>
+> * Ne commitez jamais les secrets en clair dans le YAML.
+> * Utilisez un fichier `.env` (non versionné, ajouté à `.gitignore`) ou configurez directement ces variables dans votre shell ou votre plateforme CI/CD.
 
-Important :
+### 2. Démarrer les conteneurs
 
-Ne commitez jamais les secrets en clair dans le YAML.
-
-Utilisez un fichier .env (non versionné, ajouté à .gitignore) ou configurez directement ces variables dans votre shell ou votre plateforme CI/CD.
-
-2. Démarrer les conteneurs
 Dans un terminal, à la racine du projet :
 
-bash
+```bash
+ export SQL_SA_PASSWORD="Admin@123"
+ export SQL_SA_CONNECTION_STRING="Server=sqlserver;Database=PulseERP;User Id=sa;Password=Admin@123;TrustServerCertificate=True;"
+ docker-compose up -d
+```
 
+* Le conteneur **redis** écoute sur `localhost:6379`.
+* Le conteneur **sqlserver** écoute sur `localhost:1433` (avec la DB `PulseERP`).
+* L’API sera accessible sur `http://localhost:5000` (Swagger : `http://localhost:5000/swagger`).
 
-Copier
-export SQL_SA_PASSWORD="Admin@123"
-export SQL_SA_CONNECTION_STRING="Server=sqlserver;Database=PulseERP;User Id=sa;Password=Admin@123;TrustServerCertificate=True;"
-docker-compose up -d
-Le conteneur redis écoute sur localhost:6379.
+### 3. Arrêter et nettoyer
 
-Le conteneur sqlserver écoute sur localhost:1433 (avec la DB PulseERP).
+```bash
+ docker-compose down
+```
 
-L’API sera accessible sur http://localhost:5000 (Swagger : http://localhost:5000/swagger).
+---
 
-3. Arrêter et nettoyer
-bash
+## 🎉 Exécution de l’API (hors Docker)
 
+```bash
+ cd PulseERP.API
+ dotnet run --launch-profile https
+```
 
-Copier
-docker-compose down
-🚀 Exécution de l’API (hors Docker)
-bash
+Swagger : `https://localhost:5001/swagger`
 
+### Variables d’environnement essentielles :
 
-Copier
-cd PulseERP.API
-dotnet run --launch-profile https
-Swagger : https://localhost:5001/swagger
+| Nom                                    | Exemple                                              | Description                     |
+| -------------------------------------- | ---------------------------------------------------- | ------------------------------- |
+| ConnectionStrings\_\_DefaultConnection | Server=.;Database=PulseERP;Trusted\_Connection=True; | Chaîne de connexion SQL Server  |
+| Jwt\_\_SecretKey                       | V3ryLongR\@ndomKey…                                  | Clé HMAC JWT 512 bits           |
+| Email\_\_Password                      | VotreMotDePasseSMTP                                  | Mot de passe pour SMTP          |
+| RedisSettings\_\_Configuration         | redis:6379                                           | Adresse Redis (hôte\:port)      |
+| RedisSettings\_\_InstanceName          | PulseERP:                                            | Préfixe optionnel pour les clés |
 
-Variables d’environnement essentielles :
+---
 
-Nom	Exemple	Description
-ConnectionStrings__DefaultConnection	Server=.;Database=PulseERP;Trusted_Connection=True;	Chaîne de connexion SQL Server
-Jwt__SecretKey	V3ryLongR@ndomKey…	Clé HMAC JWT 512 bits
-Email__Password	VotreMotDePasseSMTP	Mot de passe pour SMTP
-RedisSettings__Configuration	redis:6379	Adresse Redis (hôte:port)
-RedisSettings__InstanceName	PulseERP:	Préfixe optionnel pour les clés
+## 📊 CI / GitHub Actions
 
-🌀 CI / GitHub Actions
-Fichier : .github/workflows/ci.yml
+Fichier : `.github/workflows/ci.yml`
 
-yaml
-
-
-Copier
+```yaml
 name: build-test
 on:
   push:
@@ -290,60 +289,45 @@ jobs:
 
       - name: Teardown
         run: docker-compose down
-Secrets GitHub :
+```
 
-SQL_SA_PASSWORD : mot de passe SA
+**Secrets GitHub** :
 
-SQL_SA_CONNECTION_STRING : chaîne de connexion complète ou mot de passe
+* `SQL_SA_PASSWORD` : mot de passe SA
+* `SQL_SA_CONNECTION_STRING` : chaîne de connexion complète ou mot de passe
 
-À chaque push sur main, la CI :
+À chaque push sur `main`, la CI :
 
-Démarre Redis & SQL Server
+1. Démarre Redis & SQL Server
+2. Construit et publie l’API
+3. Lance l’environnement via Docker Compose
+4. Exécute les tests d’intégration
+5. Arrête les conteneurs
 
-Construit et publie l’API
+---
 
-Lance l’environnement via Docker Compose
+## 🎪 Principes clés
 
-Exécute les tests d’intégration
+* **Clean Architecture** : isoler le domaine, toutes les dépendances pointent vers `Domain`.
+* **Domain-Driven Design** : Entities, Value Objects, Agrégats (Product, User, Brand), Ubiquitous Language, Domain Events.
+* **Caching Redis** : implémenté dans `Infrastructure/Repositories` via `IDistributedCache` pour accélérer les lectures.
+* **Validation & Résilience** : FluentValidation pour les commandes, Polly (retry, circuit-breaker) dans et hors infrastructure.
+* **Logging & Tracing** : Serilog JSON + enrichers (UserId, CorrelationId) + configuration OpenTelemetry.
 
-Arrête les conteneurs
+---
 
-🎯 Principes clés
-Clean Architecture : isoler le domaine, toutes les dépendances pointent vers Domain.
+## 💪 Contribuer
 
-Domain-Driven Design : Entities, Value Objects, Agrégats (Product, User, Brand), Ubiquitous Language, Domain Events.
+1. Fork & clone :   `git clone https://github.com/Kouumss/PulseERP.git`   `cd PulseERP`
+2. Créer une branche :   `git checkout -b feature/ma-feature`
+3. Code + tests :   `git commit -m "feat: …"`
+4. Pousser & ouvrir PR :   `git push origin feature/ma-feature`   Ouvrez une Pull Request (la CI se déclenchera automatiquement)
 
-Caching Redis : implémenté dans Infrastructure/Repositories via IDistributedCache pour accélérer les lectures.
+---
 
-Validation & Résilience : FluentValidation pour les commandes, Polly (retry, circuit-breaker) dans et hors infrastructure.
+## 📖 Licence
 
-Logging & Tracing : Serilog JSON + enrichers (UserId, CorrelationId) + configuration OpenTelemetry.
+Ce projet est protégé par une licence propriétaire. Toute utilisation, reproduction, modification ou commercialisation sans autorisation écrite préalable est strictement interdite.
+Contact : [koumayl.messaoudi@gmail.com](mailto:koumayl.messaoudi@gmail.com)
 
-🤝 Contribuer
-Fork & clone : git clone https://github.com/Kouumss/PulseERP.git
-
-git checkout -b feature/ma-feature
-
-Code + tests : git commit -m "feat: …"
-
-git push origin feature/ma-feature
-
-Ouvrez une Pull Request (la CI se déclenchera automatiquement)
-
-📄 Licence
-Ce projet est protégé par une licence propriétaire.
-Toute utilisation, reproduction, modification ou commercialisation sans autorisation écrite préalable est strictement interdite.
-Contact : koumayl.messaoudi@gmail.com
-
-Made with ❤️ & ☕ by les mainteneurs PulseERP.
-"""
-
-Écrire le contenu dans README.md
-readme_path = Path("/mnt/data/README.md")
-readme_path.write_text(readme_content, encoding="utf-8")
-
-readme_path
-
-
-
-Copier
+*Made with ❤️ & ☕ by Team PulseERP.*
