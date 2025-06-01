@@ -3,11 +3,6 @@
 [![License](https://img.shields.io/badge/License-Proprietary-yellow)](LICENSE)
 
 > **PulseERP** est un back-end ERP modulaire, moderne et évolutif pour PME, conçu avec **C# 13 / .NET 9** suivant les principes **Clean Architecture** et **Domain-Driven Design**.
-
-<div align="center">
-  <img src="https://i.imgur.com/J7q5Z1T.png" alt="PulseERP Architecture" width="600">
-</div>
-
 ---
 
 ## 🌟 Fonctionnalités clés
