@@ -41,7 +41,7 @@ public class BrandService : IBrandService
 
     public async Task DeleteAsync(Guid id)
     {
-        var brand = await _repo.GetByIdAsync(id)?? throw new NotFoundException("Brand", id);
+        var brand = await _repo.GetByIdAsync(id) ?? throw new NotFoundException("Brand", id);
         brand.Deactivate();
         await _repo.UpdateAsync(brand);
         await _repo.SaveChangesAsync();
@@ -49,7 +49,7 @@ public class BrandService : IBrandService
 
     public async Task<BrandSummary> GetByIdAsync(Guid id)
     {
-        var brand = await _repo.GetByIdAsync(id)?? throw new NotFoundException("Brand", id);
+        var brand = await _repo.GetByIdAsync(id) ?? throw new NotFoundException("Brand", id);
         return _mapper.Map<BrandSummary>(brand);
     }
 
