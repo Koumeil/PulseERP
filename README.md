@@ -1,9 +1,15 @@
 [![Build Status](https://github.com/Kouumss/PulseERP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kouumss/PulseERP/actions)  
-[![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com)  
 [![License](https://img.shields.io/badge/License-Proprietary-yellow)](LICENSE)
+[![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com)  
 
-> **PulseERP** est un back-end ERP modulaire, moderne et évolutif pour PME, conçu avec **C# 13 / .NET 9** suivant les principes **Clean Architecture** et **Domain-Driven Design**.
+# PulseERP
+
+>**PulseERP** est un back-end ERP modulaire conçu pour les petites et moyennes entreprises, développé en **C# 13 / .NET 9** 
+Il applique rigoureusement les principes **Clean Architecture** & **Domain-Drive-Design**. : les couches Domain, Application, Abstractions, Infrastructure et API sont clairement séparées, testées (xUnit + FluentAssertions) et accompagnées d’une pipeline CI GitHub Actions qui construit, analyse et valide automatiquement chaque commit.
+
 ---
+
+## 🏗️ Vue d’ensemble du dépôt
 
 ## 🌟 Fonctionnalités clés
 
@@ -104,88 +110,6 @@ graph LR
 
 ---
 
-### 3. Sous-modules internes (Infrastructure & Application)
-
-
----
-
-## 📦 Paquets NuGet (versions simplifiées)
-
-Pour chaque projet, tableau des principales dépendances NuGet (version raccourcie : major.minor).
-
-### PulseERP.Domain (aucune dépendance externe)
-
-| Paquet         | Version |
-| -------------- | ------- |
-| *— Aucune —*   |         |
-
----
-
-### PulseERP.Abstractions (aucune dépendance externe)
-
-| Paquet         | Version |
-| -------------- | ------- |
-| *— Aucune —*   |         |
-
----
-
-### PulseERP.Application
-
-| Paquet                                                | Version |
-| ----------------------------------------------------- | ------- |
-| AutoMapper.Extensions.Microsoft.DependencyInjection   | 12.0    |
-| FluentValidation                                      | 12.0    |
-| MediatR                                               | 11.1    |
-| MediatR.Extensions.Microsoft.DependencyInjection      | 11.1    |
-| Microsoft.Extensions.DependencyInjection.Abstractions | 9.0     |
-| Microsoft.Extensions.Logging.Abstractions             | 9.0     |
-
----
-
-### PulseERP.Infrastructure
-
-| Paquet                                     | Version |
-| ------------------------------------------ | ------- |
-| BCrypt.Net-Next                            | 4.0     |
-| MailKit                                    | 2.6     |
-| Microsoft.EntityFrameworkCore              | 9.0     |
-| Microsoft.EntityFrameworkCore.Abstractions | 9.0     |
-| Microsoft.EntityFrameworkCore.Design       | 9.0     |
-| Microsoft.EntityFrameworkCore.SqlServer    | 9.0     |
-| Microsoft.EntityFrameworkCore.Tools        | 9.0     |
-| Microsoft.Extensions.Configuration.FileExtensions | 9.0 |
-| Microsoft.Extensions.Configuration.Json    | 9.0     |
-| Microsoft.Extensions.Configuration.UserSecrets | 9.0  |
-| Microsoft.Extensions.DependencyInjection.Abstractions | 9.0 |
-| Microsoft.Extensions.Logging               | 9.0     |
-| Microsoft.Extensions.Options               | 9.0     |
-
----
-
-### PulseERP.API
-
-| Paquet                                          | Version |
-| ----------------------------------------------- | ------- |
-| FluentValidation.DependencyInjectionExtensions   | 12.0    |
-| Hellang.Middleware.ProblemDetails                | 6.5     |
-| Microsoft.AspNetCore.Authentication.JwtBearer    | 9.0     |
-| Microsoft.AspNetCore.OpenApi                     | 9.0     |
-| Microsoft.EntityFrameworkCore.Design             | 9.0     |
-| Microsoft.Extensions.Caching.Abstractions         | 9.0     |
-| Microsoft.Extensions.Caching.StackExchangeRedis   | 9.0     |
-| Serilog.AspNetCore                                | 9.0     |
-| Serilog.Enrichers.Environment                     | 3.0     |
-| Serilog.Sinks.Console                             | 6.0     |
-| Serilog.Sinks.File                                | 7.0     |
-| Swashbuckle.AspNetCore                            | 8.1     |
-| Microsoft.Extensions.Configuration.Json           | 9.0     |
-| Microsoft.Extensions.Configuration.UserSecrets    | 9.0     |
-| Microsoft.Extensions.DependencyInjection.Abstractions | 9.0 |
-| Microsoft.Extensions.Logging                      | 9.0     |
-| Microsoft.Extensions.Options                      | 9.0     |
-
----
-
 ### PulseERP.Tests
 
 | Paquet                      | Version |
@@ -243,169 +167,106 @@ Les fichiers `appsettings*.json` contiennent des valeurs vides pour les secrets 
 
 En environnement de développement, utilisez les User Secrets pour sécuriser la chaîne de connexion, la clé JWT, le mot de passe SMTP, etc. :
 
-```bash
-cd PulseERP.API
-dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:DefaultConnection"      "Server=(localdb)\mssqllocaldb;Database=PulseERP;Trusted_Connection=True;"
-dotnet user-secrets set "Jwt:SecretKey"                             "V3ryLongR@ndomKey..."
-dotnet user-secrets set "Email:Password"                             "VotreMotDePasseSMTP"
-```
 
-> **Remarque :**  
-> Si vous préférez ne pas utiliser les User Secrets, définissez les variables d’environnement au niveau du système ou du shell.
-
-### 3. Compiler et exécuter sans Docker
+## 🔧 Compilation & tests locaux
 
 ```bash
-dotnet restore
-dotnet build --configuration Release
-dotnet test
-cd PulseERP.API
-dotnet run --launch-profile https
+# Restauration + build + tests
+$ dotnet restore
+$ dotnet build -c Release
+$ dotnet test
 ```
 
-L’API sera accessible sur :  
-```
-https://localhost:5001/swagger
+### Couverture de code
+
+```bash
+$ dotnet test --collect:"XPlat Code Coverage"
+$ reportgenerator -reports:**/coverage.cobertura.xml -targetdir:CoverageReport
 ```
 
-### 4. Variables d’environnement (hors Docker)
-
-| Nom                                    | Exemple                                                                                                | Description                                 |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
-| `ConnectionStrings__DefaultConnection` | `Server=.;Database=PulseERP;Trusted_Connection=True;`                                                  | Chaîne de connexion SQL Server              |
-| `Jwt__SecretKey`                       | `V3ryLongR@ndomKey…`                                                                                    | Clé HMAC JWT 512 bits                       |
-| `Email__Password`                      | `VotreMotDePasseSMTP`                                                                                  | Mot de passe pour SMTP (ex. Gmail, SendGrid) |
-| `RedisSettings__Configuration`         | `redis:6379`                                                                                           | Adresse Redis (hôte:port)                   |
-| `RedisSettings__InstanceName`          | `PulseERP:`                                                                                            | Préfixe optionnel pour les clés Redis       |
+Ouvre `CoverageReport/index.htm` dans ton navigateur.
 
 ---
 
-## 📦 Exécution via Docker Compose
+## 🚀 Lancer l’API
 
-Le fichier `docker-compose.yml` permet de lancer en une seule commande :
+```bash
+$ cd PulseERP.API
+$ dotnet run --launch-profile https
+# Swagger : https://localhost:5001/swagger
+```
 
-- Redis (cache distribué)  
-- SQL Server (base de données)  
-- API PulseERP (conteneur ASP.NET Core)
+Variables d’environnement essentielles :
+
+| Nom                          | Exemple                                                   | Description              |
+| ---------------------------- | --------------------------------------------------------- | ------------------------ |
+| `ConnectionStrings__Default` | `Server=.;Database=PulseERP;TrustServerCertificate=True;` | DB SQL Server/PostgreSQL |
+| `Jwt__SecretKey`             | `V3ryLongR@ndomKey…`                                      | Clé HMAC JWT 512 bits    |
+| `Email__Password`            | `***`                                                     | Mot de passe SMTP        |
+
+---
+
+## 🌀 CI GitHub Actions
+
+Fichier : `.github/workflows/ci.yml`
 
 ```yaml
-version: "3.9"
-
-services:
-  redis:
-    image: redis:7-alpine
-    container_name: pulseerp-redis
-    ports:
-      - "6379:6379"
-    networks:
-      - pulseerp-net
-
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: pulseerp-sql
-    environment:
-      SA_PASSWORD: "${SQL_SA_PASSWORD}"
-      ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
-    volumes:
-      - sql-data:/var/opt/mssql
-    networks:
-      - pulseerp-net
-
-  pulseerp-api:
-    build:
-      context: .
-      dockerfile: PulseERP.API/Dockerfile
-    container_name: pulseerp-api
-    depends_on:
-      - redis
-      - sqlserver
-    ports:
-      - "5000:80"
-    environment:
-      ConnectionStrings__DefaultConnection: "${SQL_SA_CONNECTION_STRING}"
-      RedisSettings__Configuration:        "redis:6379"
-      RedisSettings__InstanceName:         "PulseERP:"
-    networks:
-      - pulseerp-net
-
-volumes:
-  sql-data:
-
-networks:
-  pulseerp-net:
-    driver: bridge
+name: build-test
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - run: dotnet restore
+      - run: dotnet build -c Release --no-restore
+      - run: dotnet test --no-restore --collect:"XPlat Code Coverage"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: '**/coverage.cobertura.xml'
 ```
 
-### 1. Démarrer les services
-
-```bash
-export SQL_SA_PASSWORD="Admin@123"
-export SQL_SA_CONNECTION_STRING="Server=sqlserver;Database=PulseERP;User Id=sa;Password=Admin@123;TrustServerCertificate=True;"
-
-docker-compose up -d
-```
-
-- Le conteneur **redis** écoute sur `localhost:6379`  
-- Le conteneur **sqlserver** écoute sur `localhost:1433` (BD PulseERP)  
-- L’API sera accessible sur :  
-  ```
-  http://localhost:5000/swagger
-  ```
-
-### 2. Arrêter et nettoyer
-
-```bash
-docker-compose down
-```
+Un push sur **main** ⇒ build, tests, rapport de couverture.
 
 ---
 
-## 🎉 Exécution de l’API (hors Docker)
+## 🎯 Principes clés du projet
 
-```bash
-cd PulseERP.API
-dotnet run --launch-profile https
-```
-
-Swagger :  
-```
-https://localhost:5001/swagger
-```
+* **Clean Architecture** : toutes les dépendances pointent vers le domaine.
+* **DDD** : Value Objects immuables (`Money`, `Role`, `EmailAddress`…), agrégats (`Product`, `User`).
+* **Validation** : FluentValidation via pipeline `ValidationBehavior` dans Application.
+* **Résilience** : Polly (retry, circuit‑breaker) bientôt ajouté dans Infrastructure.
+* **Logging structuré** : Serilog JSON + enrichers (UserId, CorrelationId) + Export OpenTelemetry (à venir).
 
 ---
 
-## 🤝 Contribuer
+---
 
-1. **Fork & clone** :
-   ```bash
-   git clone https://github.com/Kouumss/PulseERP.git
-   cd PulseERP
-   ```
-2. **Créer une branche** :
-   ```bash
-   git checkout -b feature/ma-feature
-   ```
-3. **Coder & tester** :
-   ```bash
-   git commit -m "feat: description de ma feature"
-   ```
-4. **Pousser & ouvrir une Pull Request** :
-   ```bash
-   git push origin feature/ma-feature
-   ```
-   La CI se déclenchera automatiquement.  
-5. 🎉 Une fois validé, votre modification sera fusionnée dans `main`.
+## 🤝 Contribuer
+
+1. Fork : `git clone`
+2. `git checkout -b feature/ma-feature`
+3. Code + tests : `git commit -m "feat: …"`
+4. `git push origin feature/ma-feature`
+5. Ouvre une **Pull Request** (la CI se déclenchera)
 
 ---
 
-## 📖 Licence
+## 📄 Licence
 
-Ce projet est sous licence **propriétaire**. Toute utilisation, reproduction, modification ou commercialisation sans autorisation écrite préalable est strictement interdite.  
-Pour toute question : [koumayl.messaoudi@gmail.com](mailto:koumayl.messaoudi@gmail.com)
+Ce projet est protégé par une licence propriétaire.  
+Toute utilisation, reproduction, modification ou commercialisation sans autorisation écrite préalable est strictement interdite.  
+Contact : [koumayl.messaoudi@gmail.com]
+
 
 ---
 
-*Made with ❤️ & ☕ by Team PulseERP.*
+> Made with ❤️ & ☕ by the PulseERP maintainers.
+
+![build](https://github.com/Kouumss/PulseERP/actions/workflows/ci.yml/badge.svg)
