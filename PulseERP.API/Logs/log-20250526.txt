@@ -1,0 +1,821 @@
+2025-05-26 01:26:47.108 +02:00 [INF] Application is shutting down...
+2025-05-26 02:07:23.709 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 02:07:24.579 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 02:07:24.590 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 02:07:24.591 +02:00 [INF] Hosting environment: Development
+2025-05-26 02:07:24.593 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 02:07:34.809 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-26 02:07:35.187 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 200 null text/html;charset=utf-8 381.0175ms
+2025-05-26 02:07:36.267 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - null null
+2025-05-26 02:07:36.608 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 346.6084ms
+2025-05-26 02:08:14.815 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/register - application/json 138
+2025-05-26 02:08:14.877 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Register (PulseERP.API)'
+2025-05-26 02:08:14.918 +02:00 [INF] Route matched with {action = "Register", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Register(PulseERP.Contracts.Dtos.Auth.RegisterRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-26 02:08:16.152 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 02:08:17.544 +02:00 [INF] Executed DbCommand (411ms) [Parameters=[@__normalizedEmail_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(2) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DomainUserId], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[NormalizedEmail] = @__normalizedEmail_0
+2025-05-26 02:08:17.912 +02:00 [INF] Executed DbCommand (149ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DomainUserId], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+2025-05-26 02:08:18.325 +02:00 [INF] Executed DbCommand (71ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = Boolean), @p5='?' (Size = 4000), @p6='?' (Size = 4000), @p7='?' (DbType = DateTime2), @p8='?' (DbType = Guid), @p9='?' (DbType = Int32), @p10='?' (Size = 4000), @p11='?' (DbType = Guid), @p12='?' (Size = 256), @p13='?' (DbType = Boolean), @p14='?' (DbType = Boolean), @p15='?' (DbType = DateTimeOffset), @p16='?' (Size = 256), @p17='?' (Size = 256), @p18='?' (Size = 4000), @p19='?' (Size = 4000), @p20='?' (DbType = Boolean), @p21='?' (Size = 4000), @p22='?' (DbType = Boolean), @p23='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SET NOCOUNT ON;
+INSERT INTO [DomainUsers] ([Id], [CreatedAt], [Email], [FirstName], [IsActive], [LastName], [Phone], [UpdatedAt])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+INSERT INTO [AspNetUsers] ([Id], [AccessFailedCount], [ConcurrencyStamp], [DomainUserId], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName])
+VALUES (@p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23);
+2025-05-26 02:08:18.445 +02:00 [INF] Executed DbCommand (39ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a0].[Name]
+FROM [AspNetUserRoles] AS [a]
+INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+WHERE [a].[UserId] = @__userId_0
+2025-05-26 02:08:18.546 +02:00 [INF] Executed DbCommand (15ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 4000), @p6='?' (DbType = DateTime2), @p7='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+2025-05-26 02:08:18.557 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Auth.AuthResponse'.
+2025-05-26 02:08:18.575 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Register (PulseERP.API) in 3652.4735ms
+2025-05-26 02:08:18.576 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Register (PulseERP.API)'
+2025-05-26 02:08:18.588 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/register - 200 null application/json; charset=utf-8 3773.3235ms
+2025-05-26 02:09:02.709 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 67
+2025-05-26 02:09:02.719 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-26 02:09:02.732 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PulseERP.Contracts.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-26 02:09:02.953 +02:00 [INF] Executed DbCommand (99ms) [Parameters=[@__command_Email_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(2) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DomainUserId], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName], [d].[Id], [d].[CreatedAt], [d].[Email], [d].[FirstName], [d].[IsActive], [d].[LastName], [d].[Phone], [d].[UpdatedAt]
+FROM [AspNetUsers] AS [a]
+INNER JOIN [DomainUsers] AS [d] ON [a].[DomainUserId] = [d].[Id]
+WHERE [a].[Email] = @__command_Email_0
+2025-05-26 02:09:03.076 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a0].[Name]
+FROM [AspNetUserRoles] AS [a]
+INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+WHERE [a].[UserId] = @__userId_0
+2025-05-26 02:09:03.083 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 4000), @p6='?' (DbType = DateTime2), @p7='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+2025-05-26 02:09:03.084 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Auth.AuthResponse'.
+2025-05-26 02:09:03.086 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 353.8641ms
+2025-05-26 02:09:03.088 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-26 02:09:03.089 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 379.2003ms
+2025-05-26 02:09:30.191 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products - null null
+2025-05-26 02:09:30.198 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:09:30.209 +02:00 [INF] Route matched with {action = "GetAll", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.Contracts.Dtos.Pagination.PaginationResult`1[PulseERP.Contracts.Dtos.Products.ProductDto]]] GetAll(PulseERP.Domain.Filters.Products.ProductParams) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 02:09:30.377 +02:00 [INF] Executed DbCommand (22ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+ORDER BY [p].[Name]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+2025-05-26 02:09:30.393 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Products.ProductDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 02:09:30.412 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API) in 202.4724ms
+2025-05-26 02:09:30.412 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:09:30.413 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products - 200 null application/json; charset=utf-8 221.5002ms
+2025-05-26 02:09:39.476 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products?Search=app - null null
+2025-05-26 02:09:39.477 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:09:39.477 +02:00 [INF] Route matched with {action = "GetAll", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.Contracts.Dtos.Pagination.PaginationResult`1[PulseERP.Contracts.Dtos.Products.ProductDto]]] GetAll(PulseERP.Domain.Filters.Products.ProductParams) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 02:09:39.635 +02:00 [INF] Executed DbCommand (126ms) [Parameters=[@__keyword_1='?' (Size = 4000), @__p_2='?' (DbType = Int32), @__p_3='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Name] LIKE @__keyword_1 OR [p].[Description] LIKE @__keyword_1
+ORDER BY [p].[Name]
+OFFSET @__p_2 ROWS FETCH NEXT @__p_3 ROWS ONLY
+2025-05-26 02:09:39.635 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Products.ProductDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 02:09:39.635 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API) in 158.0079ms
+2025-05-26 02:09:39.636 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:09:39.636 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products?Search=app - 200 null application/json; charset=utf-8 160.4289ms
+2025-05-26 02:09:54.156 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products?Brand=ap - null null
+2025-05-26 02:09:54.159 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:09:54.159 +02:00 [INF] Route matched with {action = "GetAll", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.Contracts.Dtos.Pagination.PaginationResult`1[PulseERP.Contracts.Dtos.Products.ProductDto]]] GetAll(PulseERP.Domain.Filters.Products.ProductParams) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 02:09:54.251 +02:00 [INF] Executed DbCommand (69ms) [Parameters=[@__productParams_Brand_0='?' (Size = 4000), @__p_1='?' (DbType = Int32), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+INNER JOIN [Brands] AS [b] ON [p].[BrandId] = [b].[Id]
+WHERE [b].[Name] = @__productParams_Brand_0
+ORDER BY [p].[Name]
+OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY
+2025-05-26 02:09:54.251 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Products.ProductDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 02:09:54.251 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API) in 92.0523ms
+2025-05-26 02:09:54.252 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:09:54.252 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products?Brand=ap - 200 null application/json; charset=utf-8 96.167ms
+2025-05-26 02:10:09.347 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products?Search=ama - null null
+2025-05-26 02:10:09.350 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:10:09.350 +02:00 [INF] Route matched with {action = "GetAll", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.Contracts.Dtos.Pagination.PaginationResult`1[PulseERP.Contracts.Dtos.Products.ProductDto]]] GetAll(PulseERP.Domain.Filters.Products.ProductParams) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 02:10:09.358 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__keyword_1='?' (Size = 4000), @__p_2='?' (DbType = Int32), @__p_3='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Name] LIKE @__keyword_1 OR [p].[Description] LIKE @__keyword_1
+ORDER BY [p].[Name]
+OFFSET @__p_2 ROWS FETCH NEXT @__p_3 ROWS ONLY
+2025-05-26 02:10:09.359 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Products.ProductDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 02:10:09.360 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API) in 9.2067ms
+2025-05-26 02:10:09.360 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 02:10:09.360 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products?Search=ama - 200 null application/json; charset=utf-8 13.009ms
+2025-05-26 02:16:47.378 +02:00 [INF] Application is shutting down...
+2025-05-26 02:17:09.540 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 02:17:10.094 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 02:17:10.099 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 02:17:10.100 +02:00 [INF] Hosting environment: Development
+2025-05-26 02:17:10.100 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 02:17:13.188 +02:00 [INF] Application is shutting down...
+2025-05-26 16:06:09.098 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 16:06:09.347 +02:00 [FTL] Application startup exception
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+2025-05-26 16:06:09.367 +02:00 [ERR] Hosting failed to start
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-05-26 16:08:45.911 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 16:08:46.178 +02:00 [FTL] Application startup exception
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+2025-05-26 16:08:46.199 +02:00 [ERR] Hosting failed to start
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-05-26 16:09:24.051 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 16:09:24.269 +02:00 [FTL] Application startup exception
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+2025-05-26 16:09:24.283 +02:00 [ERR] Hosting failed to start
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-05-26 16:42:01.742 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 16:42:01.949 +02:00 [FTL] Application startup exception
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+2025-05-26 16:42:01.964 +02:00 [ERR] Hosting failed to start
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-05-26 16:52:59.185 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 16:52:59.385 +02:00 [FTL] Application startup exception
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+2025-05-26 16:52:59.396 +02:00 [ERR] Hosting failed to start
+System.InvalidOperationException: Unable to resolve service for type 'PulseERP.API.ErrorHandling.CustomProblemDetailsFactory' while attempting to activate 'PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-05-26 16:57:02.625 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 16:57:02.840 +02:00 [FTL] Application startup exception
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+2025-05-26 16:57:02.855 +02:00 [ERR] Hosting failed to start
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[PulseERP.API.Middleware.GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-05-26 17:00:45.774 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:00:46.807 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:00:46.815 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:00:46.818 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:00:46.818 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:00:54.666 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-26 17:00:54.794 +02:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-05-26 17:00:54.936 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 500 null text/html; charset=utf-8 272.8731ms
+2025-05-26 17:00:55.982 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/favicon.ico - null null
+2025-05-26 17:00:55.984 +02:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-05-26 17:00:56.020 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/favicon.ico - 500 null text/plain; charset=utf-8 17.5409ms
+2025-05-26 17:01:10.189 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-26 17:01:10.190 +02:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-05-26 17:01:10.194 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 500 null text/html; charset=utf-8 4.6006ms
+2025-05-26 17:01:10.253 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/favicon.ico - null null
+2025-05-26 17:01:10.256 +02:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-05-26 17:01:10.261 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/favicon.ico - 500 null text/plain; charset=utf-8 8.3727ms
+2025-05-26 17:01:17.026 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-26 17:01:17.028 +02:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-05-26 17:01:17.031 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 500 null text/html; charset=utf-8 4.8333ms
+2025-05-26 17:01:17.157 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/favicon.ico - null null
+2025-05-26 17:01:17.158 +02:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[GlobalExceptionHandlingMiddleware]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-05-26 17:01:17.160 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/favicon.ico - 500 null text/plain; charset=utf-8 3.0151ms
+2025-05-26 17:03:59.540 +02:00 [INF] Application is shutting down...
+2025-05-26 17:04:22.550 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:04:23.379 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:04:23.389 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:04:23.390 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:04:23.390 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:04:27.657 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-26 17:04:27.884 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 200 null text/html;charset=utf-8 227.6942ms
+2025-05-26 17:04:28.399 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - null null
+2025-05-26 17:04:28.806 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 409.1436ms
+2025-05-26 17:04:50.372 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 57
+2025-05-26 17:04:50.397 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-26 17:04:50.428 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PulseERP.Contracts.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-26 17:04:51.695 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:04:52.941 +02:00 [INF] Executed DbCommand (149ms) [Parameters=[@__command_Email_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(2) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DomainUserId], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName], [d].[Id], [d].[CreatedAt], [d].[Email], [d].[FirstName], [d].[IsActive], [d].[LastName], [d].[Phone], [d].[UpdatedAt]
+FROM [AspNetUsers] AS [a]
+INNER JOIN [DomainUsers] AS [d] ON [a].[DomainUserId] = [d].[Id]
+WHERE [a].[Email] = @__command_Email_0
+2025-05-26 17:04:52.988 +02:00 [INF] Executing UnauthorizedObjectResult, writing value of type 'System.String'.
+2025-05-26 17:04:52.996 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 2561.3026ms
+2025-05-26 17:04:52.996 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-26 17:04:53.013 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 401 null text/plain; charset=utf-8 2641.4007ms
+2025-05-26 17:06:23.286 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers - null null
+2025-05-26 17:06:23.326 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetAll (PulseERP.API)'
+2025-05-26 17:06:23.369 +02:00 [INF] Route matched with {action = "GetAll", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:06:23.774 +02:00 [INF] Executed DbCommand (43ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+2025-05-26 17:06:23.876 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[PulseERP.Contracts.Dtos.Customers.CustomerDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 17:06:23.964 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetAll (PulseERP.API) in 593.2256ms
+2025-05-26 17:06:23.964 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetAll (PulseERP.API)'
+2025-05-26 17:06:23.966 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers - 200 null application/json; charset=utf-8 680.2072ms
+2025-05-26 17:06:40.233 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - null null
+2025-05-26 17:06:40.242 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:06:40.247 +02:00 [INF] Route matched with {action = "GetById", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:06:40.453 +02:00 [INF] Executed DbCommand (156ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:06:40.554 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Customers.CustomerDto'.
+2025-05-26 17:06:40.555 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API) in 307.5933ms
+2025-05-26 17:06:40.555 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:06:40.556 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 200 null application/json; charset=utf-8 322.7281ms
+2025-05-26 17:06:47.288 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2f4a6b441eac - null null
+2025-05-26 17:06:47.299 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:06:47.306 +02:00 [INF] Route matched with {action = "GetById", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:06:47.322 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:06:47.322 +02:00 [INF] Executing NotFoundObjectResult, writing value of type 'System.String'.
+2025-05-26 17:06:47.323 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API) in 16.5088ms
+2025-05-26 17:06:47.323 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:06:47.324 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2f4a6b441eac - 404 null text/plain; charset=utf-8 35.2072ms
+2025-05-26 17:08:44.920 +02:00 [INF] Application is shutting down...
+2025-05-26 17:09:00.113 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:09:00.722 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:09:00.731 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:09:00.732 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:09:00.733 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:09:04.906 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2f4a6b441eac - null null
+2025-05-26 17:09:05.030 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:09:05.068 +02:00 [INF] Route matched with {action = "GetById", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:09:06.387 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:09:07.692 +02:00 [INF] Executed DbCommand (78ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:09:07.763 +02:00 [INF] Executing NotFoundObjectResult, writing value of type 'System.String'.
+2025-05-26 17:09:07.781 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API) in 2698.9384ms
+2025-05-26 17:09:07.793 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:09:07.831 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2f4a6b441eac - 404 null text/plain; charset=utf-8 2928.1723ms
+2025-05-26 17:09:12.324 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - null null
+2025-05-26 17:09:12.341 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:09:12.341 +02:00 [INF] Route matched with {action = "GetById", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:09:12.384 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:09:12.523 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Customers.CustomerDto'.
+2025-05-26 17:09:12.561 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API) in 219.5438ms
+2025-05-26 17:09:12.561 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:09:12.562 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 200 null application/json; charset=utf-8 250.7289ms
+2025-05-26 17:09:18.052 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - application/json 78
+2025-05-26 17:09:18.059 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:09:18.069 +02:00 [INF] Route matched with {action = "Update", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Customers.UpdateCustomerRequest) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:09:18.177 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:09:18.184 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.Update (PulseERP.API) in 115.1604ms
+2025-05-26 17:09:18.185 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:09:18.187 +02:00 [ERR] Exception caught in middleware
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at PulseERP.Application.Services.CustomerService.UpdateAsync(Guid id, UpdateCustomerRequest command) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Application/Services/CustomerService.cs:line 76
+   at PulseERP.API.Controllers.CustomersController.Update(Guid id, UpdateCustomerRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/CustomersController.cs:line 56
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+2025-05-26 17:09:18.217 +02:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Cannot resolve scoped service 'PulseERP.Contracts.Interfaces.Services.ISerilogAppLoggerService`1[PulseERP.API.ErrorHandling.CustomProblemDetailsFactory]' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at PulseERP.API.ErrorHandling.CustomProblemDetailsFactory.LogProblem(ProblemDetails details) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/ErrorHandling/CustomProblemDetailsFactory.cs:line 117
+   at PulseERP.API.ErrorHandling.CustomProblemDetailsFactory.CreateProblemDetails(HttpContext httpContext, Nullable`1 statusCode, String title, String type, String detail, String instance) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/ErrorHandling/CustomProblemDetailsFactory.cs:line 55
+   at GlobalExceptionHandlingMiddleware.HandleExceptionAsync(HttpContext context, Exception ex, Int32 statusCode, String title) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 81
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 63
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-05-26 17:09:18.228 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 500 null text/plain; charset=utf-8 175.82ms
+2025-05-26 17:12:46.648 +02:00 [INF] Application is shutting down...
+2025-05-26 17:12:57.352 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:12:57.917 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:12:57.923 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:12:57.924 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:12:57.924 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:13:40.015 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - application/json 78
+2025-05-26 17:13:40.101 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:13:40.124 +02:00 [INF] Route matched with {action = "Update", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Customers.UpdateCustomerRequest) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:13:41.057 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:13:41.989 +02:00 [INF] Executed DbCommand (63ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:13:42.135 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.Update (PulseERP.API) in 2006.294ms
+2025-05-26 17:13:42.140 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:13:42.144 +02:00 [ERR] Exception caught in middleware
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at PulseERP.Application.Services.CustomerService.UpdateAsync(Guid id, UpdateCustomerRequest command) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Application/Services/CustomerService.cs:line 76
+   at PulseERP.API.Controllers.CustomersController.Update(Guid id, UpdateCustomerRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/CustomersController.cs:line 56
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 32
+2025-05-26 17:13:42.159 +02:00 [ERR] Server error 500 [internal_server_error] - Internal Server Error (RequestId: 0HNCSCVIKMHOD:00000001)
+2025-05-26 17:13:42.197 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 500 null application/problem+json 2185.8647ms
+2025-05-26 17:14:33.469 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - application/json 77
+2025-05-26 17:14:33.474 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:14:33.474 +02:00 [INF] Route matched with {action = "Update", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Customers.UpdateCustomerRequest) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:14:33.527 +02:00 [INF] Executed DbCommand (6ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:14:33.559 +02:00 [INF] Executed DbCommand (14ms) [Parameters=[@__customer_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customer_Id_0
+2025-05-26 17:14:33.820 +02:00 [INF] Executed DbCommand (134ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (Size = 4000), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Customers] SET [FirstName] = @p0, [LastName] = @p1, [UpdatedAt] = @p2, [PostalCode] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+2025-05-26 17:14:33.838 +02:00 [INF] Customer updated: b40dd951-5100-4d0a-a4b1-2a4a6b441eac
+2025-05-26 17:14:33.844 +02:00 [INF] Executing StatusCodeResult, setting HTTP status code 204
+2025-05-26 17:14:33.844 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.Update (PulseERP.API) in 369.5613ms
+2025-05-26 17:14:33.845 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:14:33.846 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 204 null null 377.0424ms
+2025-05-26 17:14:43.396 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - null null
+2025-05-26 17:14:43.408 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:14:43.415 +02:00 [INF] Route matched with {action = "GetById", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:14:43.501 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:14:43.513 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Customers.CustomerDto'.
+2025-05-26 17:14:43.523 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API) in 107.0226ms
+2025-05-26 17:14:43.523 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:14:43.523 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 200 null application/json; charset=utf-8 127.1557ms
+2025-05-26 17:23:03.884 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - application/json 73
+2025-05-26 17:23:03.902 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:23:03.904 +02:00 [INF] Route matched with {action = "Update", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Customers.UpdateCustomerRequest) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:23:04.039 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:23:04.056 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__customer_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customer_Id_0
+2025-05-26 17:23:04.164 +02:00 [INF] Executed DbCommand (94ms) [Parameters=[@p3='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (Size = 4000), @p2='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Customers] SET [FirstName] = @p0, [LastName] = @p1, [UpdatedAt] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+2025-05-26 17:23:04.166 +02:00 [INF] Customer updated: b40dd951-5100-4d0a-a4b1-2a4a6b441eac
+2025-05-26 17:23:04.168 +02:00 [INF] Executing StatusCodeResult, setting HTTP status code 204
+2025-05-26 17:23:04.168 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.Update (PulseERP.API) in 262.8516ms
+2025-05-26 17:23:04.169 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:23:04.172 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 204 null null 290.1161ms
+2025-05-26 17:23:11.191 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - null null
+2025-05-26 17:23:11.195 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:23:11.196 +02:00 [INF] Route matched with {action = "GetById", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:23:11.206 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:23:11.209 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Customers.CustomerDto'.
+2025-05-26 17:23:11.211 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API) in 15.289ms
+2025-05-26 17:23:11.212 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetById (PulseERP.API)'
+2025-05-26 17:23:11.212 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 200 null application/json; charset=utf-8 21.3619ms
+2025-05-26 17:23:18.680 +02:00 [INF] Application is shutting down...
+2025-05-26 17:23:51.560 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:23:52.158 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:23:52.165 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:23:52.166 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:23:52.167 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:24:02.388 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - application/json 72
+2025-05-26 17:24:02.453 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:24:02.480 +02:00 [INF] Route matched with {action = "Update", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Customers.UpdateCustomerRequest) on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-26 17:24:03.850 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:24:05.321 +02:00 [INF] Executed DbCommand (100ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__id_0
+2025-05-26 17:24:05.562 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@__customer_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customer_Id_0
+2025-05-26 17:24:05.748 +02:00 [INF] Executed DbCommand (21ms) [Parameters=[@p3='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (Size = 4000), @p2='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Customers] SET [FirstName] = @p0, [LastName] = @p1, [UpdatedAt] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+2025-05-26 17:24:05.772 +02:00 [INF] Customer updated: b40dd951-5100-4d0a-a4b1-2a4a6b441eac
+2025-05-26 17:24:05.806 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Customers.CustomerDto'.
+2025-05-26 17:24:05.854 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.Update (PulseERP.API) in 3365.4798ms
+2025-05-26 17:24:05.864 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.Update (PulseERP.API)'
+2025-05-26 17:24:05.901 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/Customers/b40dd951-5100-4d0a-a4b1-2a4a6b441eac - 200 null application/json; charset=utf-8 3515.3612ms
+2025-05-26 17:24:32.264 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products - null null
+2025-05-26 17:24:32.277 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 17:24:32.292 +02:00 [INF] Route matched with {action = "GetAll", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.Contracts.Dtos.Pagination.PaginationResult`1[PulseERP.Contracts.Dtos.Products.ProductDto]]] GetAll(PulseERP.Domain.Filters.Products.ProductParams) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:24:32.386 +02:00 [INF] Executed DbCommand (35ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+ORDER BY [p].[Name]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+2025-05-26 17:24:32.401 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Products.ProductDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 17:24:32.426 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API) in 134.0075ms
+2025-05-26 17:24:32.427 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 17:24:32.428 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products - 200 null application/json; charset=utf-8 163.406ms
+2025-05-26 17:24:44.689 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - null null
+2025-05-26 17:24:44.697 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetById (PulseERP.API)'
+2025-05-26 17:24:44.701 +02:00 [INF] Route matched with {action = "GetById", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:24:44.807 +02:00 [INF] Executed DbCommand (25ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:24:44.842 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Products.ProductDto'.
+2025-05-26 17:24:44.842 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetById (PulseERP.API) in 140.3689ms
+2025-05-26 17:24:44.842 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetById (PulseERP.API)'
+2025-05-26 17:24:44.842 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 200 null application/json; charset=utf-8 153.2309ms
+2025-05-26 17:25:47.069 +02:00 [INF] Application is shutting down...
+2025-05-26 17:26:44.806 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:26:45.558 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:26:45.565 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:26:45.566 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:26:45.567 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:27:13.097 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - application/json 142
+2025-05-26 17:27:13.186 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:27:13.231 +02:00 [INF] Route matched with {action = "Update", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Products.UpdateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:27:14.921 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:27:16.215 +02:00 [INF] Executed DbCommand (115ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:27:16.430 +02:00 [INF] Executed DbCommand (33ms) [Parameters=[@__product_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__product_Id_0
+2025-05-26 17:27:16.665 +02:00 [INF] Executed DbCommand (59ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (Size = 4000), @p2='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p3='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Products] SET [Description] = @p0, [Name] = @p1, [Price] = @p2, [UpdatedAt] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+2025-05-26 17:27:16.688 +02:00 [INF] Product c96f56ec-7c0d-432c-9f5a-2bb58e670298 updated successfully
+2025-05-26 17:27:16.690 +02:00 [INF] Updated product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-26 17:27:16.700 +02:00 [INF] Executing StatusCodeResult, setting HTTP status code 204
+2025-05-26 17:27:16.707 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Update (PulseERP.API) in 3469.6733ms
+2025-05-26 17:27:16.718 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:27:16.761 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 204 null null 3665.7927ms
+2025-05-26 17:27:28.542 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - null null
+2025-05-26 17:27:28.553 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetById (PulseERP.API)'
+2025-05-26 17:27:28.563 +02:00 [INF] Route matched with {action = "GetById", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:27:28.594 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:27:28.610 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Products.ProductDto'.
+2025-05-26 17:27:28.645 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetById (PulseERP.API) in 80.7173ms
+2025-05-26 17:27:28.645 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetById (PulseERP.API)'
+2025-05-26 17:27:28.646 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 200 null application/json; charset=utf-8 103.7772ms
+2025-05-26 17:29:51.576 +02:00 [INF] Application is shutting down...
+2025-05-26 17:30:27.305 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:30:28.531 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:30:28.541 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:30:28.543 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:30:28.544 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:30:32.109 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - application/json 164
+2025-05-26 17:30:32.237 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:30:32.287 +02:00 [INF] Route matched with {action = "Update", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Products.UpdateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:30:34.567 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:30:36.283 +02:00 [INF] Executed DbCommand (83ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:30:36.520 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[@__product_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__product_Id_0
+2025-05-26 17:30:36.764 +02:00 [INF] Executed DbCommand (30ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Products] SET [Name] = @p0, [Price] = @p1, [Quantity] = @p2, [UpdatedAt] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+2025-05-26 17:30:36.791 +02:00 [INF] Product c96f56ec-7c0d-432c-9f5a-2bb58e670298 updated successfully
+2025-05-26 17:30:36.794 +02:00 [INF] Updated product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-26 17:30:36.847 +02:00 [INF] Executing StatusCodeResult, setting HTTP status code 204
+2025-05-26 17:30:36.903 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Update (PulseERP.API) in 4561.0117ms
+2025-05-26 17:30:36.965 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:30:37.021 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 204 null null 4917.8197ms
+2025-05-26 17:30:42.924 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - application/json 164
+2025-05-26 17:30:42.930 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:30:42.930 +02:00 [INF] Route matched with {action = "Update", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Products.UpdateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:30:42.968 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:30:42.973 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__product_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__product_Id_0
+2025-05-26 17:30:42.989 +02:00 [INF] Executed DbCommand (14ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Products] SET [UpdatedAt] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2025-05-26 17:30:42.989 +02:00 [INF] Product c96f56ec-7c0d-432c-9f5a-2bb58e670298 updated successfully
+2025-05-26 17:30:42.990 +02:00 [INF] Updated product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-26 17:30:42.991 +02:00 [INF] Executing StatusCodeResult, setting HTTP status code 204
+2025-05-26 17:30:42.991 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Update (PulseERP.API) in 60.1625ms
+2025-05-26 17:30:42.991 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:30:42.992 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 204 null null 67.301ms
+2025-05-26 17:31:09.525 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - application/json 164
+2025-05-26 17:31:09.670 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:31:09.671 +02:00 [INF] Route matched with {action = "Update", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Products.UpdateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:31:09.808 +02:00 [INF] Executed DbCommand (10ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:31:09.818 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@__product_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__product_Id_0
+2025-05-26 17:31:10.095 +02:00 [INF] Executed DbCommand (271ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Products] SET [UpdatedAt] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2025-05-26 17:31:10.096 +02:00 [INF] Product c96f56ec-7c0d-432c-9f5a-2bb58e670298 updated successfully
+2025-05-26 17:31:10.097 +02:00 [INF] Updated product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-26 17:31:10.098 +02:00 [INF] Executing StatusCodeResult, setting HTTP status code 204
+2025-05-26 17:31:10.099 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Update (PulseERP.API) in 427.333ms
+2025-05-26 17:31:10.099 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:31:10.100 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 204 null null 575.0143ms
+2025-05-26 17:31:23.880 +02:00 [INF] Application is shutting down...
+2025-05-26 17:31:40.257 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:31:40.807 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:31:40.812 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:31:40.813 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:31:40.814 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:31:55.166 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - application/json 160
+2025-05-26 17:31:55.235 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:31:55.265 +02:00 [INF] Route matched with {action = "Update", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Products.UpdateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:31:56.916 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:31:57.905 +02:00 [INF] Executed DbCommand (56ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:31:58.026 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__product_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__product_Id_0
+2025-05-26 17:31:58.156 +02:00 [INF] Executed DbCommand (14ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Products] SET [Name] = @p0, [Price] = @p1, [Quantity] = @p2, [UpdatedAt] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+2025-05-26 17:31:58.171 +02:00 [INF] Product c96f56ec-7c0d-432c-9f5a-2bb58e670298 updated successfully
+2025-05-26 17:31:58.171 +02:00 [INF] Updated product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-26 17:31:58.188 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Products.ProductDto'.
+2025-05-26 17:31:58.217 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Update (PulseERP.API) in 2946.4089ms
+2025-05-26 17:31:58.223 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:31:58.250 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 200 null application/json; charset=utf-8 3085.9275ms
+2025-05-26 17:41:07.340 +02:00 [INF] Application is shutting down...
+2025-05-26 17:41:45.110 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:41:46.848 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:41:46.857 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:41:46.859 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:41:46.860 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:42:56.914 +02:00 [INF] Application is shutting down...
+2025-05-26 17:43:09.350 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 17:43:09.973 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 17:43:09.977 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 17:43:09.978 +02:00 [INF] Hosting environment: Development
+2025-05-26 17:43:09.978 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 17:43:43.356 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - application/json 173
+2025-05-26 17:43:43.551 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:43:43.606 +02:00 [INF] Route matched with {action = "Update", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Products.UpdateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 17:43:45.157 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 17:43:46.337 +02:00 [INF] Executed DbCommand (147ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt], [b].[Id], [b].[CreatedAt], [b].[Name], [b].[UpdatedAt]
+FROM [Products] AS [p]
+INNER JOIN [Brands] AS [b] ON [p].[BrandId] = [b].[Id]
+WHERE [p].[Id] = @__id_0
+2025-05-26 17:43:46.501 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__product_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__product_Id_0
+2025-05-26 17:43:46.683 +02:00 [INF] Executed DbCommand (31ms) [Parameters=[@p2='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Products] SET [Name] = @p0, [UpdatedAt] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+2025-05-26 17:43:46.701 +02:00 [INF] Product c96f56ec-7c0d-432c-9f5a-2bb58e670298 updated successfully
+2025-05-26 17:43:46.702 +02:00 [INF] Updated product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-26 17:43:46.719 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Products.ProductDto'.
+2025-05-26 17:43:46.794 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Update (PulseERP.API) in 3135.6184ms
+2025-05-26 17:43:46.894 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 17:43:47.042 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 200 null application/json; charset=utf-8 3693.9113ms
+2025-05-26 17:56:39.048 +02:00 [INF] Application is shutting down...
+2025-05-26 18:19:22.722 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 18:19:23.836 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-26 18:19:23.847 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 18:19:23.852 +02:00 [INF] Hosting environment: Development
+2025-05-26 18:19:23.853 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-26 18:19:37.492 +02:00 [INF] Request starting HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - application/json 173
+2025-05-26 18:19:37.629 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 18:19:37.667 +02:00 [INF] Route matched with {action = "Update", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Update(System.Guid, PulseERP.Contracts.Dtos.Products.UpdateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 18:19:39.154 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-26 18:19:40.536 +02:00 [INF] Executed DbCommand (144ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt], [b].[Id], [b].[CreatedAt], [b].[Name], [b].[UpdatedAt]
+FROM [Products] AS [p]
+INNER JOIN [Brands] AS [b] ON [p].[BrandId] = [b].[Id]
+WHERE [p].[Id] = @__id_0
+2025-05-26 18:19:40.746 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@__product_Id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+WHERE [p].[Id] = @__product_Id_0
+2025-05-26 18:19:40.887 +02:00 [INF] Executed DbCommand (24ms) [Parameters=[@p2='?' (DbType = Guid), @p0='?' (Size = 4000), @p1='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Products] SET [Name] = @p0, [UpdatedAt] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+2025-05-26 18:19:40.907 +02:00 [INF] Product c96f56ec-7c0d-432c-9f5a-2bb58e670298 updated successfully
+2025-05-26 18:19:40.908 +02:00 [INF] Updated product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-26 18:19:40.934 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Contracts.Dtos.Products.ProductDto'.
+2025-05-26 18:19:40.975 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Update (PulseERP.API) in 3300.0244ms
+2025-05-26 18:19:40.982 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Update (PulseERP.API)'
+2025-05-26 18:19:40.999 +02:00 [INF] Request finished HTTP/2 PUT https://localhost:7232/api/products/c96f56ec-7c0d-432c-9f5a-2bb58e670298 - 200 null application/json; charset=utf-8 3512.4607ms
+2025-05-26 18:19:55.104 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products - null null
+2025-05-26 18:19:55.123 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 18:19:55.141 +02:00 [INF] Route matched with {action = "GetAll", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.Domain.Pagination.PaginationResult`1[PulseERP.Contracts.Dtos.Products.ProductDto]]] GetAll(PulseERP.Domain.Query.Products.ProductParams) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-26 18:19:55.336 +02:00 [INF] Executed DbCommand (64ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [Products] AS [p]
+2025-05-26 18:19:55.368 +02:00 [INF] Executed DbCommand (12ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+ORDER BY [p].[Name]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+2025-05-26 18:19:55.373 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.Domain.Pagination.PaginationResult`1[[PulseERP.Contracts.Dtos.Products.ProductDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 18:19:55.383 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API) in 241.1299ms
+2025-05-26 18:19:55.383 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-26 18:19:55.384 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products - 200 null application/json; charset=utf-8 279.6617ms
+2025-05-26 18:20:14.132 +02:00 [INF] Application is shutting down...

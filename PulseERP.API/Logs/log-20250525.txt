@@ -1,0 +1,169 @@
+2025-05-25 20:13:02.348 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-25 20:13:03.071 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-25 20:13:03.073 +02:00 [INF] Now listening on: http://localhost:5029
+2025-05-25 20:13:03.083 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-25 20:13:03.085 +02:00 [INF] Hosting environment: Development
+2025-05-25 20:13:03.086 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-25 20:13:13.059 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5029/swagger/swagger-ui-bundle.js - null null
+2025-05-25 20:13:13.676 +02:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2025-05-25 20:13:13.697 +02:00 [INF] Request finished HTTP/1.1 GET http://localhost:5029/swagger/swagger-ui-bundle.js - 200 1466908 text/javascript 649.0233ms
+2025-05-25 20:13:14.985 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5029/swagger/v1/swagger.json - null null
+2025-05-25 20:13:15.575 +02:00 [INF] Request finished HTTP/1.1 GET http://localhost:5029/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 589.403ms
+2025-05-25 20:14:10.297 +02:00 [INF] Request starting HTTP/1.1 POST http://localhost:5029/api/products - application/json 141
+2025-05-25 20:14:10.311 +02:00 [INF] Request finished HTTP/1.1 POST http://localhost:5029/api/products - 307 0 null 15.1304ms
+2025-05-25 20:14:10.518 +02:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7232/api/products - null null
+2025-05-25 20:14:10.539 +02:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:14:10.539 +02:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:14:10.541 +02:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7232/api/products - 405 0 null 23.5754ms
+2025-05-25 20:16:29.793 +02:00 [INF] Application is shutting down...
+2025-05-25 20:17:07.422 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-25 20:17:09.233 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-25 20:17:09.236 +02:00 [INF] Now listening on: http://localhost:5029
+2025-05-25 20:17:09.246 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-25 20:17:09.247 +02:00 [INF] Hosting environment: Development
+2025-05-25 20:17:09.248 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-25 20:17:09.654 +02:00 [INF] Request starting HTTP/1.1 POST http://localhost:5029/api/products - application/json 141
+2025-05-25 20:17:09.778 +02:00 [INF] Request finished HTTP/1.1 POST http://localhost:5029/api/products - 307 0 null 126.3755ms
+2025-05-25 20:17:10.058 +02:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7232/api/products - null null
+2025-05-25 20:17:10.132 +02:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:17:10.133 +02:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:17:10.142 +02:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7232/api/products - 405 0 null 82.4935ms
+2025-05-25 20:20:45.597 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-25 20:20:46.077 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-25 20:20:46.079 +02:00 [INF] Now listening on: http://localhost:5029
+2025-05-25 20:20:46.085 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-25 20:20:46.085 +02:00 [INF] Hosting environment: Development
+2025-05-25 20:20:46.086 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-25 20:21:18.613 +02:00 [INF] Request starting HTTP/1.1 POST http://localhost:5029/api/products - application/json 141
+2025-05-25 20:21:18.689 +02:00 [INF] Request finished HTTP/1.1 POST http://localhost:5029/api/products - 307 0 null 77.4815ms
+2025-05-25 20:21:18.747 +02:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7232/api/products - null null
+2025-05-25 20:21:18.768 +02:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:21:18.769 +02:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:21:18.770 +02:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7232/api/products - 405 0 null 23.21ms
+2025-05-25 20:22:34.550 +02:00 [INF] Application is shutting down...
+2025-05-25 20:22:42.943 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-25 20:22:43.513 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-25 20:22:43.515 +02:00 [INF] Now listening on: http://localhost:5029
+2025-05-25 20:22:43.520 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-25 20:22:43.522 +02:00 [INF] Hosting environment: Development
+2025-05-25 20:22:43.522 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-25 20:22:49.339 +02:00 [INF] Request starting HTTP/1.1 POST http://localhost:5029/api/products - application/json 141
+2025-05-25 20:22:49.396 +02:00 [INF] Request finished HTTP/1.1 POST http://localhost:5029/api/products - 307 0 null 58.2318ms
+2025-05-25 20:22:49.470 +02:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7232/api/products - null null
+2025-05-25 20:22:49.489 +02:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:22:49.490 +02:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:22:49.492 +02:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7232/api/products - 405 0 null 21.3353ms
+2025-05-25 20:22:52.454 +02:00 [INF] Request starting HTTP/1.1 POST http://localhost:5029/api/products - application/json 141
+2025-05-25 20:22:52.457 +02:00 [INF] Request finished HTTP/1.1 POST http://localhost:5029/api/products - 307 0 null 3.1204ms
+2025-05-25 20:22:52.466 +02:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7232/api/products - null null
+2025-05-25 20:22:52.471 +02:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:22:52.471 +02:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:22:52.472 +02:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7232/api/products - 405 0 null 6.1569ms
+2025-05-25 20:22:55.318 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5029/swagger/index.html - null null
+2025-05-25 20:22:55.403 +02:00 [INF] Request finished HTTP/1.1 GET http://localhost:5029/swagger/index.html - 200 null text/html;charset=utf-8 84.8733ms
+2025-05-25 20:22:55.760 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5029/swagger/v1/swagger.json - null null
+2025-05-25 20:22:55.922 +02:00 [INF] Request finished HTTP/1.1 GET http://localhost:5029/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 162.0527ms
+2025-05-25 20:23:04.035 +02:00 [INF] Request starting HTTP/1.1 POST http://localhost:5029/api/products - application/json 141
+2025-05-25 20:23:04.036 +02:00 [INF] Request finished HTTP/1.1 POST http://localhost:5029/api/products - 307 0 null 0.7493ms
+2025-05-25 20:23:04.054 +02:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7232/api/products - null null
+2025-05-25 20:23:04.065 +02:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:23:04.066 +02:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-05-25 20:23:04.066 +02:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7232/api/products - 405 0 null 12.6713ms
+2025-05-25 20:24:34.751 +02:00 [INF] Application is shutting down...
+2025-05-25 20:24:44.333 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-25 20:24:44.694 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-25 20:24:44.697 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-25 20:24:44.697 +02:00 [INF] Hosting environment: Development
+2025-05-25 20:24:44.697 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-25 20:25:04.946 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/ - null null
+2025-05-25 20:25:05.025 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/ - 404 0 null 83.4433ms
+2025-05-25 20:25:05.098 +02:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:7232/, Response status code: 404
+2025-05-25 20:25:09.463 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - null null
+2025-05-25 20:25:09.637 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 174.5452ms
+2025-05-25 20:25:44.439 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/products - application/json 141
+2025-05-25 20:25:44.450 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.Create (PulseERP.API)'
+2025-05-25 20:25:44.489 +02:00 [INF] Route matched with {action = "Create", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(PulseERP.API.DTOs.Products.CreateProductRequest) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-25 20:25:45.738 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-25 20:25:46.510 +02:00 [INF] Executed DbCommand (91ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (DbType = DateTime2), @p4='?' (DbType = Guid), @p5='?' (DbType = Guid), @p6='?' (DbType = Guid), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Boolean), @p10='?' (DbType = Boolean), @p11='?' (Size = 4000), @p12='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p13='?' (DbType = Int32), @p14='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET NOCOUNT ON;
+INSERT INTO [Brands] ([Id], [CreatedAt], [Name], [UpdatedAt])
+VALUES (@p0, @p1, @p2, @p3);
+INSERT INTO [Products] ([Id], [BrandId], [BrandId1], [CreatedAt], [Description], [IsActive], [IsService], [Name], [Price], [Quantity], [UpdatedAt])
+VALUES (@p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14);
+2025-05-25 20:25:46.592 +02:00 [INF] Created product c96f56ec-7c0d-432c-9f5a-2bb58e670298
+2025-05-25 20:25:46.605 +02:00 [INF] Executing CreatedAtActionResult, writing value of type '<>f__AnonymousType1`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-25 20:25:46.657 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.Create (PulseERP.API) in 2163.1358ms
+2025-05-25 20:25:46.658 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.Create (PulseERP.API)'
+2025-05-25 20:25:46.676 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/products - 201 null application/json; charset=utf-8 2237.6657ms
+2025-05-25 20:27:55.049 +02:00 [INF] Application is shutting down...
+2025-05-25 20:28:10.233 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-25 20:28:10.719 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-25 20:28:10.723 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-25 20:28:10.724 +02:00 [INF] Hosting environment: Development
+2025-05-25 20:28:10.724 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-25 20:28:36.061 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-25 20:28:36.188 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 200 null text/html;charset=utf-8 128.1093ms
+2025-05-25 20:28:36.395 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - null null
+2025-05-25 20:28:36.693 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 299.1329ms
+2025-05-25 20:28:49.075 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/products - null null
+2025-05-25 20:28:49.125 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-25 20:28:49.169 +02:00 [INF] Route matched with {action = "GetAll", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.Contracts.Dtos.Pagination.PaginationResult`1[PulseERP.Contracts.Dtos.Products.ProductDto]]] GetAll(PulseERP.Domain.Filters.Products.ProductParams) on controller PulseERP.API.Controllers.ProductsController (PulseERP.API).
+2025-05-25 20:28:50.161 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-25 20:28:50.917 +02:00 [INF] Executed DbCommand (76ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[BrandId], [p].[BrandId1], [p].[CreatedAt], [p].[Description], [p].[IsActive], [p].[IsService], [p].[Name], [p].[Price], [p].[Quantity], [p].[UpdatedAt]
+FROM [Products] AS [p]
+ORDER BY [p].[Name]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+2025-05-25 20:28:50.974 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Products.ProductDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-25 20:28:51.012 +02:00 [INF] Executed action PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API) in 1837.6638ms
+2025-05-25 20:28:51.013 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.ProductsController.GetAll (PulseERP.API)'
+2025-05-25 20:28:51.022 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/products - 200 null application/json; charset=utf-8 1947.3807ms
+2025-05-25 20:32:07.669 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/Customers - null null
+2025-05-25 20:32:07.705 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.CustomersController.GetAll (PulseERP.API)'
+2025-05-25 20:32:07.840 +02:00 [INF] Route matched with {action = "GetAll", controller = "Customers"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller PulseERP.API.Controllers.CustomersController (PulseERP.API).
+2025-05-25 20:32:07.989 +02:00 [INF] Executed DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[Id], [c].[CreatedAt], [c].[Email], [c].[FirstName], [c].[IsActive], [c].[LastName], [c].[Phone], [c].[UpdatedAt], [c].[City], [c].[Country], [c].[Street], [c].[PostalCode]
+FROM [Customers] AS [c]
+2025-05-25 20:32:08.009 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[PulseERP.Contracts.Dtos.Customers.CustomerDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-25 20:32:08.039 +02:00 [INF] Executed action PulseERP.API.Controllers.CustomersController.GetAll (PulseERP.API) in 197.9828ms
+2025-05-25 20:32:08.039 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.CustomersController.GetAll (PulseERP.API)'
+2025-05-25 20:32:08.041 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/Customers - 200 null application/json; charset=utf-8 373.2592ms
+2025-05-25 20:32:23.222 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/users - null null
+2025-05-25 20:32:23.229 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-25 20:32:23.239 +02:00 [INF] Route matched with {action = "GetAll", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-25 20:32:23.336 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[Id], [d].[CreatedAt], [d].[Email], [d].[FirstName], [d].[IsActive], [d].[LastName], [d].[Phone], [d].[UpdatedAt]
+FROM [DomainUsers] AS [d]
+2025-05-25 20:32:23.341 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Users.UserDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-25 20:32:23.344 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API) in 105.5713ms
+2025-05-25 20:32:23.345 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-25 20:32:23.345 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/users - 200 null application/json; charset=utf-8 123.3187ms
+2025-05-25 20:33:04.979 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/users - application/json 110
+2025-05-25 20:33:04.982 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-25 20:33:04.995 +02:00 [INF] Route matched with {action = "Create", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(PulseERP.API.DTOs.Users.CreateUserRequest) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-25 20:33:05.246 +02:00 [INF] Executed DbCommand (30ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = Boolean), @p5='?' (Size = 4000), @p6='?' (Size = 4000), @p7='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [DomainUsers] ([Id], [CreatedAt], [Email], [FirstName], [IsActive], [LastName], [Phone], [UpdatedAt])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+2025-05-25 20:33:05.269 +02:00 [INF] Created user 54aaf4c6-e628-4169-8d5e-3c406574391e
+2025-05-25 20:33:05.271 +02:00 [INF] Executing CreatedAtActionResult, writing value of type '<>f__AnonymousType2`1[[PulseERP.Contracts.Dtos.Users.UserDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-25 20:33:05.301 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.Create (PulseERP.API) in 305.668ms
+2025-05-25 20:33:05.301 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-25 20:33:05.302 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/users - 201 null application/json; charset=utf-8 323.063ms
+2025-05-25 20:33:23.311 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/users - null null
+2025-05-25 20:33:23.313 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-25 20:33:23.313 +02:00 [INF] Route matched with {action = "GetAll", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-25 20:33:23.329 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[Id], [d].[CreatedAt], [d].[Email], [d].[FirstName], [d].[IsActive], [d].[LastName], [d].[Phone], [d].[UpdatedAt]
+FROM [DomainUsers] AS [d]
+2025-05-25 20:33:23.330 +02:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[[PulseERP.Contracts.Dtos.Users.UserDto, PulseERP.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-25 20:33:23.331 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API) in 15.9066ms
+2025-05-25 20:33:23.331 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-25 20:33:23.331 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/users - 200 null application/json; charset=utf-8 19.8097ms
+2025-05-25 20:33:42.305 +02:00 [INF] Application is shutting down...
+2025-05-25 23:14:47.477 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-25 23:14:48.284 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-25 23:14:48.290 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-25 23:14:48.292 +02:00 [INF] Hosting environment: Development
+2025-05-25 23:14:48.293 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API

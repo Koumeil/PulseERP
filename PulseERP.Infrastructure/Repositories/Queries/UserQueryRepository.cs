@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
 using PulseERP.Domain.Entities;
@@ -9,22 +11,35 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories.Queries;
 
+/// <summary>
+/// Read-only repository for <see cref="User"/> entities, with Redis caching on single-entity reads.
+/// </summary>
 public class UserQueryRepository : IUserQueryRepository
 {
     private readonly CoreDbContext _context;
+    private readonly IDistributedCache _cache;
+    private const string UserByIdKeyTemplate = "UserQueryRepository:Id:{0}";
+    private const string UserByEmailKeyTemplate = "UserQueryRepository:Email:{0}";
 
-    public UserQueryRepository(CoreDbContext context)
+    /// <summary>
+    /// Initializes a new instance of <see cref="UserQueryRepository"/>.
+    /// </summary>
+    /// <param name="context">EF Core DB context.</param>
+    /// <param name="cache">Redis distributed cache.</param>
+    public UserQueryRepository(CoreDbContext context, IDistributedCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
+    /// <inheritdoc/>
     public async Task<PagedResult<User>> GetAllAsync(UserFilter userFilter)
     {
         var query = _context.Users.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(userFilter.Search))
         {
-            var lower = userFilter.Search.ToLowerInvariant();
+            string lower = userFilter.Search.ToLowerInvariant();
             query = query.Where(u =>
                 u.FirstName.ToLower().Contains(lower)
                 || u.LastName.ToLower().Contains(lower)
@@ -34,10 +49,14 @@ public class UserQueryRepository : IUserQueryRepository
         }
 
         if (!string.IsNullOrWhiteSpace(userFilter.Role))
+        {
             query = query.Where(u => u.Role.Value == userFilter.Role);
+        }
 
         if (userFilter.IsActive.HasValue)
-            query = query.Where(u => u.IsActive == userFilter.IsActive);
+        {
+            query = query.Where(u => u.IsActive == userFilter.IsActive.Value);
+        }
 
         query = userFilter.Sort switch
         {
@@ -52,7 +71,7 @@ public class UserQueryRepository : IUserQueryRepository
             _ => query.OrderBy(u => u.LastName),
         };
 
-        var total = await query.CountAsync();
+        int total = await query.CountAsync();
         var items = await query
             .Skip((userFilter.PageNumber - 1) * userFilter.PageSize)
             .Take(userFilter.PageSize)
@@ -67,14 +86,73 @@ public class UserQueryRepository : IUserQueryRepository
         };
     }
 
-    public Task<User?> GetByIdAsync(Guid id) =>
-        _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
+    /// <inheritdoc/>
+    public async Task<User?> GetByIdAsync(Guid id)
+    {
+        if (id == Guid.Empty)
+        {
+            return null;
+        }
 
-    public Task<User?> GetByEmailAsync(EmailAddress email) =>
-        _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+        string cacheKey = string.Format(UserByIdKeyTemplate, id);
+        string? cachedJson = await _cache.GetStringAsync(cacheKey);
+        if (!string.IsNullOrEmpty(cachedJson))
+        {
+            return JsonSerializer.Deserialize<User>(cachedJson);
+        }
 
+        User? user = await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
+
+        if (user is not null)
+        {
+            string json = JsonSerializer.Serialize(user);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+            };
+            await _cache.SetStringAsync(cacheKey, json, options);
+        }
+
+        return user;
+    }
+
+    /// <inheritdoc/>
+    public async Task<User?> GetByEmailAsync(EmailAddress email)
+    {
+        if (email is null)
+        {
+            return null;
+        }
+
+        string normalized = email.Value.Trim().ToLowerInvariant();
+        string cacheKey = string.Format(UserByEmailKeyTemplate, normalized);
+        string? cachedJson = await _cache.GetStringAsync(cacheKey);
+        if (!string.IsNullOrEmpty(cachedJson))
+        {
+            return JsonSerializer.Deserialize<User>(cachedJson);
+        }
+
+        User? user = await _context
+            .Users.AsNoTracking()
+            .SingleOrDefaultAsync(u => u.Email.Value.ToLower() == normalized);
+
+        if (user is not null)
+        {
+            string json = JsonSerializer.Serialize(user);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+            };
+            await _cache.SetStringAsync(cacheKey, json, options);
+        }
+
+        return user;
+    }
+
+    /// <inheritdoc/>
     public Task<bool> ExistsAsync(Guid id) => _context.Users.AnyAsync(u => u.Id == id);
 
+    /// <inheritdoc/>
     public Task<User?> GetByRefreshTokenAsync(string refreshTokenHash)
     {
         return _context
@@ -88,6 +166,7 @@ public class UserQueryRepository : IUserQueryRepository
             .SingleOrDefaultAsync();
     }
 
+    /// <inheritdoc/>
     public Task<User?> GetByResetTokenAsync(string token)
     {
         return _context

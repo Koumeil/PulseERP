@@ -13,10 +13,43 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog(
     (ctx, lc) =>
         lc
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("Application", "PulseERP")
+            .Enrich.WithMachineName()
             .WriteTo.Console()
             .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
-            .ReadFrom.Configuration(ctx.Configuration)
 );
+
+// Secrets:
+
+builder.Configuration.AddUserSecrets<Program>(optional: true);
+builder.Configuration.AddEnvironmentVariables();
+
+// Memory Cache:
+builder.Services.AddMemoryCache();
+
+// Redis:
+
+// 1. Lier la section "RedisSettings" à la classe RedisSettings
+builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("RedisSettings"));
+
+// 2. Ajouter Redis comme cache distribué
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var redisConfig = builder.Configuration.GetSection("RedisSettings")["Configuration"]!;
+    var redisInstance = builder.Configuration.GetSection("RedisSettings")["InstanceName"]!;
+    options.Configuration = redisConfig;
+    options.InstanceName = redisInstance;
+});
+
+// var redisConfig = builder.Configuration.GetSection("RedisSettings")["Configuration"];
+// var redisInstance = builder.Configuration.GetSection("RedisSettings")["InstanceName"];
+
+// builder.Services.AddStackExchangeRedisCache(options =>
+// {
+//     options.Configuration = redisConfig;
+//     options.InstanceName = redisInstance;
+// });
 
 // ─── Services ───────────────────────────────────────────────────────────────
 builder.Services.AddOptions();

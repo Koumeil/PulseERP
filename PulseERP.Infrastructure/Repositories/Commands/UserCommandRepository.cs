@@ -4,6 +4,10 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories.Commands;
 
+/// <summary>
+/// Repository for write operations on <see cref="User"/>.
+/// Caching not applied for write-only repository.
+/// </summary>
 public class UserCommandRepository : IUserCommandRepository
 {
     private readonly CoreDbContext _context;

@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: pulseerp-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - pulseerp-net
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: pulseerp-sql
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-data:/var/opt/mssql   # pour persister les données
+    networks:
+      - pulseerp-net
+
+  pulseerp-api:
+    build:
+      context: .
+      dockerfile: PulseERP.API/Dockerfile
+    container_name: pulseerp-api
+    depends_on:
+      - redis
+      - sqlserver
+    ports:
+      - "5000:80"
+    environment:
+      # Chaîne de connexion à SQL Server (utilise le nom du service "sqlserver")
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=PulseERP;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+      # Redis
+      RedisSettings__Configuration: "redis:6379"
+      RedisSettings__InstanceName: "PulseERP:"
+    networks:
+      - pulseerp-net
+
+volumes:
+  sql-data:
+
+networks:
+  pulseerp-net:
+    driver: bridge

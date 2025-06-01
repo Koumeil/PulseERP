@@ -1,5 +1,6 @@
-using Azure;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
@@ -9,55 +10,64 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
+/// <summary>
+/// Repository for <see cref="Product"/> entities, with Redis caching on <c>GetByIdAsync</c>.
+/// </summary>
 public class ProductRepository : IProductRepository
 {
     private readonly CoreDbContext _ctx;
     private readonly ILogger<ProductRepository> _logger;
+    private readonly IDistributedCache _cache;
+    private const string ProductByIdKeyTemplate = "ProductRepository:Id:{0}";
 
-    public ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> logger)
+    /// <summary>
+    /// Initializes a new instance of <see cref="ProductRepository"/>.
+    /// </summary>
+    /// <param name="ctx">EF Core DB context.</param>
+    /// <param name="logger">Logger instance.</param>
+    /// <param name="cache">Redis distributed cache.</param>
+    public ProductRepository(
+        CoreDbContext ctx,
+        ILogger<ProductRepository> logger,
+        IDistributedCache cache
+    )
     {
         _ctx = ctx;
         _logger = logger;
+        _cache = cache;
     }
 
+    /// <inheritdoc/>
     public async Task<PagedResult<Product>> GetAllAsync(
         PaginationParams paginationParams,
         ProductFilter productFilter
     )
     {
-        // 1. On construit la requête de base, incluant Brand et en lecture seule
         var query = _ctx.Products.Include(p => p.Brand).AsNoTracking().AsQueryable();
 
-        // 2. Filtre sur le nom de la marque (Contains sur la colonne Brand.Name)
         if (!string.IsNullOrWhiteSpace(productFilter.Brand))
         {
-            var brandFilter = productFilter.Brand.Trim().ToLower();
+            string brandFilter = productFilter.Brand.Trim().ToLowerInvariant();
             query = query.Where(p => p.Brand.Name.ToLower().Contains(brandFilter));
         }
 
-        // 3. Recherche “full‐text” LINQ portable sur Name ou Description
         if (!string.IsNullOrWhiteSpace(productFilter.Search))
         {
-            var keyword = $"%{productFilter.Search.Trim().ToLower()}%";
-
+            string keyword = $"%{productFilter.Search.Trim().ToLower()}%";
             query = query.Where(p =>
                 EF.Functions.Like(p.Name, keyword)
                 || (p.Description != null && EF.Functions.Like(p.Description, keyword))
             );
         }
 
-        // 4. Tri dynamique (OrderBy sur p.Price.Value ou sur p.Name directement)
         query = productFilter.Sort switch
         {
             "priceAsc" => query.OrderBy(p => p.Price.Value),
             "priceDesc" => query.OrderByDescending(p => p.Price.Value),
-            _ => query.OrderBy(p => p.Name), // Trier sur p.Name (conversion en string)
+            _ => query.OrderBy(p => p.Name),
         };
 
-        // 5. Comptage total avant pagination
-        var total = await query.CountAsync();
-
-        // 6. Pagination
+        int total = await query.CountAsync();
         var items = await query
             .Skip((productFilter.PageNumber - 1) * productFilter.PageSize)
             .Take(productFilter.PageSize)
@@ -72,32 +82,69 @@ public class ProductRepository : IProductRepository
         };
     }
 
-    public async Task<Product?> GetByIdAsync(Guid id) =>
-        await _ctx
+    /// <inheritdoc/>
+    public async Task<Product?> GetByIdAsync(Guid id)
+    {
+        if (id == Guid.Empty)
+        {
+            return null;
+        }
+
+        string cacheKey = string.Format(ProductByIdKeyTemplate, id);
+        string? cachedJson = await _cache.GetStringAsync(cacheKey);
+        if (!string.IsNullOrEmpty(cachedJson))
+        {
+            return JsonSerializer.Deserialize<Product>(cachedJson);
+        }
+
+        Product? product = await _ctx
             .Products.Include(p => p.Brand)
             .AsNoTracking()
             .SingleOrDefaultAsync(p => p.Id == id);
 
+        if (product is not null)
+        {
+            string json = JsonSerializer.Serialize(product);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+            };
+            await _cache.SetStringAsync(cacheKey, json, options);
+        }
+
+        return product;
+    }
+
+    /// <inheritdoc/>
     public Task AddAsync(Product product)
     {
         _ctx.Products.Add(product);
         _logger.LogInformation("Product {ProductId} added to context", product.Id);
+        string cacheKey = string.Format(ProductByIdKeyTemplate, product.Id);
+        _cache.Remove(cacheKey);
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task UpdateAsync(Product product)
     {
         _ctx.Products.Update(product);
         _logger.LogInformation("Product {ProductId} updated in context", product.Id);
+        string cacheKey = string.Format(ProductByIdKeyTemplate, product.Id);
+        _cache.Remove(cacheKey);
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task DeleteAsync(Product product)
     {
         _ctx.Products.Remove(product);
         _logger.LogInformation("Product {ProductId} removed from context", product.Id);
+        string cacheKey = string.Format(ProductByIdKeyTemplate, product.Id);
+        _cache.Remove(cacheKey);
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
 }

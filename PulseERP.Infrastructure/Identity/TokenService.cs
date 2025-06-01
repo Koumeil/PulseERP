@@ -94,14 +94,17 @@ public class TokenService : ITokenService
         var existing = await _repo.GetActiveByUserIdAsync(userId);
         if (existing != null)
             await _repo.RevokeForUserAsync(userId);
+        var expires = _time.UtcNow.AddDays(_settings.RefreshTokenExpirationDays);
 
-        var entity = new RefreshToken(_time, ipAddress, userAgent)
-        {
-            Token = hash,
-            UserId = userId,
-            Expires = _time.UtcNow.AddDays(_settings.RefreshTokenExpirationDays),
-            TokenType = TokenType.Refresh,
-        };
+        var entity = RefreshToken.Create(
+            _time,
+            userId,
+            hash,
+            TokenType.Refresh,
+            expires,
+            userAgent,
+            ipAddress
+        );
 
         await _repo.AddAsync(entity);
 

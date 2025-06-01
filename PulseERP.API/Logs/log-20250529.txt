@@ -1,0 +1,1182 @@
+2025-05-29 02:02:57.267 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 02:02:59.326 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 02:02:59.336 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 02:02:59.354 +02:00 [INF] Hosting environment: Development
+2025-05-29 02:02:59.356 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 02:03:05.329 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-29 02:03:05.896 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 200 null text/html;charset=utf-8 576.4604ms
+2025-05-29 02:03:08.303 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - null null
+2025-05-29 02:03:09.155 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 854.7895ms
+2025-05-29 02:03:49.409 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/users - application/json 156
+2025-05-29 02:03:49.480 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-29 02:03:49.524 +02:00 [INF] Route matched with {action = "Create", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Users.UserInfo]]] Create(PulseERP.Shared.Dtos.Users.CreateUserRequest) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-29 02:03:50.092 +02:00 [INF] Registering new user with email koumeil.messaoudi@outlook.com
+2025-05-29 02:03:50.890 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 02:03:51.341 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.Create (PulseERP.API) in 1811.9602ms
+2025-05-29 02:03:51.342 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-29 02:03:51.344 +02:00 [ERR] Exception caught in middleware
+System.InvalidOperationException: The LINQ expression 'DbSet<User>()
+    .Where(u => u.Email.Value == __email_Value_0)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutorExpression[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass11_0`1.<ExecuteCore>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteCore[TResult](Expression query, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.ExecuteAsync[TResult](Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ExecuteAsync[TSource,TResult](MethodInfo operatorMethodInfo, IQueryable`1 source, Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ExecuteAsync[TSource,TResult](MethodInfo operatorMethodInfo, IQueryable`1 source, LambdaExpression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.FirstOrDefaultAsync[TSource](IQueryable`1 source, Expression`1 predicate, CancellationToken cancellationToken)
+   at PulseERP.Infrastructure.Repositories.UserRepository.GetUserByEmailAsync(Email email) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Repositories/UserRepository.cs:line 78
+   at PulseERP.Infrastructure.Identity.Service.AuthService.EnsureEmailNotUsedAsync(String email) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 141
+   at PulseERP.Infrastructure.Identity.Service.AuthService.RegisterAsync(RegisterRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 41
+   at PulseERP.Application.Services.UserService.CreateAsync(CreateUserRequest command) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Application/Services/UserService.cs:line 59
+   at PulseERP.API.Controllers.UsersController.Create(CreateUserRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/UsersController.cs:line 55
+   at lambda_method9(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 02:03:51.375 +02:00 [ERR] Server error 500 [internal_server_error] - Internal Server Error (RequestId: 0HNCU8GNOANUT:00000005)
+2025-05-29 02:03:51.419 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/users - 500 null application/json 2010.1027ms
+2025-05-29 02:12:01.365 +02:00 [INF] Application is shutting down...
+2025-05-29 02:17:06.279 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 02:17:07.327 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 02:17:07.343 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 02:17:07.345 +02:00 [INF] Hosting environment: Development
+2025-05-29 02:17:07.349 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 02:17:31.057 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/users - application/json 156
+2025-05-29 02:17:31.253 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-29 02:17:31.295 +02:00 [INF] Route matched with {action = "Create", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Users.UserInfo]]] Create(PulseERP.Shared.Dtos.Users.CreateUserRequest) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-29 02:17:31.866 +02:00 [INF] Registering new user with email koumeil.messaoudi@outlook.com
+2025-05-29 02:17:32.798 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 02:17:33.853 +02:00 [INF] Executed DbCommand (82ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 02:17:34.676 +02:00 [INF] Executed DbCommand (47ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (Size = 255), @p3='?' (DbType = Int32), @p4='?' (Size = 100), @p5='?' (DbType = DateTime2), @p6='?' (Size = 100), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (Size = 20), @p10='?' (DbType = DateTime2), @p11='?' (Size = 50)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Users] ([Id], [CreatedAt], [Email], [FailedLoginAttempts], [FirstName], [LastLoginDate], [LastName], [LockoutEnd], [PasswordHash], [Phone], [UpdatedAt], [RoleName])
+OUTPUT INSERTED.[IsActive]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+2025-05-29 02:17:34.717 +02:00 [INF] Generating access token for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5"
+2025-05-29 02:17:34.743 +02:00 [INF] Access token generated for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5" expiring at "2025-05-29T01:17:34.7176450Z"
+2025-05-29 02:17:34.746 +02:00 [INF] Generating refresh token for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5"
+2025-05-29 02:17:34.813 +02:00 [INF] Executed DbCommand (18ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+2025-05-29 02:17:34.815 +02:00 [INF] Refresh token generated for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5" expiring at "2025-06-05T00:17:34.7473510Z"
+2025-05-29 02:17:34.816 +02:00 [INF] Invitation email sent to koumeil.messaoudi@outlook.com
+2025-05-29 02:17:34.840 +02:00 [INF] Executing CreatedAtActionResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Users.UserInfo, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 02:17:34.932 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.Create (PulseERP.API) in 3627.7487ms
+2025-05-29 02:17:34.940 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-29 02:17:34.962 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/users - 201 null application/json; charset=utf-8 3907.3424ms
+2025-05-29 02:18:58.135 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 78
+2025-05-29 02:18:58.142 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 02:18:58.153 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 02:18:58.164 +02:00 [INF] Attempting login for email koumeil.messaoudi@outlook.com
+2025-05-29 02:18:58.217 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 02:18:58.634 +02:00 [INF] Generating access token for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5"
+2025-05-29 02:18:58.636 +02:00 [INF] Access token generated for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5" expiring at "2025-05-29T01:18:58.6352920Z"
+2025-05-29 02:18:58.637 +02:00 [INF] Generating refresh token for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5"
+2025-05-29 02:18:58.651 +02:00 [INF] Executed DbCommand (10ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+2025-05-29 02:18:58.652 +02:00 [INF] Refresh token generated for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5" expiring at "2025-06-05T00:18:58.6374800Z"
+2025-05-29 02:18:58.653 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 02:18:58.667 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 513.7349ms
+2025-05-29 02:18:58.668 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 02:18:58.669 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 534.1579ms
+2025-05-29 02:20:13.634 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/logout - application/json 112
+2025-05-29 02:20:13.654 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Logout (PulseERP.API)'
+2025-05-29 02:20:13.660 +02:00 [INF] Route matched with {action = "Logout", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[System.Object]]] Logout(PulseERP.Shared.Dtos.Auth.LogoutRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 02:20:13.745 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 02:20:13.783 +02:00 [INF] Executed DbCommand (23ms) [Parameters=[@p7='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (DbType = DateTime2), @p4='?' (Size = 450), @p5='?' (DbType = DateTime2), @p6='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [ReplacedByToken] = @p2, [Revoked] = @p3, [Token] = @p4, [UpdatedAt] = @p5, [UserId] = @p6
+OUTPUT 1
+WHERE [Id] = @p7;
+2025-05-29 02:20:13.786 +02:00 [INF] Refresh token revoked for user "8bc73e25-2495-4c39-ab43-e2b5f6dfe6c5"
+2025-05-29 02:20:13.786 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-29 02:20:13.787 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Logout (PulseERP.API) in 127.4668ms
+2025-05-29 02:20:13.788 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Logout (PulseERP.API)'
+2025-05-29 02:20:13.788 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/logout - 200 null application/json; charset=utf-8 154.1407ms
+2025-05-29 03:54:21.361 +02:00 [INF] Application is shutting down...
+2025-05-29 04:02:59.258 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 04:02:59.886 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 04:02:59.890 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 04:02:59.892 +02:00 [INF] Hosting environment: Development
+2025-05-29 04:02:59.893 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 04:03:35.043 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/users - application/json 156
+2025-05-29 04:03:35.217 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-29 04:03:35.258 +02:00 [INF] Route matched with {action = "Create", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Users.UserInfo]]] Create(PulseERP.Shared.Dtos.Users.CreateUserRequest) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-29 04:03:35.898 +02:00 [INF] Registering new user with email koumeil.messaoudi@outlook.com
+2025-05-29 04:03:36.943 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 04:03:38.240 +02:00 [INF] Executed DbCommand (80ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 04:03:39.052 +02:00 [INF] Executed DbCommand (34ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (Size = 255), @p3='?' (DbType = Int32), @p4='?' (Size = 100), @p5='?' (DbType = DateTime2), @p6='?' (Size = 100), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (Size = 20), @p10='?' (DbType = DateTime2), @p11='?' (Size = 50)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Users] ([Id], [CreatedAt], [Email], [FailedLoginAttempts], [FirstName], [LastLoginDate], [LastName], [LockoutEnd], [PasswordHash], [Phone], [UpdatedAt], [RoleName])
+OUTPUT INSERTED.[IsActive]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+2025-05-29 04:03:39.108 +02:00 [INF] Generating access token for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e"
+2025-05-29 04:03:39.141 +02:00 [INF] Access token generated for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e" expiring at "2025-05-29T03:03:39.1091600Z"
+2025-05-29 04:03:39.143 +02:00 [INF] Generating refresh token for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e"
+2025-05-29 04:03:39.212 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:03:39.214 +02:00 [INF] Refresh token generated for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:03:39.1585070Z"
+2025-05-29 04:03:39.215 +02:00 [INF] Invitation email sent to koumeil.messaoudi@outlook.com
+2025-05-29 04:03:39.236 +02:00 [INF] Executing CreatedAtActionResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Users.UserInfo, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:03:39.303 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.Create (PulseERP.API) in 4040.3182ms
+2025-05-29 04:03:39.309 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.Create (PulseERP.API)'
+2025-05-29 04:03:39.324 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/users - 201 null application/json; charset=utf-8 4286.3325ms
+2025-05-29 04:04:08.084 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 78
+2025-05-29 04:04:08.090 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:04:08.100 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:04:08.136 +02:00 [INF] Attempting login for email koumeil.messaoudi@outlook.com
+2025-05-29 04:04:08.226 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 04:04:08.697 +02:00 [INF] Generating access token for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e"
+2025-05-29 04:04:08.698 +02:00 [INF] Access token generated for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e" expiring at "2025-05-29T03:04:08.6977820Z"
+2025-05-29 04:04:08.699 +02:00 [INF] Generating refresh token for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e"
+2025-05-29 04:04:08.713 +02:00 [INF] Executed DbCommand (10ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:04:08.715 +02:00 [INF] Refresh token generated for user "8d9b11ef-5b9d-46b5-aa18-35b63a055f5e" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:04:08.6995680Z"
+2025-05-29 04:04:08.718 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:04:08.761 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 660.8364ms
+2025-05-29 04:04:08.762 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:04:08.766 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 681.5431ms
+2025-05-29 04:06:28.210 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/register - application/json 137
+2025-05-29 04:06:28.221 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Register (PulseERP.API)'
+2025-05-29 04:06:28.232 +02:00 [INF] Route matched with {action = "Register", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Register(PulseERP.Shared.Dtos.Auth.RegisterRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:06:28.247 +02:00 [INF] Registering new user with email batman@gmail.com
+2025-05-29 04:06:28.326 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 04:06:28.519 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (Size = 255), @p3='?' (DbType = Int32), @p4='?' (Size = 100), @p5='?' (DbType = DateTime2), @p6='?' (Size = 100), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (Size = 20), @p10='?' (DbType = DateTime2), @p11='?' (Size = 50)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Users] ([Id], [CreatedAt], [Email], [FailedLoginAttempts], [FirstName], [LastLoginDate], [LastName], [LockoutEnd], [PasswordHash], [Phone], [UpdatedAt], [RoleName])
+OUTPUT INSERTED.[IsActive]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+2025-05-29 04:06:28.521 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:06:28.522 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T03:06:28.5217380Z"
+2025-05-29 04:06:28.522 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:06:28.529 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:06:28.530 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:06:28.5230980Z"
+2025-05-29 04:06:28.530 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:06:28.531 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Register (PulseERP.API) in 298.6198ms
+2025-05-29 04:06:28.532 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Register (PulseERP.API)'
+2025-05-29 04:06:28.532 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/register - 200 null application/json; charset=utf-8 322.0604ms
+2025-05-29 04:07:08.065 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/users - null null
+2025-05-29 04:07:08.094 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 04:07:08.102 +02:00 [INF] Route matched with {action = "GetAll", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Domain.Pagination.PaginationResult`1[PulseERP.Shared.Dtos.Users.UserDto]]]] GetAll(PulseERP.Domain.Pagination.PaginationParams) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-29 04:07:08.168 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [Users] AS [u]
+2025-05-29 04:07:08.181 +02:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-05-29 04:07:08.182 +02:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-05-29 04:07:08.214 +02:00 [INF] Executed DbCommand (19ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+ORDER BY (SELECT 1)
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+2025-05-29 04:07:08.230 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Domain.Pagination.PaginationResult`1[[PulseERP.Shared.Dtos.Users.UserDto, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], PulseERP.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:07:08.237 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API) in 134.6883ms
+2025-05-29 04:07:08.237 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 04:07:08.238 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/users - 200 null application/json; charset=utf-8 173.0379ms
+2025-05-29 04:07:36.326 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 04:07:36.328 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:07:36.328 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:07:36.336 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 04:07:36.341 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 04:07:36.534 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:07:36.535 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T03:07:36.5351060Z"
+2025-05-29 04:07:36.535 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:07:36.544 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:07:36.544 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:07:36.5357950Z"
+2025-05-29 04:07:36.545 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:07:36.546 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 217.7378ms
+2025-05-29 04:07:36.546 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:07:36.547 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 220.735ms
+2025-05-29 04:10:27.954 +02:00 [INF] Application is shutting down...
+2025-05-29 04:10:56.673 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 04:10:57.283 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 04:10:57.287 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 04:10:57.287 +02:00 [INF] Hosting environment: Development
+2025-05-29 04:10:57.288 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 04:11:08.708 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 04:11:08.847 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:11:08.881 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:11:09.218 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 04:11:10.794 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 04:11:12.154 +02:00 [INF] Executed DbCommand (70ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 04:11:12.769 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:11:12.802 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T03:11:12.7696510Z"
+2025-05-29 04:11:12.807 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:11:13.054 +02:00 [INF] Executed DbCommand (15ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:11:13.068 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:11:12.8221800Z"
+2025-05-29 04:11:13.083 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:11:13.163 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 4272.6252ms
+2025-05-29 04:11:13.170 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:11:13.187 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 4481.3202ms
+2025-05-29 04:11:25.440 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/users - null null
+2025-05-29 04:11:25.463 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 04:11:25.471 +02:00 [INF] Route matched with {action = "GetAll", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Domain.Pagination.PaginationResult`1[PulseERP.Shared.Dtos.Users.UserDto]]]] GetAll(PulseERP.Domain.Pagination.PaginationParams) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-29 04:11:25.683 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [Users] AS [u]
+2025-05-29 04:11:25.699 +02:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-05-29 04:11:25.700 +02:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-05-29 04:11:25.724 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+ORDER BY (SELECT 1)
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+2025-05-29 04:11:25.758 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Domain.Pagination.PaginationResult`1[[PulseERP.Shared.Dtos.Users.UserDto, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], PulseERP.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:11:25.773 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API) in 301.7373ms
+2025-05-29 04:11:25.774 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 04:11:25.775 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/users - 200 null application/json; charset=utf-8 334.3087ms
+2025-05-29 04:18:10.626 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/users - null null
+2025-05-29 04:18:10.662 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 04:18:10.665 +02:00 [INF] Route matched with {action = "GetAll", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Domain.Pagination.PaginationResult`1[PulseERP.Shared.Dtos.Users.UserDto]]]] GetAll(PulseERP.Domain.Pagination.PaginationParams) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-29 04:18:10.857 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [Users] AS [u]
+2025-05-29 04:18:10.866 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+ORDER BY (SELECT 1)
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+2025-05-29 04:18:10.870 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Domain.Pagination.PaginationResult`1[[PulseERP.Shared.Dtos.Users.UserDto, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], PulseERP.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:18:10.872 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API) in 206.662ms
+2025-05-29 04:18:10.872 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 04:18:10.873 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/users - 200 null application/json; charset=utf-8 247.9834ms
+2025-05-29 04:21:01.295 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 04:21:01.307 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:21:01.343 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:21:01.437 +02:00 [INF] Executed DbCommand (17ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 04:21:01.444 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 100.9847ms
+2025-05-29 04:21:01.445 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:21:01.449 +02:00 [ERR] Exception caught in middleware
+System.UnauthorizedAccessException: Invalid or expired refresh token.
+   at PulseERP.Infrastructure.Identity.Service.AuthService.RefreshTokenAsync(String refreshToken) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 101
+   at PulseERP.API.Controllers.AuthController.RefreshToken(RefreshTokenRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/AuthController.cs:line 41
+   at lambda_method185(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 04:21:01.493 +02:00 [WRN] Client error 401 [unauthorized] - Unauthorized
+2025-05-29 04:21:01.511 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 401 null application/json 216.1698ms
+2025-05-29 04:21:10.676 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 04:21:10.676 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:21:10.677 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:21:10.701 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 04:21:10.701 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 24.3528ms
+2025-05-29 04:21:10.702 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:21:10.702 +02:00 [ERR] Exception caught in middleware
+System.UnauthorizedAccessException: Invalid or expired refresh token.
+   at PulseERP.Infrastructure.Identity.Service.AuthService.RefreshTokenAsync(String refreshToken) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 101
+   at PulseERP.API.Controllers.AuthController.RefreshToken(RefreshTokenRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/AuthController.cs:line 41
+   at lambda_method185(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 04:21:10.705 +02:00 [WRN] Client error 401 [unauthorized] - Unauthorized
+2025-05-29 04:21:10.705 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 401 null application/json 29.7497ms
+2025-05-29 04:21:34.147 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 04:21:34.159 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:21:34.160 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:21:34.163 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 04:21:34.169 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 04:21:34.404 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:21:34.405 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T03:21:34.4045410Z"
+2025-05-29 04:21:34.405 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:21:34.419 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:21:34.419 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:21:34.4056820Z"
+2025-05-29 04:21:34.420 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:21:34.420 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 260.1168ms
+2025-05-29 04:21:34.421 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:21:34.421 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 274.091ms
+2025-05-29 04:21:52.813 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 04:21:52.814 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:21:52.815 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:21:52.825 +02:00 [INF] Executed DbCommand (6ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 04:21:52.826 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 11.0696ms
+2025-05-29 04:21:52.827 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:21:52.827 +02:00 [ERR] Exception caught in middleware
+System.UnauthorizedAccessException: Invalid or expired refresh token.
+   at PulseERP.Infrastructure.Identity.Service.AuthService.RefreshTokenAsync(String refreshToken) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 101
+   at PulseERP.API.Controllers.AuthController.RefreshToken(RefreshTokenRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/AuthController.cs:line 41
+   at lambda_method185(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 04:21:52.830 +02:00 [WRN] Client error 401 [unauthorized] - Unauthorized
+2025-05-29 04:21:52.831 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 401 null application/json 17.3369ms
+2025-05-29 04:40:51.298 +02:00 [INF] Application is shutting down...
+2025-05-29 04:41:34.985 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 04:41:35.765 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 04:41:35.771 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 04:41:35.772 +02:00 [INF] Hosting environment: Development
+2025-05-29 04:41:35.773 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 04:41:54.175 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 04:41:54.492 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:41:54.558 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:41:55.043 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 04:41:56.077 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 04:41:57.444 +02:00 [INF] Executed DbCommand (90ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 04:41:58.103 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:41:58.134 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T03:41:58.1043220Z"
+2025-05-29 04:41:58.137 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:41:58.457 +02:00 [INF] Executed DbCommand (27ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:41:58.475 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:41:58.1497640Z"
+2025-05-29 04:41:58.492 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:41:58.580 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 4012.0084ms
+2025-05-29 04:41:58.590 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 04:41:58.619 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 4451.1611ms
+2025-05-29 04:42:42.030 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 04:42:42.035 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:42:42.044 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 04:42:42.091 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 04:42:42.149 +02:00 [INF] Executed DbCommand (39ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 04:42:42.158 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 04:42:42.159 +02:00 [WRN] Refresh token not found or already revoked
+2025-05-29 04:42:42.159 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:42:42.159 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T03:42:42.1594100Z"
+2025-05-29 04:42:42.159 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 04:42:42.171 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 04:42:42.171 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T02:42:42.1599610Z"
+2025-05-29 04:42:42.172 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 04:42:42.172 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 127.7716ms
+2025-05-29 04:42:42.172 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 04:42:42.173 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 200 null application/json; charset=utf-8 143.0075ms
+2025-05-29 05:09:21.699 +02:00 [INF] Application is shutting down...
+2025-05-29 05:10:24.790 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 05:10:26.515 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 05:10:26.524 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 05:10:26.526 +02:00 [INF] Hosting environment: Development
+2025-05-29 05:10:26.528 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 05:10:48.232 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 05:10:48.531 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:10:48.699 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:10:49.403 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 05:10:50.395 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 05:10:51.877 +02:00 [INF] Executed DbCommand (149ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 05:10:52.667 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:10:52.768 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:10:52.6684570Z"
+2025-05-29 05:10:52.779 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:10:53.148 +02:00 [INF] Executed DbCommand (275ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:10:53.416 +02:00 [INF] Executed DbCommand (10ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:10:53.438 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:10:53.1499910Z"
+2025-05-29 05:10:53.455 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:10:53.533 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 4781.0804ms
+2025-05-29 05:10:53.541 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:10:53.566 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 5335.4475ms
+2025-05-29 05:11:06.796 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 05:11:06.827 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:11:06.829 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:11:06.853 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 05:11:06.900 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 05:11:07.367 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:11:07.367 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:11:07.3674480Z"
+2025-05-29 05:11:07.368 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:11:07.375 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:11:07.390 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:11:07.391 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:11:07.3756820Z"
+2025-05-29 05:11:07.391 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:11:07.393 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 563.8511ms
+2025-05-29 05:11:07.393 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:11:07.395 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 599.3979ms
+2025-05-29 05:11:27.424 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:11:27.428 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:11:27.438 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:11:27.534 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:11:27.556 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 05:11:27.565 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:11:27.630 +02:00 [INF] Executed DbCommand (41ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:11:27.634 +02:00 [INF] Refresh token revoked for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:11:27.635 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:11:27.635 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:11:27.6351400Z"
+2025-05-29 05:11:27.635 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:11:27.639 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:11:27.653 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:11:27.653 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:11:27.6397690Z"
+2025-05-29 05:11:27.654 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:11:27.654 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 215.9447ms
+2025-05-29 05:11:27.654 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:11:27.655 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 200 null application/json; charset=utf-8 230.9194ms
+2025-05-29 05:13:41.682 +02:00 [INF] Application is shutting down...
+2025-05-29 05:13:59.857 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 05:14:00.329 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 05:14:00.335 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 05:14:00.336 +02:00 [INF] Hosting environment: Development
+2025-05-29 05:14:00.336 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 05:14:06.322 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:14:06.444 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:14:06.491 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:14:08.185 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 05:14:09.368 +02:00 [INF] Executed DbCommand (75ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:14:09.545 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 3047.7234ms
+2025-05-29 05:14:09.555 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:14:09.563 +02:00 [ERR] Exception caught in middleware
+System.UnauthorizedAccessException: Invalid or expired refresh token.
+   at PulseERP.Infrastructure.Identity.Service.AuthService.RefreshTokenAsync(String refreshToken) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 107
+   at PulseERP.API.Controllers.AuthController.RefreshToken(RefreshTokenRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/AuthController.cs:line 41
+   at lambda_method9(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 05:14:09.602 +02:00 [WRN] Client error 401 [unauthorized] - Unauthorized
+2025-05-29 05:14:09.699 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 401 null application/json 3379.0547ms
+2025-05-29 05:14:14.124 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 05:14:14.154 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:14:14.165 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:14:14.178 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 05:14:14.280 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 05:14:14.902 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:14:14.940 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:14:14.9030200Z"
+2025-05-29 05:14:14.945 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:14:15.006 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:14:15.160 +02:00 [INF] Executed DbCommand (20ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:14:15.212 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:14:15.213 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:14:15.0076620Z"
+2025-05-29 05:14:15.221 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:14:15.266 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 1100.343ms
+2025-05-29 05:14:15.266 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:14:15.267 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 1144.4178ms
+2025-05-29 05:14:31.745 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:14:31.748 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:14:31.749 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:14:31.832 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:14:31.846 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 05:14:31.850 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:14:31.863 +02:00 [INF] Executed DbCommand (11ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:14:31.864 +02:00 [INF] Refresh token revoked for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:14:31.864 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:14:31.864 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:14:31.8646550Z"
+2025-05-29 05:14:31.865 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:14:31.869 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:14:31.877 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:14:31.889 +02:00 [INF] Executed DbCommand (10ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:14:31.889 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:14:31.8699060Z"
+2025-05-29 05:14:31.890 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:14:31.890 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 141.1978ms
+2025-05-29 05:14:31.891 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:14:31.891 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 200 null application/json; charset=utf-8 145.7147ms
+2025-05-29 05:17:33.509 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 05:17:33.516 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:17:33.517 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:17:33.524 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 05:17:33.545 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 05:17:33.905 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:17:33.907 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:17:33.9063750Z"
+2025-05-29 05:17:33.907 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:17:33.911 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:17:33.926 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:17:33.928 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:17:33.9123500Z"
+2025-05-29 05:17:33.929 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:17:33.932 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 415.0939ms
+2025-05-29 05:17:33.933 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:17:33.937 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 428.6097ms
+2025-05-29 05:18:23.518 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:18:23.519 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:18:23.519 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:18:23.527 +02:00 [INF] Executed DbCommand (5ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:18:23.532 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 05:18:23.537 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:18:23.547 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:18:23.548 +02:00 [INF] Refresh token revoked for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:18:23.548 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:18:23.548 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:18:23.5485110Z"
+2025-05-29 05:18:23.548 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:18:23.552 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:18:23.559 +02:00 [INF] Executed DbCommand (6ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:18:23.559 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:18:23.5526740Z"
+2025-05-29 05:18:23.560 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:18:23.560 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 41.0204ms
+2025-05-29 05:18:23.560 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:18:23.561 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 200 null application/json; charset=utf-8 42.0818ms
+2025-05-29 05:19:08.971 +02:00 [INF] Application is shutting down...
+2025-05-29 05:19:25.249 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 05:19:25.889 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 05:19:25.896 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 05:19:25.899 +02:00 [INF] Hosting environment: Development
+2025-05-29 05:19:25.900 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 05:19:38.831 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:19:39.064 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:19:39.112 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:19:40.205 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 05:19:41.330 +02:00 [INF] Executed DbCommand (75ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:19:41.526 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 05:19:41.549 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:19:41.713 +02:00 [INF] Executed DbCommand (15ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:19:41.739 +02:00 [INF] Refresh token revoked for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:19:41.742 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:19:41.784 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:19:41.7431070Z"
+2025-05-29 05:19:41.790 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:19:41.884 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:19:41.982 +02:00 [INF] Executed DbCommand (11ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:19:41.984 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:19:41.8862680Z"
+2025-05-29 05:19:42.006 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:19:42.074 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 2957.1848ms
+2025-05-29 05:19:42.081 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:19:42.097 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 200 null application/json; charset=utf-8 3267.3136ms
+2025-05-29 05:21:01.129 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 05:21:01.169 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:21:01.192 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:21:01.214 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 05:21:01.269 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 05:21:01.917 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:21:01.919 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:21:01.9180790Z"
+2025-05-29 05:21:01.919 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:21:01.924 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:21:01.939 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:21:01.940 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:21:01.9251760Z"
+2025-05-29 05:21:01.941 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:21:01.942 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 749.7346ms
+2025-05-29 05:21:01.943 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:21:01.944 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 816.1314ms
+2025-05-29 05:21:17.450 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:21:17.454 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:21:17.455 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:21:17.531 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:21:17.534 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 05:21:17.537 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:21:17.552 +02:00 [INF] Executed DbCommand (13ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:21:17.553 +02:00 [INF] Refresh token revoked for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:21:17.553 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:21:17.553 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:21:17.5536340Z"
+2025-05-29 05:21:17.553 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:21:17.556 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:21:17.565 +02:00 [INF] Executed DbCommand (8ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:21:17.565 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:21:17.5564700Z"
+2025-05-29 05:21:17.565 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:21:17.566 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 110.9704ms
+2025-05-29 05:21:17.566 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:21:17.566 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 200 null application/json; charset=utf-8 115.6115ms
+2025-05-29 05:22:56.303 +02:00 [INF] Application is shutting down...
+2025-05-29 05:23:16.561 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 05:23:17.307 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 05:23:17.312 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 05:23:17.313 +02:00 [INF] Hosting environment: Development
+2025-05-29 05:23:17.313 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 05:23:20.029 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 05:23:20.142 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:23:20.168 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:23:20.463 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 05:23:21.656 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 05:23:23.421 +02:00 [INF] Executed DbCommand (194ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 05:23:24.128 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:23:24.165 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:23:24.1291660Z"
+2025-05-29 05:23:24.168 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:23:24.234 +02:00 [INF] Executed DbCommand (7ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:23:24.467 +02:00 [INF] Executed DbCommand (18ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:23:24.538 +02:00 [INF] Executed DbCommand (11ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:23:24.540 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:23:24.2354880Z"
+2025-05-29 05:23:24.558 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:23:24.646 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 4471.2715ms
+2025-05-29 05:23:24.655 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:23:24.682 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 4651.9793ms
+2025-05-29 05:23:49.032 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:23:49.061 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:23:49.070 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:23:49.112 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:23:49.139 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 05:23:49.148 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:23:49.159 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:23:49.159 +02:00 [INF] Refresh token revoked for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:23:49.160 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:23:49.160 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:23:49.1602510Z"
+2025-05-29 05:23:49.160 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:23:49.163 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:23:49.168 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 97.3443ms
+2025-05-29 05:23:49.168 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:23:49.170 +02:00 [ERR] Exception caught in middleware
+System.ArgumentNullException: Value cannot be null. (Parameter 'key')
+   at System.Collections.Generic.Dictionary`2.FindValue(TKey key)
+   at System.Collections.Generic.Dictionary`2.TryGetValue(TKey key, TValue& value)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityReferenceMap.TryGet(Object entity, IEntityType entityType, InternalEntityEntry& entry, Boolean throwOnNonUniqueness)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.TryGetEntry(Object entity, IEntityType entityType, Boolean throwOnTypeMismatch)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.GetOrCreateEntry(Object entity, IEntityType entityType)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.EntryWithoutDetectChanges(TEntity entity)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.Update(TEntity entity)
+   at PulseERP.Infrastructure.Repositories.TokenRepository.UpdateAsync(RefreshToken token) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Repositories/TokenRepository.cs:line 30
+   at PulseERP.Infrastructure.Identity.Service.TokenService.GenerateRefreshTokenAsync(Guid userId) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/TokenService.cs:line 148
+   at PulseERP.Infrastructure.Identity.Service.AuthService.RefreshTokenAsync(String refreshToken) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 121
+   at PulseERP.API.Controllers.AuthController.RefreshToken(RefreshTokenRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/AuthController.cs:line 41
+   at lambda_method166(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 05:23:49.192 +02:00 [ERR] Server error 500 [internal_server_error] - Internal Server Error (RequestId: 0HNCUC0KGIF0D:00000003)
+2025-05-29 05:23:49.204 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 500 null application/json 171.4465ms
+2025-05-29 05:23:59.032 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:23:59.036 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:23:59.036 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:23:59.135 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:23:59.136 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 99.8418ms
+2025-05-29 05:23:59.136 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:23:59.136 +02:00 [ERR] Exception caught in middleware
+System.UnauthorizedAccessException: Invalid or expired refresh token.
+   at PulseERP.Infrastructure.Identity.Service.AuthService.RefreshTokenAsync(String refreshToken) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Identity/Service/AuthService.cs:line 107
+   at PulseERP.API.Controllers.AuthController.RefreshToken(RefreshTokenRequest request) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/AuthController.cs:line 41
+   at lambda_method166(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 05:23:59.138 +02:00 [WRN] Client error 401 [unauthorized] - Unauthorized
+2025-05-29 05:23:59.139 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 401 null application/json 106.4116ms
+2025-05-29 05:25:28.615 +02:00 [INF] Application is shutting down...
+2025-05-29 05:25:46.687 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 05:25:47.346 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 05:25:47.351 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 05:25:47.352 +02:00 [INF] Hosting environment: Development
+2025-05-29 05:25:47.353 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 05:25:49.521 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/login - application/json 65
+2025-05-29 05:25:49.678 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:25:49.733 +02:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] Login(PulseERP.Shared.Dtos.Auth.LoginRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:25:50.227 +02:00 [INF] Attempting login for email batman@gmail.com
+2025-05-29 05:25:51.356 +02:00 [WRN] The foreign key property 'Product.BrandId1' was created in shadow state because a conflicting property with the simple name 'BrandId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-05-29 05:25:52.710 +02:00 [INF] Executed DbCommand (102ms) [Parameters=[@__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Email] = @__email_0
+2025-05-29 05:25:53.686 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:25:53.730 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:25:53.6876180Z"
+2025-05-29 05:25:53.736 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:25:53.818 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:25:54.091 +02:00 [INF] Executed DbCommand (16ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:25:54.108 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:25:53.8202770Z"
+2025-05-29 05:25:54.125 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:25:54.200 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.Login (PulseERP.API) in 4458.8628ms
+2025-05-29 05:25:54.207 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.Login (PulseERP.API)'
+2025-05-29 05:25:54.232 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/login - 200 null application/json; charset=utf-8 4713.8967ms
+2025-05-29 05:26:22.925 +02:00 [INF] Request starting HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - application/json 112
+2025-05-29 05:26:22.934 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:26:22.948 +02:00 [INF] Route matched with {action = "RefreshToken", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Shared.Dtos.Auth.AuthResponse]]] RefreshToken(PulseERP.Shared.Dtos.Auth.Token.RefreshTokenRequest) on controller PulseERP.API.Controllers.AuthController (PulseERP.API).
+2025-05-29 05:26:23.236 +02:00 [INF] Executed DbCommand (13ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:26:23.320 +02:00 [INF] Executed DbCommand (21ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CreatedAt], [u].[Email], [u].[FailedLoginAttempts], [u].[FirstName], [u].[IsActive], [u].[LastLoginDate], [u].[LastName], [u].[LockoutEnd], [u].[PasswordHash], [u].[Phone], [u].[UpdatedAt], [u].[RoleName]
+FROM [Users] AS [u]
+WHERE [u].[Id] = @__id_0
+2025-05-29 05:26:23.352 +02:00 [INF] Executed DbCommand (11ms) [Parameters=[@__token_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[Token] = @__token_0
+2025-05-29 05:26:23.484 +02:00 [INF] Executed DbCommand (21ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (DbType = DateTime2), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 450), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000), @p8='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [RefreshTokens] SET [CreatedAt] = @p0, [Expires] = @p1, [IpAddress] = @p2, [ReplacedByToken] = @p3, [Revoked] = @p4, [Token] = @p5, [UpdatedAt] = @p6, [UserAgent] = @p7, [UserId] = @p8
+OUTPUT 1
+WHERE [Id] = @p9;
+2025-05-29 05:26:23.500 +02:00 [INF] Refresh token revoked for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:26:23.500 +02:00 [INF] Generating access token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:26:23.502 +02:00 [INF] Access token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" expiring at "2025-05-29T04:26:23.5013270Z"
+2025-05-29 05:26:23.503 +02:00 [INF] Generating refresh token for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b"
+2025-05-29 05:26:23.516 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [r].[Id], [r].[CreatedAt], [r].[Expires], [r].[IpAddress], [r].[ReplacedByToken], [r].[Revoked], [r].[Token], [r].[UpdatedAt], [r].[UserAgent], [r].[UserId]
+FROM [RefreshTokens] AS [r]
+WHERE [r].[UserId] = @__userId_0 AND [r].[Revoked] IS NULL AND GETUTCDATE() < [r].[Expires]
+ORDER BY [r].[CreatedAt] DESC
+2025-05-29 05:26:23.556 +02:00 [INF] Executed DbCommand (25ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (DbType = DateTime2), @p6='?' (Size = 450), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000), @p9='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [RefreshTokens] ([Id], [CreatedAt], [Expires], [IpAddress], [ReplacedByToken], [Revoked], [Token], [UpdatedAt], [UserAgent], [UserId])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+2025-05-29 05:26:23.558 +02:00 [INF] Refresh token generated for user "4893b1af-3c7b-42e2-b196-fa3b7e98477b" from IP ::1 with UserAgent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36, expiring at "2025-06-05T03:26:23.5169580Z"
+2025-05-29 05:26:23.560 +02:00 [INF] Executing OkObjectResult, writing value of type 'PulseERP.API.Dtos.ApiResponse`1[[PulseERP.Shared.Dtos.Auth.AuthResponse, PulseERP.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-29 05:26:23.562 +02:00 [INF] Executed action PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API) in 614.032ms
+2025-05-29 05:26:23.563 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.AuthController.RefreshToken (PulseERP.API)'
+2025-05-29 05:26:23.565 +02:00 [INF] Request finished HTTP/2 POST https://localhost:7232/api/Auth/refresh-token - 200 null application/json; charset=utf-8 638.877ms
+2025-05-29 05:29:20.955 +02:00 [INF] Application is shutting down...
+2025-05-29 21:42:59.434 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 21:42:59.937 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 21:42:59.941 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 21:42:59.942 +02:00 [INF] Hosting environment: Development
+2025-05-29 21:42:59.942 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 21:43:07.215 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - null null
+2025-05-29 21:43:07.495 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 283.3176ms
+2025-05-29 21:43:15.293 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/api/users - null null
+2025-05-29 21:43:15.353 +02:00 [INF] Executing endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 21:43:15.372 +02:00 [INF] Route matched with {action = "GetAll", controller = "Users"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[PulseERP.API.Dtos.ApiResponse`1[PulseERP.Domain.Pagination.PaginationResult`1[PulseERP.Shared.Dtos.Users.UserDto]]]] GetAll(PulseERP.Domain.Pagination.PaginationParams) on controller PulseERP.API.Controllers.UsersController (PulseERP.API).
+2025-05-29 21:43:16.388 +02:00 [INF] Executed action PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API) in 1011.5199ms
+2025-05-29 21:43:16.389 +02:00 [INF] Executed endpoint 'PulseERP.API.Controllers.UsersController.GetAll (PulseERP.API)'
+2025-05-29 21:43:16.391 +02:00 [ERR] Exception caught in middleware
+System.InvalidOperationException: No suitable constructor was found for entity type 'RefreshToken'. The following constructors had parameters that could not be bound to properties of the entity type: 
+    Cannot bind 'dateTime' in 'RefreshToken(IDateTimeProvider dateTime)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IMutableEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitFactory(FactoryCallSite factoryCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.get_Model()
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.get_EntityType()
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.CheckState()
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.get_EntityQueryable()
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.System.Linq.IQueryable.get_Provider()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.AsNoTracking[TEntity](IQueryable`1 source)
+   at PulseERP.Infrastructure.Repositories.UserRepository.GetAllAsync(PaginationParams pagination) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Infrastructure/Repositories/UserRepository.cs:line 20
+   at PulseERP.Application.Services.UserManagementService.GetAllAsync(PaginationParams paginationParams) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.Application/Services/UserManagementService.cs:line 35
+   at PulseERP.API.Controllers.UsersController.GetAll(PaginationParams paginationParams) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Controllers/UsersController.cs:line 25
+   at lambda_method9(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at GlobalExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API/Middleware/GlobalExceptionHandlingMiddleware.cs:line 33
+2025-05-29 21:43:16.417 +02:00 [ERR] Server error 500 [internal_server_error] - Internal Server Error (RequestId: 0HNCUT44ED33R:00000003)
+2025-05-29 21:43:16.523 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/api/users - 500 null application/json 1229.3261ms
+2025-05-29 23:04:20.141 +02:00 [INF] Application is shutting down...
+2025-05-29 23:08:15.988 +02:00 [INF] User profile is available. Using '/Users/inesmekkaoui/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-29 23:08:16.421 +02:00 [INF] Now listening on: https://localhost:7232
+2025-05-29 23:08:16.426 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-29 23:08:16.427 +02:00 [INF] Hosting environment: Development
+2025-05-29 23:08:16.427 +02:00 [INF] Content root path: /Users/inesmekkaoui/Desktop/PulseERP/PulseERP.API
+2025-05-29 23:08:21.406 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/index.html - null null
+2025-05-29 23:08:21.559 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/index.html - 200 null text/html;charset=utf-8 154.0739ms
+2025-05-29 23:08:22.067 +02:00 [INF] Request starting HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - null null
+2025-05-29 23:08:22.324 +02:00 [INF] Request finished HTTP/2 GET https://localhost:7232/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 257.9077ms
+2025-05-29 23:13:21.656 +02:00 [INF] Application is shutting down...
