@@ -145,9 +145,12 @@ Un push sur **main** ⇒ build, tests, rapport de couverture.
 
 ---
 
-## 📄 Licence
+## 📄 Licence
 
-Distribué sous **MIT**. Voir `LICENSE`.
+Ce projet est protégé par une licence propriétaire.  
+Toute utilisation, reproduction, modification ou commercialisation sans autorisation écrite préalable est strictement interdite.  
+Contact : [koumayl.messaoudi@gmail.com]
+
 
 ---
 
