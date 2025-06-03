@@ -173,7 +173,7 @@ public sealed class Customer : BaseEntity
             AssignedToUserId = assignedToUserId,
             Industry = string.IsNullOrWhiteSpace(industry) ? null : industry.Trim(),
             Source = string.IsNullOrWhiteSpace(source) ? null : source.Trim(),
-            IsVIP = isVIP
+            IsVIP = isVIP,
         };
     }
 

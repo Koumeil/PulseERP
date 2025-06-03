@@ -7,7 +7,8 @@ namespace PulseERP.Tests.Domain;
 public class ProductNameTests
 {
     [Fact]
-    public void Valid_Name_Should_Create() => ProductName.Create("Valid").Value.Should().Be("Valid");
+    public void Valid_Name_Should_Create() =>
+        ProductName.Create("Valid").Value.Should().Be("Valid");
 
     [Fact]
     public void Too_Long_Should_Fail() =>
