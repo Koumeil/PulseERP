@@ -64,7 +64,16 @@ public sealed partial record EmailAddress
     /// <summary>
     /// Updates the email address (validates and normalizes new value).
     /// </summary>
-    public EmailAddress Update(string newValue) => Create(newValue);
+    public EmailAddress Update(string value)
+    {
+        var normalized = Normalize(value);
+        if (normalized == this.Value)
+            return this;
+        return new EmailAddress(normalized);
+    }
+
+    // Méthode de normalisation (trim, lower, etc.)
+    private static string Normalize(string email) => email.Trim().ToLowerInvariant();
 
     public override string ToString() => Value;
 
