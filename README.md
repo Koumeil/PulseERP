@@ -260,9 +260,13 @@ Un push sur **main** ⇒ build, tests, rapport de couverture.
 
 ## 📄 Licence
 
-Ce projet est protégé par une licence propriétaire.  
-Toute utilisation, reproduction, modification ou commercialisation sans autorisation écrite préalable est strictement interdite.  
-Contact : [koumayl.messaoudi@gmail.com]
+Copyright © 2024 Koumayl Messaoudi. All rights reserved.
+
+This software is proprietary and confidential.  
+Unauthorized copying of this file, via any medium, is strictly prohibited.  
+All rights reserved.
+
+For permissions, contact: [koumayl.messaoudi@gmail.com]
 
 
 ---
