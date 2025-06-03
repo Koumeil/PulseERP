@@ -1,4 +1,4 @@
-namespace PulseERP.Domain.ValueObjects;
+namespace PulseERP.Domain.ValueObjects.Adresses;
 
 public sealed record Address(string Street, string City, string ZipCode, string Country)
 {

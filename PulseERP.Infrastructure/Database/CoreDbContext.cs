@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.ValueObjects.Adresses;
 using PulseERP.Domain.ValueObjects.Products;
 
 namespace PulseERP.Infrastructure.Database;
@@ -98,26 +99,29 @@ public class CoreDbContext : DbContext
         // ==============================================
         // Product - Configuration
         // ==============================================
+
         builder.Entity<Product>(p =>
         {
             // ProductName (Value Object) ↔ string
             p.Property(x => x.Name)
                 .IsRequired()
                 .HasMaxLength(100)
-                .HasConversion(vo => vo.Value, str => new ProductName(str));
+                .HasConversion(vo => vo.Value, str => ProductName.Create(str));
 
-            p.HasOne(pr => pr.Brand) // Propriété de navigation
-                .WithMany(b => b.Products) // Navigation inverse
-                .HasForeignKey(pr => pr.BrandId) // Propriété FK explicite
+            // Relation avec Brand - mapping explicite, résout tout conflit BrandId/BrandId1
+            p.HasOne(x => x.Brand)
+                .WithMany() // <= PAS d'argument ici !
+                .HasForeignKey(x => x.BrandId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
+
             // ProductDescription (Value Object) ↔ string?
             p.Property(x => x.Description)
                 .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasConversion(
                     vo => vo == null ? null : vo.Value,
-                    str => str == null ? null : new ProductDescription(str)
+                    str => str == null ? null : ProductDescription.Create(str)
                 );
 
             p.Property(x => x.IsActive).HasDefaultValue(true);
@@ -127,13 +131,6 @@ public class CoreDbContext : DbContext
             p.Property(x => x.Price)
                 .HasColumnType("decimal(18,2)")
                 .HasConversion(vo => vo.Value, dec => new Money(dec));
-
-            // Relation avec Brand - CORRECTION DU CONFLIT BrandId/BrandId1
-            p.HasOne(x => x.Brand)
-                .WithMany()
-                .HasForeignKey(x => x.BrandId) // Utilise la propriété explicite
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // ==============================================
@@ -141,11 +138,11 @@ public class CoreDbContext : DbContext
         // ==============================================
         builder.Entity<Brand>(b =>
         {
-            // Clé primaire non générée automatiquement
             b.Property(x => x.Id).ValueGeneratedNever();
             b.Property(x => x.Name).IsRequired().HasMaxLength(100);
             b.HasIndex(x => x.Name).IsUnique();
             b.Property(x => x.IsActive).HasDefaultValue(true);
+            b.HasMany(b => b.Products).WithOne("Brand").HasForeignKey("BrandId").IsRequired();
         });
 
         // ==============================================

@@ -31,4 +31,9 @@
   <ItemGroup>
     <ProjectReference Include="../PulseERP.Domain/PulseERP.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Seeds\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

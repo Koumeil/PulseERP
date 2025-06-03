@@ -45,18 +45,29 @@ public class UserProfile : Profile
                         TotalItems = src.TotalItems,
                     }
             );
+        CreateMap<User, UserDetails>()
+            .ForCtorParam("Id", opt => opt.MapFrom(s => s.Id))
+            .ForCtorParam("FirstName", opt => opt.MapFrom(s => s.FirstName))
+            .ForCtorParam("LastName", opt => opt.MapFrom(s => s.LastName))
+            .ForCtorParam("Email", opt => opt.MapFrom(s => s.Email.ToString()))
+            .ForCtorParam("Phone", opt => opt.MapFrom(s => s.Phone.ToString()))
+            .ForCtorParam("Role", opt => opt.MapFrom(s => s.Role.ToString()))
+            .ForCtorParam("IsActive", opt => opt.MapFrom(s => s.IsActive))
+            .ForCtorParam("CreatedAt", opt => opt.MapFrom(s => s.CreatedAt))
+            .ForCtorParam("LastLogin", opt => opt.MapFrom(s => s.LastLoginDate))
+            .ForCtorParam("FailedLoginAttempts", opt => opt.MapFrom(s => s.FailedLoginAttempts));
 
-        // PaginationResult<User> → PaginationResult<UserDetailsDto>
-        CreateMap<PagedResult<User>, PagedResult<UserDetails>>()
-            .ConvertUsing(
-                (src, _, context) =>
-                    new PagedResult<UserDetails>
-                    {
-                        Items = context.Mapper.Map<List<UserDetails>>(src.Items),
-                        PageNumber = src.PageNumber,
-                        PageSize = src.PageSize,
-                        TotalItems = src.TotalItems,
-                    }
-            );
+        // // PaginationResult<User> → PaginationResult<UserDetailsDto>
+        // CreateMap<PagedResult<User>, PagedResult<UserDetails>>()
+        //     .ConvertUsing(
+        //         (src, _, context) =>
+        //             new PagedResult<UserDetails>
+        //             {
+        //                 Items = context.Mapper.Map<List<UserDetails>>(src.Items),
+        //                 PageNumber = src.PageNumber,
+        //                 PageSize = src.PageSize,
+        //                 TotalItems = src.TotalItems,
+        //             }
+        //     );
     }
 }

@@ -1,6 +1,6 @@
 namespace PulseERP.Abstractions.Security.Interfaces;
 
-public interface ITokenHasher
+public interface ITokenHasherService
 {
     string Hash(string token);
 }

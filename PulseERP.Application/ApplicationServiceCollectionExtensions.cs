@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Application.Interfaces;
 using PulseERP.Application.Mapping.Addresses;
 using PulseERP.Application.Mapping.Auth;

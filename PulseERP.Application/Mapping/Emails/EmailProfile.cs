@@ -1,7 +1,6 @@
-using System;
 using AutoMapper;
 using PulseERP.Application.Common.Models;
-using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.ValueObjects.Adresses;
 
 namespace PulseERP.Application.Mapping.Emails;
 

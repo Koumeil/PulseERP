@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.ValueObjects.Adresses;
 
 namespace PulseERP.Tests.Domain;
 

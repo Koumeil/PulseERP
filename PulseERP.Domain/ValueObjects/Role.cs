@@ -1,22 +1,38 @@
+using System;
+using System.Globalization;
+using PulseERP.Domain.Errors;
+
 namespace PulseERP.Domain.ValueObjects;
 
 /// <summary>
-/// Value-Object immuable représentant un rôle fonctionnel (Admin, Manager, …).
-/// – Normalise la casse (trim + lower)\n
-/// – Garantit qu’il n’est jamais vide\n
-/// – Égalité et <c>GetHashCode</c> insensibles à la casse.
+/// Immutable Value Object representing a functional role (Admin, Manager, ...).
+/// – Normalizes casing (trim + title case)
+/// – Guarantees the role is never empty and always valid
+/// – Equality and <c>GetHashCode</c> are case-insensitive.
 /// </summary>
 public readonly struct Role : IEquatable<Role>, IComparable<Role>
 {
     public string Value { get; }
 
+    private static readonly string[] AllowedRoles = { "User", "Manager", "Admin" };
+
     #region Ctor / Factory
     private Role(string role) => Value = role;
 
-    /// <summary>Crée un rôle ; <c>null/empty</c> ⇒ rôle « User » (par défaut).</summary>
+    /// <summary>
+    /// Creates a role; null/empty → "User" (default).
+    /// Throws DomainException if the role is not allowed.
+    /// </summary>
     public static Role Create(string? role = null)
     {
-        var normalized = string.IsNullOrWhiteSpace(role) ? "User" : role.Trim();
+        var normalized = string.IsNullOrWhiteSpace(role)
+            ? "User"
+            : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(role.Trim().ToLowerInvariant());
+
+        if (Array.IndexOf(AllowedRoles, normalized) < 0)
+            throw new DomainException(
+                $"Invalid role '{normalized}'. Allowed roles are: {string.Join(", ", AllowedRoles)}."
+            );
 
         return new Role(normalized);
     }

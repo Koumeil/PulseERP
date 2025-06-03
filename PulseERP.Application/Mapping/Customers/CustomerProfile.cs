@@ -5,6 +5,7 @@ using PulseERP.Application.Customers.Models;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Customer;
 using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.ValueObjects.Adresses;
 
 public class CustomerProfile : Profile
 {
@@ -27,11 +28,15 @@ public class CustomerProfile : Profile
                     cmd.CompanyName,
                     EmailAddress.Create(cmd.Email),
                     Phone.Create(cmd.Phone),
-                    new Address(cmd.Street, cmd.City, cmd.ZipCode, cmd.Country),
+                    Address.Create($"{cmd.Street}, {cmd.ZipCode} {cmd.City}, {cmd.Country}"),
                     Enum.Parse<CustomerType>(cmd.Type),
                     Enum.Parse<CustomerStatus>(cmd.Status),
                     DateTime.UtcNow,
-                    cmd.IsVIP
+                    cmd.IsVIP,
+                    null, // industry
+                    null, // source
+                    null, // lastInteractionDate
+                    null // assignedToUserId
                 )
             );
 

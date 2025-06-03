@@ -9,25 +9,28 @@ using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Abstractions.Settings;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Token;
-using PulseERP.Domain.Interfaces;
+using PulseERP.Domain.Security.Interfaces;
 
 namespace PulseERP.Infrastructure.Identity;
 
+/// <summary>
+/// Handles access, refresh and password reset tokens with a single repository and TokenType logic.
+/// </summary>
 public class TokenService : ITokenService
 {
     private readonly JwtSettings _settings;
     private readonly byte[] _key;
-    private readonly IRefreshTokenRepository _repo;
-    private readonly ITokenGenerator _gen;
-    private readonly ITokenHasher _hasher;
+    private readonly ITokenRepository _tokenRepo;
+    private readonly ITokenGeneratorService _gen;
+    private readonly ITokenHasherService _hasher;
     private readonly IDateTimeProvider _time;
     private readonly ILogger<TokenService> _logger;
 
     public TokenService(
         IOptions<JwtSettings> opts,
-        IRefreshTokenRepository repo,
-        ITokenGenerator gen,
-        ITokenHasher hasher,
+        ITokenRepository tokenRepo,
+        ITokenGeneratorService gen,
+        ITokenHasherService hasher,
         IDateTimeProvider time,
         ILogger<TokenService> logger
     )
@@ -37,7 +40,7 @@ public class TokenService : ITokenService
             throw new InvalidOperationException("JWT SecretKey must be configured.");
 
         _key = Encoding.UTF8.GetBytes(_settings.SecretKey);
-        _repo = repo;
+        _tokenRepo = tokenRepo;
         _gen = gen;
         _hasher = hasher;
         _time = time;
@@ -61,10 +64,7 @@ public class TokenService : ITokenService
             SecurityAlgorithms.HmacSha256Signature
         );
 
-        // 1) Calcul de l’expiration UTC
         var expiresUtc = _time.UtcNow.AddMinutes(_settings.AccessTokenExpirationMinutes);
-
-        // 2) Création du JWT avec l’heure UTC
         var jwt = new JwtSecurityToken(
             issuer: _settings.Issuer,
             audience: _settings.Audience,
@@ -74,11 +74,8 @@ public class TokenService : ITokenService
         );
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-        // 3) Conversion de l’expiration en heure locale (Bruxelles)
         var expiresLocal = _time.ConvertToLocal(expiresUtc);
 
-        // 4) On renvoie l’AccessToken avec l’heure locale dans le champ Expires
         return new AccessToken(token, expiresLocal);
     }
 
@@ -97,14 +94,8 @@ public class TokenService : ITokenService
         var rawToken = _gen.GenerateToken();
         var hash = _hasher.Hash(rawToken);
 
-        var existing = await _repo.GetActiveByUserIdAsync(userId);
-        if (existing != null)
-            await _repo.RevokeForUserAsync(userId);
-
-        // 1) Calcul de l’expiration UTC pour le refresh token
         var expiresUtc = _time.UtcNow.AddDays(_settings.RefreshTokenExpirationDays);
 
-        // 2) Création de l’entité avec l’expiration UTC
         var entity = RefreshToken.Create(
             _time,
             userId,
@@ -115,9 +106,8 @@ public class TokenService : ITokenService
             ipAddress
         );
 
-        await _repo.AddAsync(entity);
+        await _tokenRepo.AddAsync(entity);
 
-        // 3) Conversion de l’expiration en heure locale
         var expiresLocal = _time.ConvertToLocal(expiresUtc);
 
         return new RefreshTokenDto(rawToken, expiresLocal);
@@ -129,11 +119,14 @@ public class TokenService : ITokenService
             return new RefreshTokenValidationResult(false, null);
 
         var hash = _hasher.Hash(token);
-        var entity = await _repo.GetByTokenAsync(hash);
+        var entity = await _tokenRepo.GetByTokenAndTypeAsync(hash, TokenType.Refresh);
         if (entity is null || !entity.IsActive)
+        {
+            _logger.LogWarning("Refresh token invalid or expired at {TimeLocal}.", _time.NowLocal);
             return new RefreshTokenValidationResult(false, null);
+        }
 
-        await _repo.RevokeForUserAsync(entity.UserId);
+        await _tokenRepo.RevokeAllByUserIdAndTypeAsync(entity.UserId, TokenType.Refresh);
         return new RefreshTokenValidationResult(true, entity.UserId);
     }
 

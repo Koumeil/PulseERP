@@ -1,6 +1,6 @@
 namespace PulseERP.Abstractions.Security.Interfaces;
 
-public interface ITokenGenerator
+public interface ITokenGeneratorService
 {
     string GenerateToken();
 }

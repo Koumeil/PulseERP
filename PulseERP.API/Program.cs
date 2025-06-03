@@ -3,7 +3,10 @@ using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Abstractions.Settings;
 using PulseERP.API.Extensions;
 using PulseERP.Application;
+using PulseERP.Domain.Security.Interfaces;
 using PulseERP.Infrastructure;
+using PulseERP.Infrastructure.Database;
+using PulseERP.Infrastructure.Seeds;
 using PulseERP.Infrastructure.Smtp;
 using Serilog;
 
@@ -75,6 +78,18 @@ builder.Services.AddJwtWithChallenge(jwtSettings);
 builder.Services.AddCustomProblemDetails(jwtSettings, builder.Environment);
 
 var app = builder.Build();
+
+// ─── Seeds if empty  ───────────────────────────────────────────────────
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    var dbContext = services.GetRequiredService<CoreDbContext>();
+    var passwordService = scope.ServiceProvider.GetRequiredService<IPasswordService>();
+
+    await dbContext.SeedIfEmptyAsync(logger, passwordService);
+}
 
 // ─── Middleware pipeline ───────────────────────────────────────────────────
 app.UseProblemDetails();

@@ -61,8 +61,8 @@ public class ProductRepository : IProductRepository
 
         query = productFilter.Sort switch
         {
-            "priceAsc" => query.OrderBy(p => p.Price.Value),
-            "priceDesc" => query.OrderByDescending(p => p.Price.Value),
+            "priceAsc" => query.OrderBy(p => p.Price),
+            "priceDesc" => query.OrderByDescending(p => p.Price),
             _ => query.OrderBy(p => p.Name),
         };
 
@@ -86,7 +86,6 @@ public class ProductRepository : IProductRepository
     {
         Product? product = await _ctx
             .Products.Include(p => p.Brand)
-            .AsNoTracking()
             .SingleOrDefaultAsync(p => p.Id == id);
         return product;
     }

@@ -2,17 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PulseERP.Abstractions.Security.Interfaces;
-using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces;
-using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.Security.Interfaces;
 using PulseERP.Infrastructure.Database;
 using PulseERP.Infrastructure.Identity;
 using PulseERP.Infrastructure.Logging;
 using PulseERP.Infrastructure.Persistence;
 using PulseERP.Infrastructure.Provider;
 using PulseERP.Infrastructure.Repositories;
-using PulseERP.Infrastructure.Repositories.Commands;
-using PulseERP.Infrastructure.Repositories.Queries;
 
 namespace PulseERP.Infrastructure;
 
@@ -32,27 +29,29 @@ public static class InfrastructureServiceCollectionExtensions
         );
 
         // DateTime provider
-        services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         // Repositories
-        services.AddScoped<IUserQueryRepository, UserQueryRepository>();
-        services.AddScoped<IUserCommandRepository, UserCommandRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
 
         // Identity services
-        services.AddScoped<IPasswordService, PasswordService>();
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IRoleService, RoleService>();
-        services.AddScoped<ITokenGenerator, TokenGenerator>();
-        services.AddScoped<ITokenHasher, TokenHasher>();
 
-        // Ajout du UnitOfWork
+        services.AddScoped<IPasswordService, PasswordService>();
+
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+        services.AddScoped<ITokenRepository, TokenRepository>();
+
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
+        services.AddScoped<ITokenHasherService, TokenHasherService>();
+
+        // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

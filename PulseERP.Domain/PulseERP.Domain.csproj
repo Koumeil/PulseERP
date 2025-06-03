@@ -7,4 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="../PulseERP.Abstractions/PulseERP.Abstractions.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Security/Roles/" />
+  </ItemGroup>
 </Project>

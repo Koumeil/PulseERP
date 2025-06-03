@@ -2,9 +2,11 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.Abstractions.Security.DTOs;
-using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.API.Contracts;
 using PulseERP.Application.Passwords.Commands;
+using PulseERP.Domain.Security.DTOs;
+using PulseERP.Domain.Security.Interfaces;
+using PulseERP.Domain.ValueObjects.Passwords;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -54,7 +56,7 @@ public class AuthenticationController : ControllerBase
     [HttpPost("logout")]
     public async Task<ActionResult<ApiResponse<object>>> Logout([FromBody] LogoutRequest cmd)
     {
-        await _authService.LogoutAsync(cmd.RefreshToken);
+        await _authService.LogoutAsync(cmd.RefreshTokenDto);
         return Ok(new ApiResponse<object>(true, null, null));
     }
 
@@ -74,7 +76,10 @@ public class AuthenticationController : ControllerBase
         [FromBody] ResetPasswordWithTokenCommand cmd
     )
     {
-        await _passwordService.ResetPasswordWithTokenAsync(cmd.Token, cmd.NewPassword);
+        await _passwordService.ResetPasswordWithTokenAsync(
+            cmd.Token,
+            Password.Create(cmd.NewPassword)
+        );
         return Ok(new ApiResponse<object>(true, null, "Password has been reset successfully."));
     }
 
@@ -91,7 +96,11 @@ public class AuthenticationController : ControllerBase
         if (!Guid.TryParse(sub, out var userId))
             throw new UnauthorizedAccessException("Invalid 'sub' claim.");
 
-        await _passwordService.ChangePasswordAsync(userId, cmd.CurrentPassword, cmd.NewPassword);
+        await _passwordService.ChangePasswordAsync(
+            userId,
+            Password.Create(cmd.CurrentPassword),
+            Password.Create(cmd.NewPassword)
+        );
 
         return Ok(new ApiResponse<object>(true, null, "Password changed successfully.", null));
     }

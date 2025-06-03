@@ -1,5 +1,6 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using PulseERP.Abstractions.Security.Interfaces;
@@ -8,31 +9,50 @@ using PulseERP.Infrastructure.Smtp.Template;
 
 namespace PulseERP.Infrastructure.Smtp;
 
+/// <summary>
+/// Email service for PulseERP. Sends account-related emails (reset, welcome, lockout, etc.) via SMTP.
+/// All templates are managed via EmailTemplates.
+/// </summary>
 public class SmtpEmailService : IEmailSenderService
 {
     private readonly EmailSettings _settings;
+    private readonly ILogger<SmtpEmailService> _logger;
 
-    public SmtpEmailService(IOptions<EmailSettings> opts) =>
+    public SmtpEmailService(IOptions<EmailSettings> opts, ILogger<SmtpEmailService> logger)
+    {
         _settings = opts?.Value ?? throw new ArgumentNullException(nameof(opts));
+        _logger = logger;
+    }
 
+    /// <inheritdoc />
     public Task SendAccountLockedEmailAsync(
         string toEmail,
         string userFullName,
-        DateTime lockoutEnd
+        DateTime lockoutEndUtc
     )
     {
-        var subject = "🔒 Votre compte Pulse ERP est temporairement bloqué";
-        var builder = EmailTemplates.BuildAccountLocked(lockoutEnd, userFullName);
+        var subject = "🔒 Your Pulse ERP account is temporarily locked";
+        var builder = EmailTemplates.BuildAccountLocked(lockoutEndUtc, userFullName);
         return SendEmailAsync(toEmail, subject, builder);
     }
 
+    /// <inheritdoc />
     public Task SendWelcomeEmailAsync(string toEmail, string userFullName, string loginUrl)
     {
-        var subject = "🎉 Bienvenue sur Pulse ERP !";
+        var subject = "🎉 Welcome to Pulse ERP!";
         var builder = EmailTemplates.BuildWelcome(userFullName, loginUrl);
         return SendEmailAsync(toEmail, subject, builder);
     }
 
+    /// <inheritdoc />
+    public Task SendPasswordChangedEmailAsync(string toEmail, string userFullName)
+    {
+        var subject = "✅ Your Pulse ERP password has been changed";
+        var builder = EmailTemplates.BuildPasswordChanged(userFullName);
+        return SendEmailAsync(toEmail, subject, builder);
+    }
+
+    /// <inheritdoc />
     public Task SendPasswordResetEmailAsync(
         string toEmail,
         string userFullName,
@@ -40,20 +60,14 @@ public class SmtpEmailService : IEmailSenderService
         DateTime expiresAtUtc
     )
     {
-        var subject = "🔑 Réinitialisation de votre mot de passe Pulse ERP";
+        var subject = "🔑 Reset your Pulse ERP password";
         var builder = EmailTemplates.BuildPasswordReset(resetUrl, expiresAtUtc, userFullName);
         return SendEmailAsync(toEmail, subject, builder);
     }
 
-    // Nouvelle méthode pour confirmer le changement de mot de passe
-    public Task SendPasswordChangedEmailAsync(string toEmail, string userFullName)
-    {
-        var subject = "✅ Votre mot de passe Pulse ERP a bien été changé";
-        var builder = EmailTemplates.BuildPasswordChanged(userFullName);
-        return SendEmailAsync(toEmail, subject, builder);
-    }
-
-    // Méthode unique d’envoi
+    /// <summary>
+    /// Sends an email with the provided subject and HTML/body content.
+    /// </summary>
     private async Task SendEmailAsync(string toEmail, string subject, BodyBuilder bodyBuilder)
     {
         if (string.IsNullOrWhiteSpace(toEmail))
@@ -65,14 +79,34 @@ public class SmtpEmailService : IEmailSenderService
         message.Subject = subject;
         message.Body = bodyBuilder.ToMessageBody();
 
-        using var client = new SmtpClient();
-        await client.ConnectAsync(
-            _settings.MailServer,
-            _settings.MailPort,
-            SecureSocketOptions.StartTls
-        );
-        await client.AuthenticateAsync(_settings.FromEmail, _settings.Password);
-        await client.SendAsync(message);
-        await client.DisconnectAsync(true);
+        try
+        {
+            using var client = new SmtpClient();
+            await client.ConnectAsync(
+                _settings.MailServer,
+                _settings.MailPort,
+                SecureSocketOptions.StartTls
+            );
+            await client.AuthenticateAsync(_settings.FromEmail, _settings.Password);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
+
+            _logger.LogInformation(
+                "Email '{Subject}' sent to {Recipient} at {SentAt}.",
+                subject,
+                toEmail,
+                DateTime.UtcNow
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to send email '{Subject}' to {Recipient}.",
+                subject,
+                toEmail
+            );
+            throw;
+        }
     }
 }

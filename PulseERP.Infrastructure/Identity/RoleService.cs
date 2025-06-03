@@ -2,26 +2,20 @@ using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Security.DTOs;
 using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Errors;
-using PulseERP.Domain.Identity;
 using PulseERP.Domain.Interfaces;
+using PulseERP.Domain.Security.Roles;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Infrastructure.Identity;
 
 public class RoleService : IRoleService
 {
-    private readonly IUserQueryRepository _userQuery;
-    private readonly IUserCommandRepository _userCommand;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<RoleService> _logger;
 
-    public RoleService(
-        IUserQueryRepository userQuery,
-        IUserCommandRepository userCommand,
-        ILogger<RoleService> logger
-    )
+    public RoleService(IUserRepository userRepository, ILogger<RoleService> logger)
     {
-        _userQuery = userQuery;
-        _userCommand = userCommand;
+        _userRepository = userRepository;
         _logger = logger;
     }
 
@@ -42,22 +36,22 @@ public class RoleService : IRoleService
             throw new ArgumentNullException(nameof(newRole));
 
         var adminUser =
-            await _userQuery.GetByIdAsync(currentUserId)
+            await _userRepository.FindByIdAsync(currentUserId)
             ?? throw new UnauthorizedAccessException("User not found.");
 
         if (!adminUser.HasRole(SystemRoles.Admin))
             throw new UnauthorizedAccessException("Only an administrator can modify roles.");
 
         var targetUser =
-            await _userQuery.GetByIdAsync(targetUserId)
+            await _userRepository.FindByIdAsync(targetUserId)
             ?? throw new DomainException("Target user does not exist.");
 
         if (!targetUser.HasRole(Role.Create(oldRole.Name)))
             throw new DomainException($"Target user does not have role '{oldRole}'.");
 
         targetUser.SetRole(Role.Create(newRole.Name));
-        await _userCommand.UpdateAsync(targetUser);
-        await _userCommand.SaveChangesAsync();
+        await _userRepository.UpdateAsync(targetUser);
+        await _userRepository.SaveChangesAsync();
 
         _logger.LogInformation(
             "User {AdminUserId} changed role for user {TargetUserId} from {OldRole} to {NewRole}",
@@ -70,7 +64,7 @@ public class RoleService : IRoleService
 
     public async Task<bool> UserHasRoleAsync(Guid userId, UserRole role)
     {
-        var user = await _userQuery.GetByIdAsync(userId);
+        var user = await _userRepository.FindByIdAsync(userId);
         return user?.HasRole(Role.Create(role.Name)) ?? false;
     }
 }

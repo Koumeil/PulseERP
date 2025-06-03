@@ -1,6 +1,6 @@
 using FluentAssertions;
 using PulseERP.Domain.Errors;
-using PulseERP.Domain.ValueObjects;
+using PulseERP.Domain.ValueObjects.Passwords;
 
 namespace PulseERP.Tests.Domain;
 
