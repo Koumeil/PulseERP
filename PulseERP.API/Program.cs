@@ -3,7 +3,6 @@ using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Abstractions.Settings;
 using PulseERP.API.Extensions;
 using PulseERP.Application;
-using PulseERP.Domain.Security.Interfaces;
 using PulseERP.Infrastructure;
 using PulseERP.Infrastructure.Database;
 using PulseERP.Infrastructure.Seeds;

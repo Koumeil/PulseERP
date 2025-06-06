@@ -1,12 +1,23 @@
-using PulseERP.Domain.Errors;
-
 namespace PulseERP.Domain.Entities;
+
+using System;
+using System.Collections.Generic;
+using PulseERP.Domain.Common;
+using PulseERP.Domain.Errors;
+using PulseERP.Domain.Events.BrandEvents;
+using PulseERP.Domain.Events.CustomerEvents;
 
 /// <summary>
 /// Represents a brand of products. Acts as an aggregate root for brand-related operations.
 /// </summary>
 public sealed class Brand : BaseEntity
 {
+    #region Fields
+
+    private readonly List<Product> _products = new();
+
+    #endregion
+
     #region Properties
 
     /// <summary>
@@ -14,109 +25,130 @@ public sealed class Brand : BaseEntity
     /// </summary>
     public string Name { get; private set; } = default!;
 
-    private readonly List<Product> _products = new();
-
     /// <summary>
     /// Read-only collection of associated products.
     /// </summary>
     public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
-
-    /// <summary>
-    /// Indicates if the brand is active.
-    /// </summary>
-    public bool IsActive { get; private set; }
 
     #endregion
 
     #region Constructors
 
     /// <summary>
-    /// Private constructor for EF Core.
+    /// Parameterless constructor for EF Core.
     /// </summary>
     private Brand() { }
 
-    #endregion
-
-    #region Factory
-
     /// <summary>
-    /// Creates a new brand. Throws <see cref="DomainException"/> if <paramref name="name"/> is null or whitespace.
+    /// Creates a new brand instance with a validated name.
     /// </summary>
     /// <param name="name">Brand name (non-empty).</param>
-    /// <returns>New <see cref="Brand"/> instance.</returns>
-    public static Brand Create(string name)
+    /// <exception cref="DomainValidationException">Thrown if the name is invalid.</exception>
+    public Brand(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Brand name required.");
-
-        return new Brand { Name = name.Trim(), IsActive = true };
+        SetName(name);
+        // IsActive est déjà true par défaut dans BaseEntity
+        AddDomainEvent(new BrandCreatedEvent(Id, Name));
     }
 
     #endregion
 
-    #region Methods
+    #region Behaviors
 
     /// <summary>
-    /// Updates the brand's name. Throws <see cref="DomainException"/> if <paramref name="newName"/> is null or whitespace.
+    /// Updates the brand's name.
     /// </summary>
     /// <param name="newName">New brand name (non-empty).</param>
     public void UpdateName(string newName)
     {
         if (string.IsNullOrWhiteSpace(newName))
-            throw new DomainException("Brand name required.");
+            throw new DomainValidationException("Brand name is required.");
 
-        Name = newName.Trim();
+        var trimmed = newName.Trim();
+        if (Name.Equals(trimmed, StringComparison.Ordinal))
+            return;
+
+        Name = trimmed;
         MarkAsUpdated();
+        AddDomainEvent(new BrandNameUpdatedEvent(Id, Name));
     }
 
     /// <summary>
-    /// Adds a product to the brand’s product collection. Throws <see cref="DomainException"/> if <paramref name="product"/> is null.
+    /// Adds a product to the brand’s product collection.
     /// </summary>
     /// <param name="product">Product to add (non-null).</param>
     public void AddProduct(Product product)
     {
         if (product is null)
-            throw new DomainException("Cannot add null product.");
+            throw new DomainValidationException("Cannot add null product to brand.");
+
+        if (_products.Contains(product))
+            return;
 
         _products.Add(product);
         MarkAsUpdated();
+        AddDomainEvent(new BrandProductAddedEvent(Id, product.Id));
     }
 
     /// <summary>
-    /// Removes a product from the brand’s product collection. Throws <see cref="DomainException"/> if <paramref name="product"/> is null.
+    /// Removes a product from the brand’s product collection.
     /// </summary>
     /// <param name="product">Product to remove (non-null).</param>
     public void RemoveProduct(Product product)
     {
         if (product is null)
-            throw new DomainException("Cannot remove null product.");
+            throw new DomainValidationException("Cannot remove null product from brand.");
 
-        _products.Remove(product);
-        MarkAsUpdated();
+        if (_products.Remove(product))
+        {
+            MarkAsUpdated();
+            AddDomainEvent(new BrandProductRemovedEvent(Id, product.Id));
+        }
     }
 
-    /// <summary>
-    /// Activates the brand if currently inactive.
-    /// </summary>
-    public void Activate()
+    public override void MarkAsDeleted()
     {
-        if (!IsActive)
+        if (!IsDeleted)
         {
-            IsActive = true;
-            MarkAsUpdated();
+            base.MarkAsDeleted();
+            AddDomainEvent(new BrandDeletedEvent(Id));
         }
     }
 
     /// <summary>
-    /// Deactivates the brand if currently active.
+    /// Restores the brand from soft-deleted state.
     /// </summary>
-    public void Deactivate()
+    public override void MarkAsRestored()
     {
-        if (IsActive)
+        if (IsDeleted)
         {
-            IsActive = false;
-            MarkAsUpdated();
+            base.MarkAsRestored();
+            AddDomainEvent(new BrandRestoredEvent(Id));
         }
+    }
+
+    public override void MarkAsDeactivate()
+    {
+        base.MarkAsDeactivate();
+        AddDomainEvent(new BrandDeactivatedEvent(Id));
+    }
+
+    public override void MarkAsActivate()
+    {
+        base.MarkAsActivate();
+        AddDomainEvent(new BrandActivatedEvent(Id));
+    }
+
+    #endregion
+
+    #region Helpers
+
+    private void SetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainValidationException("Brand name is required.");
+
+        Name = name.Trim();
     }
 
     #endregion

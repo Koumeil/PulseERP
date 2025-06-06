@@ -1,6 +1,6 @@
 using AutoMapper;
-using PulseERP.Application.Common.Models;
-using PulseERP.Domain.ValueObjects.Adresses;
+using PulseERP.Abstractions.Common.DTOs.Common.Models;
+using PulseERP.Domain.VO;
 
 namespace PulseERP.Application.Mapping.Addresses;
 

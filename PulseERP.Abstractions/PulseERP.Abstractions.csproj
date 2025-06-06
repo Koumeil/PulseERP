@@ -4,4 +4,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../PulseERP.Domain/PulseERP.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common/DTOs/Inventories/Commands/" />
+  </ItemGroup>
 </Project>

@@ -1,13 +1,11 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Customer;
-using PulseERP.Domain.Security.Interfaces;
-using PulseERP.Domain.ValueObjects;
-using PulseERP.Domain.ValueObjects.Adresses;
+using PulseERP.Domain.VO;
 using PulseERP.Infrastructure.Database;
-using PulseERP.Infrastructure.Identity;
 
 namespace PulseERP.Infrastructure.Seeds;
 
@@ -53,20 +51,20 @@ public static class SeedExtensions
                     // Vérifie si le brand existe déjà (DB ou déjà ajouté pendant ce seed)
                     if (!brandsDict.TryGetValue(p.Brand, out var brand))
                     {
-                        brand = Brand.Create(p.Brand);
+                        brand = new Brand(p.Brand);
                         context.Brands.Add(brand);
                         brandsDict[p.Brand] = brand; // Ajoute au dict pour les prochains passages
                     }
+                    var productName = new ProductName(p.Name);
+                    var description = new ProductDescription(p.Description);
+                    var currency = new Currency("EUR");
+                    var price = p.Price;
+                    var money = new Money(price, currency);
+                    var quantity = p.Quantity;
+                    var isService = p.IsService;
 
                     context.Products.Add(
-                        Product.Create(
-                            p.Name,
-                            p.Description,
-                            brand,
-                            p.Price,
-                            p.Quantity,
-                            p.IsService
-                        )
+                        new Product(productName, description, brand, money, quantity, isService)
                     );
                 }
             }
@@ -76,16 +74,14 @@ public static class SeedExtensions
             {
                 foreach (var c in data.Customers)
                 {
-                    var email = EmailAddress.Create(c.Email);
-                    var phone = Phone.Create(c.Phone);
-                    // Compose le bon format pour l’adresse
-                    var rawAddress = $"{c.Street}, {c.City}, {c.ZipCode}, {c.Country}";
-                    var address = Address.Create(rawAddress);
+                    var email = new EmailAddress(c.Email);
+                    var phone = new Phone(c.Phone);
+                    var address = new Address(c.Street, c.City, c.ZipCode, c.Country);
                     var customerType = Enum.Parse<CustomerType>(c.Type, ignoreCase: true);
                     var customerStatus = Enum.Parse<CustomerStatus>(c.Status, ignoreCase: true);
 
                     context.Customers.Add(
-                        Customer.Create(
+                        new Customer(
                             c.FirstName,
                             c.LastName,
                             c.CompanyName,
@@ -108,12 +104,12 @@ public static class SeedExtensions
             {
                 foreach (var u in data.Users)
                 {
-                    var email = EmailAddress.Create(u.Email);
-                    var phone = Phone.Create(u.Phone);
+                    var email = new EmailAddress(u.Email);
+                    var phone = new Phone(u.Phone);
                     var hashedPassword = passwordService.HashPassword(u.Password);
 
                     context.Users.Add(
-                        User.Create(u.FirstName, u.LastName, email, phone, hashedPassword)
+                        new User(u.FirstName, u.LastName, email, phone, hashedPassword)
                     );
                 }
             }

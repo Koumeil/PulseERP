@@ -23,6 +23,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../PulseERP.Abstractions/PulseERP.Abstractions.csproj" />
     <ProjectReference Include="../PulseERP.Application/PulseERP.Application.csproj" />
     <ProjectReference Include="../PulseERP.Domain/PulseERP.Domain.csproj" />
     <ProjectReference Include="../PulseERP.Infrastructure/PulseERP.Infrastructure.csproj" />

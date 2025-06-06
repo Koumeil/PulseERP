@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using PulseERP.Abstractions.Common.DTOs.Customers.Commands;
+using PulseERP.Abstractions.Common.DTOs.Customers.Models;
 using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
 using PulseERP.API.Contracts;
-using PulseERP.Application.Customers.Commands;
-using PulseERP.Application.Customers.Models;
 using PulseERP.Application.Interfaces;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/customers")]
 public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;
@@ -22,17 +22,13 @@ public class CustomersController : ControllerBase
         _logger = logger;
     }
 
+    // GET /api/customers
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PagedResult<CustomerSummary>>>> GetAll(
-        [FromQuery] PaginationParams paginationParams,
         [FromQuery] CustomerFilter customerFilter
     )
     {
-        var result = await _customerService.GetAllAsync(paginationParams, customerFilter);
-        _logger.LogInformation(
-            "API: Customers list fetched with params: {@CustomerParams}",
-            customerFilter
-        );
+        var result = await _customerService.GetAllCustomersAsync(customerFilter);
         return Ok(
             new ApiResponse<PagedResult<CustomerSummary>>(
                 true,
@@ -42,21 +38,23 @@ public class CustomersController : ControllerBase
         );
     }
 
+    // GET /api/customers/{id}
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ApiResponse<CustomerDetails>>> GetById(Guid id)
     {
-        var result = await _customerService.GetByIdAsync(id);
+        var result = await _customerService.FindCustomerByIdAsync(id);
         return Ok(
             new ApiResponse<CustomerDetails>(true, result, "Customer retrieved successfully")
         );
     }
 
+    // POST /api/customers
     [HttpPost]
     public async Task<ActionResult<ApiResponse<CustomerDetails>>> Create(
         [FromBody] CreateCustomerCommand request
     )
     {
-        var result = await _customerService.CreateAsync(request);
+        var result = await _customerService.CreateCustomerAsync(request);
         _logger.LogInformation("Customer created: {Customer}", request.Email);
         return CreatedAtAction(
             nameof(GetById),
@@ -65,42 +63,62 @@ public class CustomersController : ControllerBase
         );
     }
 
+    // PUT /api/customers/{id}
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ApiResponse<CustomerDetails>>> Update(
         Guid id,
         [FromBody] UpdateCustomerCommand request
     )
     {
-        var result = await _customerService.UpdateAsync(id, request);
-        _logger.LogInformation("Customer updated: {CustomerId}", id);
+        var result = await _customerService.UpdateCustomerAsync(id, request);
         return Ok(new ApiResponse<CustomerDetails>(true, result, "Customer updated successfully"));
     }
 
+    // DELETE /api/customers/{id}
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await _customerService.DeleteAsync(id);
-        _logger.LogInformation("Customer deleted (soft): {CustomerId}", id);
+        await _customerService.DeleteCustomerAsync(id);
         return NoContent();
     }
 
-    [HttpPost("{customerId:guid}/assign/{userId:guid}")]
+    // PATCH /api/customers/{id}/activate
+    [HttpPatch("{id:guid}/activate")]
+    public async Task<ActionResult<ApiResponse<object>>> Activate(Guid id)
+    {
+        await _customerService.ActivateCustomerAsync(id);
+        return Ok(new ApiResponse<object>(true, null, "Customer activated successfully"));
+    }
+
+    // PATCH /api/customers/{id}/restore
+    [HttpPatch("{id:guid}/restore")]
+    public async Task<ActionResult<ApiResponse<object>>> Restore(Guid id)
+    {
+        await _customerService.RestoreCustomerAsync(id);
+        return Ok(new ApiResponse<object>(true, null, "Customer restored successfully"));
+    }
+
+    // PATCH /api/customers/{id}/deactivate
+    [HttpPatch("{id:guid}/deactivate")]
+    public async Task<ActionResult<ApiResponse<object>>> Deactivate(Guid id)
+    {
+        await _customerService.DeactivateCustomerAsync(id);
+        return Ok(new ApiResponse<object>(true, null, "Customer deactivated successfully"));
+    }
+
+    // PUT /api/customers/{customerId}/assign-to/{userId}
+    [HttpPut("{customerId:guid}/assign-to/{userId:guid}")]
     public async Task<IActionResult> AssignToUser(Guid customerId, Guid userId)
     {
-        await _customerService.AssignToUserAsync(customerId, userId);
-        _logger.LogInformation(
-            "Customer assigned to user: {CustomerId} -> {UserId}",
-            customerId,
-            userId
-        );
+        await _customerService.AssignCustomerToUserAsync(customerId, userId);
         return NoContent();
     }
 
-    [HttpPost("{customerId:guid}/interact")]
+    // POST /api/customers/{customerId}/interactions
+    [HttpPost("{customerId:guid}/interactions")]
     public async Task<IActionResult> RecordInteraction(Guid customerId, [FromBody] string note)
     {
-        await _customerService.RecordInteractionAsync(customerId, note);
-        _logger.LogInformation("Customer interaction recorded: {CustomerId}", customerId);
+        await _customerService.RecordCustomerInteractionAsync(customerId, note);
         return NoContent();
     }
 }

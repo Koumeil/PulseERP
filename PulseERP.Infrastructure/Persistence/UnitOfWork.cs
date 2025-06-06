@@ -1,4 +1,4 @@
-using PulseERP.Domain.Interfaces;
+using PulseERP.Abstractions.Contracts.Repositories;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Persistence;

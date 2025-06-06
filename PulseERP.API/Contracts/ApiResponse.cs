@@ -8,3 +8,5 @@ public record ApiResponse<T>(
     string? Message = null,
     ProblemDetails? Error = null
 );
+
+public record ApiResponse(bool Success, string? Message = null, ProblemDetails? Error = null);

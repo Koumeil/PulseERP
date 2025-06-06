@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using PulseERP.Abstractions.Security.Interfaces;
+using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Infrastructure.Provider;
 

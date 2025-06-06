@@ -1,232 +1,198 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using PulseERP.Abstractions.Common.DTOs.Users.Commands;
+using PulseERP.Abstractions.Common.DTOs.Users.Models;
 using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Abstractions.Contracts.Repositories;
 using PulseERP.Abstractions.Security.DTOs;
 using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Application.Interfaces;
-using PulseERP.Application.Users.Commands;
-using PulseERP.Application.Users.Models;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Errors;
 using PulseERP.Domain.Interfaces;
-using PulseERP.Domain.Security.Interfaces;
 using PulseERP.Domain.ValueObjects;
-using PulseERP.Domain.ValueObjects.Adresses;
-using PulseERP.Domain.ValueObjects.Passwords;
+using PulseERP.Domain.VO;
 
 namespace PulseERP.Application.Services;
 
-/// <summary>
-/// Service for managing users (CRUD, activation, password, etc.).
-/// </summary>
 public sealed class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly ILogger<UserService> _logger;
     private readonly IPasswordService _passwordService;
     private readonly IMapper _mapper;
-    private readonly ILogger<UserService> _logger;
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public UserService(
         IUserRepository userRepository,
+        IDateTimeProvider dateTimeProvider,
         IPasswordService passwordService,
         IMapper mapper,
-        ILogger<UserService> logger,
-        IDateTimeProvider dateTimeProvider
+        ILogger<UserService> logger
     )
     {
         _userRepository = userRepository;
+        _dateTimeProvider = dateTimeProvider;
         _passwordService = passwordService;
         _mapper = mapper;
         _logger = logger;
-        _dateTimeProvider = dateTimeProvider;
     }
 
-    /// <summary>
-    /// Gets all users matching the filter, paginated.
-    /// </summary>
     public async Task<PagedResult<UserSummary>> GetAllAsync(UserFilter userFilter)
     {
-        var users = await _userRepository.GetAllAsync(userFilter);
-        _logger.LogInformation(
-            "Retrieved {Count} users (filter: {@Filter})",
-            users.Items.Count,
-            userFilter
-        );
-        return _mapper.Map<PagedResult<UserSummary>>(users);
+        var result = await _userRepository.GetAllAsync(userFilter);
+
+        var summaries = _mapper.Map<List<UserSummary>>(result.Items);
+
+        return new PagedResult<UserSummary>()
+        {
+            Items = summaries,
+            PageNumber = result.PageNumber,
+            PageSize = result.PageSize,
+            TotalItems = summaries.Count(),
+        };
     }
 
-    /// <summary>
-    /// Gets details of a single user by ID.
-    /// </summary>
     public async Task<UserDetails> GetByIdAsync(Guid id)
     {
         var user =
             await _userRepository.FindByIdAsync(id, true)
             ?? throw new NotFoundException("User", id);
-        _logger.LogInformation("Fetched user details for UserId {UserId}", id);
+
+        var nowUtc = _dateTimeProvider.UtcNow;
+        user.CheckPasswordExpiration(nowUtc);
+
         return _mapper.Map<UserDetails>(user);
     }
 
-    /// <summary>
-    /// Creates a new user. Throws <see cref="ValidationException"/> on invalid data.
-    /// </summary>
     public async Task<UserInfo> CreateAsync(CreateUserCommand cmd)
     {
-        var errors = new Dictionary<string, string[]>();
+        EmailAddress emailVO = new EmailAddress(cmd.Email);
+        Phone phoneNumberVO = new Phone(cmd.PhoneNumber);
+        Password passwordVO = new Password(cmd.Password);
+        string passwordHash = passwordVO.HashedValue;
 
-        if (await _userRepository.FindByEmailAsync(cmd.Email) is not null)
-            errors.Add(nameof(cmd.Email), new[] { "Email is already in use." });
-
-        // Validate password (you can enrich Password.Create for more feedback if you want)
-        try
-        {
-            Password.Create(cmd.Password);
-        }
-        catch (DomainException ex)
-        {
-            errors.Add(nameof(cmd.Password), [ex.Message]);
-        }
-
-        if (errors.Count > 0)
-        {
-            _logger.LogWarning("Validation failed during user creation: {@Errors}", errors);
-            throw new ValidationException(errors);
-        }
-
-        var password = Password.Create(cmd.Password);
-        var passwordHash = _passwordService.HashPassword(password.Value);
-
-        var user = User.Create(
-            cmd.FirstName,
-            cmd.LastName,
-            EmailAddress.Create(cmd.Email),
-            Phone.Create(cmd.Phone),
-            passwordHash
-        );
+        var user = new User(cmd.FirstName, cmd.LastName, emailVO, phoneNumberVO, passwordHash);
 
         await _userRepository.AddAsync(user);
         await _userRepository.SaveChangesAsync();
 
-        _logger.LogInformation(
-            "User created with email {Email} (UserId: {UserId})",
-            user.Email.Value,
-            user.Id
-        );
-
-        return new UserInfo(
-            user.Id,
-            user.FirstName,
-            user.LastName,
-            user.Email.Value,
-            user.Phone.Value,
-            user.Role.ToString()
-        );
+        return _mapper.Map<UserInfo>(user);
     }
 
-    /// <summary>
-    /// Updates a user’s basic information. Throws <see cref="NotFoundException"/> if not found, <see cref="ValidationException"/> if input invalid.
-    /// </summary>
     public async Task<UserDetails> UpdateAsync(Guid id, UpdateUserCommand cmd)
     {
         var user =
-            await _userRepository.FindByIdAsync(id, true)
+            await _userRepository.FindByIdAsync(id, bypassCache: true)
             ?? throw new NotFoundException("User", id);
 
-        var errors = new Dictionary<string, string[]>();
+        if (!string.IsNullOrWhiteSpace(cmd.FirstName) || !string.IsNullOrWhiteSpace(cmd.LastName))
+            user.UpdateName(cmd.FirstName, cmd.LastName);
 
         if (!string.IsNullOrWhiteSpace(cmd.Email))
         {
-            // Check for duplicate email, except for self
-            var userWithEmail = await _userRepository.FindByEmailAsync(cmd.Email);
-            if (userWithEmail is not null && userWithEmail.Id != id)
-                errors.Add(nameof(cmd.Email), new[] { "Email is already in use by another user." });
+            var newEmailVO = new EmailAddress(cmd.Email);
+            user.UpdateEmail(newEmailVO);
         }
-
-        if (!string.IsNullOrWhiteSpace(cmd.Role))
-        {
-            try
-            {
-                Role.Create(cmd.Role);
-            }
-            catch (DomainException ex)
-            {
-                errors.Add(nameof(cmd.Role), new[] { ex.Message });
-            }
-        }
-
-        if (errors.Count > 0)
-        {
-            _logger.LogWarning(
-                "Validation failed during user update (UserId: {UserId}): {@Errors}",
-                id,
-                errors
-            );
-            throw new ValidationException(errors);
-        }
-
-        user.UpdateName(cmd.FirstName, cmd.LastName);
-
-        if (!string.IsNullOrWhiteSpace(cmd.Email))
-            user.UpdateEmail(EmailAddress.Create(cmd.Email));
 
         if (!string.IsNullOrWhiteSpace(cmd.Phone))
-            user.UpdatePhone(Phone.Create(cmd.Phone));
+        {
+            var newPhoneVO = new Phone(cmd.Phone);
+            user.UpdatePhone(newPhoneVO);
+        }
 
         if (!string.IsNullOrWhiteSpace(cmd.Role))
-            user.SetRole(Role.Create(cmd.Role));
+        {
+            var newRoleVO = new Role(cmd.Role);
+            user.ChangeRole(newRoleVO);
+        }
 
         await _userRepository.UpdateAsync(user);
         await _userRepository.SaveChangesAsync();
-
-        _logger.LogInformation("Updated user {UserId} ({Email})", user.Id, user.Email.Value);
 
         return _mapper.Map<UserDetails>(user);
     }
 
-    /// <summary>
-    /// Soft-deactivates a user.
-    /// </summary>
     public async Task DeleteAsync(Guid id)
     {
         var user =
-            await _userRepository.FindByIdAsync(id) ?? throw new NotFoundException("User", id);
+            await _userRepository.FindByIdAsync(id, bypassCache: true)
+            ?? throw new NotFoundException("User", id);
 
-        user.Deactivate();
-        await _userRepository.UpdateAsync(user);
+        await _userRepository.DeleteAsync(user);
         await _userRepository.SaveChangesAsync();
-
-        _logger.LogInformation("Deactivated user {UserId} ({Email})", user.Id, user.Email.Value);
     }
 
-    /// <summary>
-    /// Activates a user account (if not already active).
-    /// </summary>
     public async Task ActivateUserAsync(Guid id)
     {
         var user =
-            await _userRepository.FindByIdAsync(id) ?? throw new NotFoundException("User", id);
+            await _userRepository.FindByIdAsync(id, bypassCache: true)
+            ?? throw new NotFoundException("User", id);
 
-        user.Activate();
+        if (user.IsDeleted)
+        {
+            throw new InvalidOperationException(
+                $"Impossible d'activer l'utilisateur ({id}) : il est marqué comme sup​primé."
+            );
+        }
+
+        if (user.IsActive)
+        {
+            throw new InvalidOperationException($"L'utilisateur ({id}) est déjà actif.");
+        }
+
+        user.MarkAsActivate();
+
         await _userRepository.UpdateAsync(user);
         await _userRepository.SaveChangesAsync();
-
-        _logger.LogInformation("Activated user {UserId} ({Email})", user.Id, user.Email.Value);
     }
 
-    /// <summary>
-    /// Deactivates a user account (if not already deactivated).
-    /// </summary>
     public async Task DeactivateUserAsync(Guid id)
     {
         var user =
-            await _userRepository.FindByIdAsync(id) ?? throw new NotFoundException("User", id);
+            await _userRepository.FindByIdAsync(id, bypassCache: true)
+            ?? throw new NotFoundException("User", id);
 
-        user.Deactivate();
+        if (user.IsDeleted)
+        {
+            throw new InvalidOperationException(
+                $"Impossible de désactiver l'utilisateur ({id}) : il est marqué comme sup​primé."
+            );
+        }
+
+        if (!user.IsActive)
+        {
+            throw new InvalidOperationException($"L'utilisateur ({id}) est déjà désactivé.");
+        }
+
+        user.MarkAsDeactivate();
+
         await _userRepository.UpdateAsync(user);
         await _userRepository.SaveChangesAsync();
+    }
 
-        _logger.LogInformation("Deactivated user {UserId} ({Email})", user.Id, user.Email.Value);
+    public async Task ResetLockoutAsync(Guid id)
+    {
+        var user =
+            await _userRepository.FindByIdAsync(id, bypassCache: true)
+            ?? throw new NotFoundException("User", id);
+
+        user.ResetLockout();
+
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+    }
+
+    public async Task RestoreUserAsync(Guid id)
+    {
+        var user =
+            await _userRepository.FindByIdAsync(id, bypassCache: true)
+            ?? throw new NotFoundException("User", id);
+
+        user.MarkAsRestored();
+
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
     }
 }

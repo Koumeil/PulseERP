@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PulseERP.Abstractions.Contracts.Repositories;
 using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Interfaces;
-using PulseERP.Domain.Security.Interfaces;
 using PulseERP.Infrastructure.Database;
 using PulseERP.Infrastructure.Identity;
 using PulseERP.Infrastructure.Logging;
@@ -50,10 +50,6 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
         services.AddScoped<ITokenHasherService, TokenHasherService>();
-
-        // UnitOfWork
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
         return services;
     }
 }

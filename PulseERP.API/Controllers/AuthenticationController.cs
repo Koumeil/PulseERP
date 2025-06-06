@@ -1,15 +1,14 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PulseERP.Abstractions.Common.DTOs.Passwords.Commands;
 using PulseERP.Abstractions.Security.DTOs;
+using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.API.Contracts;
-using PulseERP.Application.Passwords.Commands;
-using PulseERP.Domain.Security.DTOs;
-using PulseERP.Domain.Security.Interfaces;
-using PulseERP.Domain.ValueObjects.Passwords;
+using PulseERP.Domain.VO;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthenticationController : ControllerBase
 {
     private readonly IAuthenticationService _authService;
@@ -24,6 +23,7 @@ public class AuthenticationController : ControllerBase
         _passwordService = passwordService;
     }
 
+    // POST /api/auth/register
     [HttpPost("register")]
     public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(
         [FromBody] RegisterRequest request
@@ -33,8 +33,11 @@ public class AuthenticationController : ControllerBase
         return Ok(new ApiResponse<AuthResponse>(true, authResult, null));
     }
 
+    // POST /api/auth/login
     [HttpPost("login")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(LoginRequest request)
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(
+        [FromBody] LoginRequest request
+    )
     {
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
         var ua = Request.Headers["User-Agent"].ToString();
@@ -42,8 +45,9 @@ public class AuthenticationController : ControllerBase
         return Ok(new ApiResponse<AuthResponse>(true, authResult, null));
     }
 
-    [HttpPost("refresh-token")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshToken(
+    // POST /api/auth/token
+    [HttpPost("token")]
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshAccessToken(
         [FromBody] RefreshTokenDto request
     )
     {
@@ -53,38 +57,41 @@ public class AuthenticationController : ControllerBase
         return Ok(new ApiResponse<AuthResponse>(true, authResult, null));
     }
 
-    [HttpPost("logout")]
-    public async Task<ActionResult<ApiResponse<object>>> Logout([FromBody] LogoutRequest cmd)
+    // DELETE /api/auth/token
+    [HttpDelete("token")]
+    public async Task<ActionResult<ApiResponse<object>>> RevokeRefreshToken(
+        [FromBody] LogoutRequest cmd
+    )
     {
         await _authService.LogoutAsync(cmd.RefreshTokenDto);
         return Ok(new ApiResponse<object>(true, null, null));
     }
 
-    [HttpPost("request-password-reset")]
-    public async Task<ActionResult<ApiResponse<object>>> RequestPasswordReset(
+    // POST /api/auth/password-reset-request
+    [HttpPost("password-reset-request")]
+    public async Task<ActionResult<ApiResponse<object>>> SendPasswordResetLink(
         [FromBody] RequestPasswordResetCommand cmd
     )
     {
-        await _passwordService.RequestPasswordResetAsync(cmd.Email);
+        await _passwordService.RequestPasswordResetAsync(new EmailAddress(cmd.Email));
         return Ok(
             new ApiResponse<object>(true, null, "If the email exists, a reset link has been sent.")
         );
     }
 
-    [HttpPost("reset-password")]
-    public async Task<ActionResult<ApiResponse<object>>> ResetPasswordWithToken(
+    // POST /api/auth/password-reset
+    [HttpPost("password-reset")]
+    public async Task<ActionResult<ApiResponse<object>>> ResetPassword(
         [FromBody] ResetPasswordWithTokenCommand cmd
     )
     {
-        await _passwordService.ResetPasswordWithTokenAsync(
-            cmd.Token,
-            Password.Create(cmd.NewPassword)
-        );
+        await _passwordService.ResetPasswordWithTokenAsync(cmd.Token, cmd.NewPassword);
         return Ok(new ApiResponse<object>(true, null, "Password has been reset successfully."));
     }
 
+    // PATCH /api/auth/password
     [Authorize]
-    [HttpPost("change-password")]
+    [HttpPatch("password")]
     public async Task<ActionResult<ApiResponse<object>>> ChangePassword(
         [FromBody] ChangePassword cmd
     )
@@ -96,12 +103,7 @@ public class AuthenticationController : ControllerBase
         if (!Guid.TryParse(sub, out var userId))
             throw new UnauthorizedAccessException("Invalid 'sub' claim.");
 
-        await _passwordService.ChangePasswordAsync(
-            userId,
-            Password.Create(cmd.CurrentPassword),
-            Password.Create(cmd.NewPassword)
-        );
-
-        return Ok(new ApiResponse<object>(true, null, "Password changed successfully.", null));
+        await _passwordService.ChangePasswordAsync(userId, cmd.CurrentPassword, cmd.NewPassword);
+        return Ok(new ApiResponse<object>(true, null, "Password changed successfully."));
     }
 }

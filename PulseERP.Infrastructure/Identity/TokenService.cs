@@ -9,7 +9,7 @@ using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Abstractions.Settings;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Token;
-using PulseERP.Domain.Security.Interfaces;
+using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Infrastructure.Identity;
 

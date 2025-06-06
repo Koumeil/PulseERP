@@ -1,236 +1,280 @@
-using PulseERP.Domain.Enums.Product;
-using PulseERP.Domain.Errors;
-using PulseERP.Domain.ValueObjects;
-using PulseERP.Domain.ValueObjects.Products;
-
 namespace PulseERP.Domain.Entities;
 
+using System;
+using PulseERP.Domain.Common;
+using PulseERP.Domain.Enums.Inventory;
+using PulseERP.Domain.Enums.Product;
+using PulseERP.Domain.Errors;
+using PulseERP.Domain.Events.ProductEvents;
+using PulseERP.Domain.VO;
+
 /// <summary>
-/// Represents a product in the system. Acts as an aggregate root for product-related operations.
+/// Aggregate root representing a product in the catalog, including inventory and lifecycle state.
 /// </summary>
 public sealed class Product : BaseEntity
 {
     #region Properties
 
-    /// <summary>
-    /// Name of the product.
-    /// </summary>
     public ProductName Name { get; private set; } = default!;
-
-    /// <summary>
-    /// Description of the product.
-    /// </summary>
     public ProductDescription? Description { get; private set; }
-
-    /// <summary>
-    /// Brand of the product.
-    /// </summary>
     public Brand Brand { get; private set; } = default!;
-
     public Guid BrandId { get; private set; }
 
-    /// <summary>
-    /// Price of the product.
-    /// </summary>
     public Money Price { get; private set; } = default!;
-
-    /// <summary>
-    /// Available quantity in stock.
-    /// </summary>
-    public int Quantity { get; private set; }
-
-    /// <summary>
-    /// Indicates if the item is a service rather than physical good.
-    /// </summary>
     public bool IsService { get; private set; }
-
-    /// <summary>
-    /// Indicates if the product is active (not discontinued).
-    /// </summary>
-    public bool IsActive { get; private set; }
-
-    /// <summary>
-    /// Availability status of the product (InStock, OutOfStock, LowStock, Discontinued).
-    /// </summary>
     public ProductAvailabilityStatus Status { get; private set; }
+    public DateTime? LastSoldAt { get; private set; }
+    public Inventory Inventory { get; private set; } = default!;
 
     #endregion
 
-    #region Constructors
+    #region Constructor
 
-    /// <summary>
-    /// Private constructor for EF Core.
-    /// </summary>
     private Product() { }
 
-    #endregion
-
-    #region Factory
-
-    /// <summary>
-    /// Creates a new product. Throws <see cref="DomainException"/> on invalid input.
-    /// </summary>
-    /// <param name="name">Product name (non-empty).</param>
-    /// <param name="description">Product description (nullable).</param>
-    /// <param name="brand">Brand instance (non-null).</param>
-    /// <param name="price">Product price (positive).</param>
-    /// <param name="quantity">Initial quantity (>=0).</param>
-    /// <param name="isService">Indicates if it is a service.</param>
-    /// <returns>New <see cref="Product"/> instance.</returns>
-    public static Product Create(
-        string name,
-        string? description,
+    public Product(
+        ProductName name,
+        ProductDescription? description,
         Brand brand,
-        decimal price,
+        Money price,
         int quantity,
         bool isService
     )
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Name is required.");
         if (brand is null)
-            throw new DomainException("Brand is required.");
-        if (price <= 0)
-            throw new DomainException("Price must be positive.");
+            throw new DomainValidationException("Brand is required.");
+        if (price is null || price.IsZero())
+            throw new DomainValidationException("Price must be greater than zero.");
         if (quantity < 0)
-            throw new DomainException("Quantity cannot be negative.");
+            throw new DomainValidationException("Quantity cannot be negative.");
 
-        var product = new Product
-        {
-            Name = ProductName.Create(name),
-            Description = description is null ? null : ProductDescription.Create(description),
-            Brand = brand,
-            Price = new Money(price),
-            Quantity = quantity,
-            IsService = isService,
-            IsActive = true,
-        };
-        product.UpdateStatus();
-        return product;
+        Name = name ?? throw new ArgumentNullException(nameof(name));
+        Description = description;
+        Brand = brand;
+        BrandId = brand.Id;
+        Price = price;
+        IsService = isService;
+        Inventory = new Inventory(Id, quantity);
+
+        UpdateStatus();
+        AddDomainEvent(new ProductCreatedEvent(Id));
     }
 
     #endregion
 
-    #region Methods
+    #region Domain Behaviors
 
-
-    /// <summary>
-    /// Sets a new price for the product. Throws <see cref="DomainException"/> if value is not positive.
-    /// </summary>
-    /// <param name="newPrice">The new price to set (must be positive).</param>
     public void SetPrice(Money newPrice)
     {
-        Price = newPrice;
-        MarkAsUpdated();
+        if (newPrice == null || newPrice.IsZero())
+            throw new DomainValidationException("Price must be greater than zero.");
+
+        if (!Price.Equals(newPrice))
+        {
+            Price = newPrice;
+            MarkAsUpdated();
+            AddDomainEvent(new ProductPriceChangedEvent(Id, newPrice));
+        }
     }
 
-    /// <summary>
-    /// Sets a new brand. Throws <see cref="DomainException"/> if <paramref name="brand"/> is null.
-    /// </summary>
-    /// <param name="brand">New <see cref="Brand"/> instance.</param>
-    public void SetBrand(Brand brand) =>
-        Brand = brand ?? throw new DomainException("Brand is required.");
+    public void ApplyDiscount(decimal percentage)
+    {
+        if (percentage <= 0 || percentage >= 100)
+            throw new DomainValidationException("Discount must be between 0 and 100 (exclusive).");
 
-    /// <summary>
-    /// Updates product details: name, description, price, or service flag.
-    /// </summary>
-    /// <param name="name">New name (nullable).</param>
-    /// <param name="description">New description (nullable).</param>
-    /// <param name="price">New price (nullable).</param>
-    /// <param name="isService">New service flag (nullable).</param>
+        var discountedPrice = Price.Multiply(1 - (percentage / 100m));
+        SetPrice(discountedPrice);
+    }
+
+    public void SetBrand(Brand newBrand)
+    {
+        Brand = newBrand ?? throw new DomainValidationException("Brand is required.");
+        BrandId = newBrand.Id;
+
+        Brand?.RemoveProduct(this);
+        newBrand.AddProduct(this);
+
+        MarkAsUpdated();
+        AddDomainEvent(new ProductBrandChangedEvent(Id, newBrand));
+    }
+
     public void UpdateDetails(
         ProductName? name = null,
         ProductDescription? description = null,
-        Money? price = null,
         bool? isService = null
     )
     {
-        if (name is not null)
-            Name = name;
-        if (description is not null)
-            Description = description;
-        if (price is not null)
-            Price = price.Value; // Money est non-nullable struct, .Value ok
-        if (isService.HasValue)
-            IsService = isService.Value;
+        var changes = false;
 
-        MarkAsUpdated();
+        if (TryUpdateName(name))
+            changes = true;
+        if (TryUpdateDescription(description))
+            changes = true;
+
+        if (TryUpdateServiceFlag(isService))
+            changes = true;
+
+        if (changes)
+        {
+            UpdateStatus();
+            MarkAsUpdated();
+            AddDomainEvent(new ProductDetailsUpdatedEvent(Id));
+        }
     }
 
-    /// <summary>
-    /// Increases stock by the specified <paramref name="amount"/>. Throws <see cref="DomainException"/> if amount &lt;= 0.
-    /// </summary>
-    /// <param name="amount">Amount to add (positive).</param>
+    private bool TryUpdateName(ProductName? name)
+    {
+        if (name is not null && !Name.Equals(name))
+        {
+            Name = name;
+            return true;
+        }
+        return false;
+    }
+
+    private bool TryUpdateDescription(ProductDescription? description)
+    {
+        if (description is not null && !Equals(Description, description))
+        {
+            Description = description;
+            return true;
+        }
+        return false;
+    }
+
+    private bool TryUpdateServiceFlag(bool? isService)
+    {
+        if (isService.HasValue && IsService != isService.Value)
+        {
+            IsService = isService.Value;
+            return true;
+        }
+        return false;
+    }
+
+    public void SetQuantity(int newQuantity)
+    {
+        if (newQuantity < 0)
+            throw new DomainValidationException("Quantity cannot be negative.");
+
+        int current = Inventory.Quantity;
+
+        if (newQuantity == current)
+            return;
+
+        if (newQuantity == 0)
+        {
+            MarkOutOfStock();
+        }
+        else if (newQuantity > current)
+        {
+            Restock(newQuantity - current);
+        }
+        else
+        {
+            MarkOutOfStock();
+            Restock(newQuantity);
+        }
+    }
+
     public void Restock(int amount)
     {
-        if (amount <= 0)
-            throw new DomainException("Amount must be positive.");
-
-        Quantity += amount;
-        IsActive = true;
+        Inventory.Restock(amount);
         UpdateStatus();
         MarkAsUpdated();
     }
 
-    /// <summary>
-    /// Marks product as out of stock (sets quantity to zero).
-    /// </summary>
+    public void RegisterSale(int quantitySold, DateTime saleDateUtc)
+    {
+        Inventory.Decrease(quantitySold);
+        LastSoldAt = saleDateUtc;
+        UpdateStatus();
+        MarkAsUpdated();
+        AddDomainEvent(new ProductSoldEvent(Id, quantitySold, saleDateUtc));
+    }
+
     public void MarkOutOfStock()
     {
-        Quantity = 0;
-        IsActive = true;
+        Inventory.AdjustTo(0, InventoryMovementType.CorrectionDecrease);
         UpdateStatus();
         MarkAsUpdated();
+        AddDomainEvent(new ProductMarkedOutOfStockEvent(Id));
     }
 
-    /// <summary>
-    /// Discontinues the product (sets IsActive to false).
-    /// </summary>
-    public void Discontinue()
+    public void DisableIfObsolete(TimeSpan inactivityPeriod, DateTime nowUtc)
     {
-        IsActive = false;
-        UpdateStatus();
-        MarkAsUpdated();
-    }
-
-    /// <summary>
-    /// Activates the product if currently inactive.
-    /// </summary>
-    public void Activate()
-    {
-        if (!IsActive)
+        if (LastSoldAt.HasValue && nowUtc - LastSoldAt.Value > inactivityPeriod)
         {
-            IsActive = true;
-            UpdateStatus();
-            MarkAsUpdated();
+            MarkAsDeactivate();
         }
     }
 
-    /// <summary>
-    /// Deactivates the product if currently active.
-    /// </summary>
-    public void Deactivate()
+    public void ArchiveIfOutOfStockAndInactive()
     {
-        if (IsActive)
+        if (Status == ProductAvailabilityStatus.OutOfStock && !IsActive)
         {
-            IsActive = false;
-            UpdateStatus();
-            MarkAsUpdated();
+            MarkAsDeleted();
         }
+    }
+
+    public bool CanBeSold(int quantity) =>
+        quantity > 0
+        && quantity <= Inventory.Quantity
+        && IsActive
+        && Status == ProductAvailabilityStatus.InStock;
+
+    public bool IsLowStock(int threshold = 5) =>
+        Inventory.Quantity > 0 && Inventory.Quantity <= threshold;
+
+    public bool IsDormant(DateTime nowUtc, int months = 6)
+    {
+        return LastSoldAt.HasValue && nowUtc.Subtract(LastSoldAt.Value).TotalDays > months * 30;
+    }
+
+    public bool NeedsRestocking(int minThreshold)
+    {
+        return Inventory.Quantity < minThreshold && IsActive && !IsService;
+    }
+
+    public override void MarkAsDeleted()
+    {
+        if (!IsDeleted)
+        {
+            base.MarkAsDeleted();
+            AddDomainEvent(new ProductDeletedEvent(Id));
+        }
+    }
+
+    public override void MarkAsRestored()
+    {
+        if (IsDeleted)
+        {
+            base.MarkAsRestored();
+            AddDomainEvent(new ProductRestoredEvent(Id));
+        }
+    }
+
+    public override void MarkAsDeactivate()
+    {
+        base.MarkAsDeactivate();
+        AddDomainEvent(new ProductDeactivatedEvent(Id));
+    }
+
+    public override void MarkAsActivate()
+    {
+        base.MarkAsActivate();
+        AddDomainEvent(new ProductReactivatedEvent(Id));
     }
 
     #endregion
 
-    #region Private Methods
+    #region Private Helpers
 
-    /// <summary>
-    /// Updates the <see cref="Status"/> based on <see cref="Quantity"/> and <see cref="IsActive"/>.
-    /// </summary>
     private void UpdateStatus()
     {
         Status = !IsActive
             ? ProductAvailabilityStatus.Discontinued
-            : Quantity switch
+            : Inventory.Quantity switch
             {
                 0 => ProductAvailabilityStatus.OutOfStock,
                 <= 5 => ProductAvailabilityStatus.LowStock,

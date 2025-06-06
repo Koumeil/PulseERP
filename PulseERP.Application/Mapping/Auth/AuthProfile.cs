@@ -1,7 +1,6 @@
 using AutoMapper;
+using PulseERP.Abstractions.Common.DTOs.Users.Models;
 using PulseERP.Abstractions.Security.DTOs;
-using PulseERP.Application.Users.Models;
-
 
 namespace PulseERP.Application.Mapping.Auth
 {

@@ -5,6 +5,6 @@ public sealed record UserInfo(
     string FirstName,
     string LastName,
     string Email,
-    string Phone,
-    string Role
+    string Role,
+    string Phone
 );

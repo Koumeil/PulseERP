@@ -141,6 +141,7 @@
       "description": "Annual cloud storage plan",
       "brand": "Google",
       "price": 99.99,
+      "Currency": "EUR",
       "quantity": 150,
       "isService": true
     },

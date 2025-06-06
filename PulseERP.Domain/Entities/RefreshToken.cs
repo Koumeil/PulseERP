@@ -1,19 +1,17 @@
-using PulseERP.Abstractions.Security.Interfaces;
-using PulseERP.Domain.Enums.Token;
-
 namespace PulseERP.Domain.Entities;
+
+using PulseERP.Domain.Common;
+using PulseERP.Domain.Enums.Token;
+using PulseERP.Domain.Events.ProductEvents;
+using PulseERP.Domain.Events.RefreshTokenEvents;
+using PulseERP.Domain.Interfaces;
 
 /// <summary>
 /// Represents a refresh token entity for authentication. Acts as an aggregate root.
 /// </summary>
-public sealed class RefreshToken
+public sealed class RefreshToken : BaseEntity
 {
     #region Properties
-
-    /// <summary>
-    /// Unique identifier for the refresh token.
-    /// </summary>
-    public Guid Id { get; private set; }
 
     /// <summary>
     /// The token string value.
@@ -53,8 +51,7 @@ public sealed class RefreshToken
     /// <summary>
     /// Indicates if the token is currently active (not revoked and not expired).
     /// </summary>
-    public bool IsActive =>
-        Revoked == null && Expires > (_dateTimeProvider?.UtcNow ?? DateTime.UtcNow);
+    public bool IsCurrentlyValid => !IsExpired() && !IsRevoked();
 
     #endregion
 
@@ -78,13 +75,6 @@ public sealed class RefreshToken
     /// <summary>
     /// Creates a new refresh token with provided IP and user agent. Expires after <paramref name="expiresAt"/>.
     /// </summary>
-    /// <param name="dateTimeProvider">Provider for current UTC time.</param>
-    /// <param name="userId">Associated user identifier.</param>
-    /// <param name="tokenType">Type of token.</param>
-    /// <param name="expiresAt">Expiry timestamp.</param>
-    /// <param name="createdByIp">IP address where created.</param>
-    /// <param name="createdByUserAgent">User agent string.</param>
-    /// <returns>New <see cref="RefreshToken"/> instance.</returns>
     public static RefreshToken Create(
         IDateTimeProvider dateTimeProvider,
         Guid userId,
@@ -102,7 +92,7 @@ public sealed class RefreshToken
         if (expiresAt <= dateTimeProvider.UtcNow)
             throw new ArgumentException("Expiration must be in the future.", nameof(expiresAt));
 
-        return new RefreshToken(
+        var tokenInstance = new RefreshToken(
             dateTimeProvider,
             userId,
             token,
@@ -111,15 +101,16 @@ public sealed class RefreshToken
             createdByIp,
             createdByUserAgent
         );
+
+        tokenInstance.AddDomainEvent(new RefreshTokenCreatedEvent(tokenInstance.Id));
+
+        return tokenInstance;
     }
 
     #endregion
 
     #region Private Constructors
 
-    /// <summary>
-    /// Private constructor used by <see cref="Create"/>.
-    /// </summary>
     private RefreshToken(
         IDateTimeProvider dateTimeProvider,
         Guid userId,
@@ -144,16 +135,19 @@ public sealed class RefreshToken
 
     #region Methods
 
-    /// <summary>
-    /// Revokes the refresh token at current UTC time.
-    /// </summary>
     public void Revoke(DateTime revokedAt)
     {
-        if (Revoked == null)
-        {
-            Revoked = revokedAt;
-        }
+        if (IsRevoked())
+            return;
+
+        Revoked = revokedAt;
+        AddDomainEvent(new RefreshTokenRevokedEvent(Id, revokedAt));
+        MarkAsUpdated();
     }
+
+    public bool IsRevoked() => Revoked is not null;
+
+    public bool IsExpired() => Expires <= (_dateTimeProvider?.UtcNow ?? DateTime.UtcNow);
 
     #endregion
 }

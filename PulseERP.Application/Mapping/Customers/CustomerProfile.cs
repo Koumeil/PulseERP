@@ -1,11 +1,10 @@
 using AutoMapper;
+using PulseERP.Abstractions.Common.DTOs.Customers.Commands;
+using PulseERP.Abstractions.Common.DTOs.Customers.Models;
 using PulseERP.Abstractions.Common.Pagination;
-using PulseERP.Application.Customers.Commands;
-using PulseERP.Application.Customers.Models;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Customer;
-using PulseERP.Domain.ValueObjects;
-using PulseERP.Domain.ValueObjects.Adresses;
+using PulseERP.Domain.VO;
 
 public class CustomerProfile : Profile
 {
@@ -21,24 +20,22 @@ public class CustomerProfile : Profile
             .ForMember(d => d.Tags, o => o.MapFrom(s => s.Tags.ToList()));
 
         CreateMap<CreateCustomerCommand, Customer>()
-            .ConstructUsing(cmd =>
-                Customer.Create(
-                    cmd.FirstName,
-                    cmd.LastName,
-                    cmd.CompanyName,
-                    EmailAddress.Create(cmd.Email),
-                    Phone.Create(cmd.Phone),
-                    Address.Create($"{cmd.Street}, {cmd.ZipCode} {cmd.City}, {cmd.Country}"),
-                    Enum.Parse<CustomerType>(cmd.Type),
-                    Enum.Parse<CustomerStatus>(cmd.Status),
-                    DateTime.UtcNow,
-                    cmd.IsVIP,
-                    null, // industry
-                    null, // source
-                    null, // lastInteractionDate
-                    null // assignedToUserId
-                )
-            );
+            .ConstructUsing(cmd => new Customer(
+                cmd.FirstName,
+                cmd.LastName,
+                cmd.CompanyName,
+                new EmailAddress(cmd.Email),
+                new Phone(cmd.Phone),
+                new Address(cmd.Street, cmd.City, cmd.ZipCode, cmd.Country),
+                Enum.Parse<CustomerType>(cmd.Type),
+                Enum.Parse<CustomerStatus>(cmd.Status),
+                DateTime.UtcNow,
+                cmd.IsVIP,
+                null, // industry
+                null, // source
+                null, // lastInteractionDate
+                null // assignedToUserId
+            ));
 
         CreateMap<UpdateCustomerCommand, Customer>().ForAllMembers(o => o.Ignore());
 

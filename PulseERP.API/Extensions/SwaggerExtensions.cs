@@ -4,20 +4,32 @@ namespace PulseERP.API.Extensions;
 
 public static class SwaggerExtensions
 {
-    /// <summary>
-    /// Configure Swagger/OpenAPI with JWT Bearer support and utilise FullName (namespace + nom de type) pour les schemaIds.
-    /// </summary>
     public static IServiceCollection AddCustomSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(c =>
         {
-            // Déclarez votre document Swagger (v1 ici)
+            // Swagger document
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "PulseERP API", Version = "v1" });
 
-            // Utiliser FullName pour désambiguïser les noms de schéma
-            c.CustomSchemaIds(type => type.FullName!);
+            // Utilisation de noms complets pour éviter les collisions de schémas
+            c.CustomSchemaIds(type => GenerateUniqueSchemaId(type));
 
-            // Configuration JWT Bearer
+            static string GenerateUniqueSchemaId(Type type)
+            {
+                if (type.IsGenericType)
+                {
+                    var genericTypeName = type.GetGenericTypeDefinition().Name.Split('`')[0];
+                    var genericArgs = string.Join(
+                        "_",
+                        type.GetGenericArguments().Select(GenerateUniqueSchemaId)
+                    );
+                    return $"{genericTypeName}_{genericArgs}";
+                }
+
+                return type.FullName!.Replace(".", "_").Replace("+", "_");
+            }
+
+            // Définition JWT
             c.AddSecurityDefinition(
                 "Bearer",
                 new OpenApiSecurityScheme
@@ -50,19 +62,5 @@ public static class SwaggerExtensions
         });
 
         return services;
-    }
-
-    /// <summary>
-    /// Registers Swagger middleware in the request pipeline.
-    /// </summary>
-    public static WebApplication UseCustomSwagger(this WebApplication app)
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "PulseERP API V1");
-        });
-
-        return app;
     }
 }

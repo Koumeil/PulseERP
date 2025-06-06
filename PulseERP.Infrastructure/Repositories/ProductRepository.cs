@@ -3,85 +3,127 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Abstractions.Contracts.Repositories;
 using PulseERP.Domain.Entities;
-using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-/// <summary>
-/// Repository for <see cref="Product"/> entities, with Redis caching on <c>GetByIdAsync</c>.
-/// </summary>
 public class ProductRepository : IProductRepository
 {
     private readonly CoreDbContext _ctx;
     private readonly ILogger<ProductRepository> _logger;
-    private readonly IDistributedCache _cache;
-    private const string ProductByIdKeyTemplate = "ProductRepository:Id:{0}";
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="ProductRepository"/>.
-    /// </summary>
-    /// <param name="ctx">EF Core DB context.</param>
-    /// <param name="logger">Logger instance.</param>
-    /// <param name="cache">Redis distributed cache.</param>
-    public ProductRepository(
-        CoreDbContext ctx,
-        ILogger<ProductRepository> logger,
-        IDistributedCache cache
-    )
+    public ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> logger)
     {
         _ctx = ctx;
         _logger = logger;
-        _cache = cache;
     }
 
-    /// <inheritdoc/>
-    public async Task<PagedResult<Product>> GetAllAsync(
-        PaginationParams paginationParams,
-        ProductFilter productFilter
-    )
+    public async Task<PagedResult<Product>> GetAllAsync(ProductFilter filter)
     {
-        var query = _ctx.Products.Include(p => p.Brand).AsNoTracking().AsQueryable();
+        var query = _ctx
+            .Products.Include(p => p.Brand)
+            .Include(p => p.Inventory)
+            .AsNoTracking()
+            .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(productFilter.Brand))
+        if (!string.IsNullOrWhiteSpace(filter.Search))
         {
-            string brandFilter = productFilter.Brand.Trim().ToLowerInvariant();
-            query = query.Where(p => p.Brand.Name.ToLower().Contains(brandFilter));
-        }
-
-        if (!string.IsNullOrWhiteSpace(productFilter.Search))
-        {
-            string keyword = $"%{productFilter.Search.Trim().ToLower()}%";
+            string keyword = $"%{filter.Search.Trim().ToLowerInvariant()}%";
             query = query.Where(p =>
-                EF.Functions.Like(p.Name, keyword)
-                || (p.Description != null && EF.Functions.Like(p.Description, keyword))
+                EF.Functions.Like(p.Name.Value.ToLower(), keyword)
+                || (
+                    p.Description != null
+                    && EF.Functions.Like(p.Description.Value.ToLower(), keyword)
+                )
             );
         }
 
-        query = productFilter.Sort switch
+        if (!string.IsNullOrWhiteSpace(filter.Status))
         {
-            "priceAsc" => query.OrderBy(p => p.Price),
-            "priceDesc" => query.OrderByDescending(p => p.Price),
-            _ => query.OrderBy(p => p.Name),
+            string status = filter.Status.Trim();
+            query = query.Where(p => p.Status.ToString() == status);
+        }
+
+        if (filter.IsService.HasValue)
+        {
+            query = query.Where(p => p.IsService == filter.IsService.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Brand))
+        {
+            string brand = filter.Brand.Trim().ToLowerInvariant();
+            query = query.Where(p => p.Brand.Name.ToLower().Contains(brand));
+        }
+
+        if (filter.MinPrice.HasValue)
+        {
+            query = query.Where(p => p.Price.Amount >= filter.MinPrice.Value);
+        }
+
+        if (filter.MaxPrice.HasValue)
+        {
+            query = query.Where(p => p.Price.Amount <= filter.MaxPrice.Value);
+        }
+
+        if (filter.MinStockLevel.HasValue)
+        {
+            query = query.Where(p => p.Inventory.Quantity >= filter.MinStockLevel.Value);
+        }
+
+        if (filter.MaxStockLevel.HasValue)
+        {
+            query = query.Where(p => p.Inventory.Quantity <= filter.MaxStockLevel.Value);
+        }
+
+        query = filter.Sort?.Trim().ToLowerInvariant() switch
+        {
+            "priceasc" => query.OrderBy(p => p.Price.Amount),
+            "pricedesc" => query.OrderByDescending(p => p.Price.Amount),
+            "nameasc" => query.OrderBy(p => p.Name.Value),
+            "namedesc" => query.OrderByDescending(p => p.Name.Value),
+            "stockasc" => query.OrderBy(p => p.Inventory.Quantity),
+            "stockdesc" => query.OrderByDescending(p => p.Inventory.Quantity),
+            _ => query.OrderBy(p => p.Name.Value),
         };
 
-        int total = await query.CountAsync();
+        int totalItems = await query.CountAsync();
+
         var items = await query
-            .Skip((productFilter.PageNumber - 1) * productFilter.PageSize)
-            .Take(productFilter.PageSize)
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
             .ToListAsync();
 
         return new PagedResult<Product>
         {
             Items = items,
-            PageNumber = productFilter.PageNumber,
-            PageSize = productFilter.PageSize,
-            TotalItems = total,
+            PageNumber = filter.PageNumber,
+            PageSize = filter.PageSize,
+            TotalItems = totalItems,
         };
     }
 
-    /// <inheritdoc/>
+    public async Task<IReadOnlyCollection<Product>> GetAllRawAsync()
+    {
+        return await _ctx
+            .Products.Include(p => p.Inventory)
+            .ThenInclude(i => i.Movements)
+            .Include(p => p.Brand)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<Product?> FindByIdAsync(Guid id)
+    {
+        var product = await _ctx
+            .Products.Include(p => p.Brand)
+            .Include(p => p.Inventory)
+            .SingleOrDefaultAsync(p => p.Id == id);
+
+        return product;
+    }
+
     public async Task<Product?> GetByIdAsync(Guid id)
     {
         Product? product = await _ctx
@@ -90,7 +132,6 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
-    /// <inheritdoc/>
     public Task AddAsync(Product product)
     {
         _ctx.Products.Add(product);
@@ -102,9 +143,6 @@ public class ProductRepository : IProductRepository
     public Task UpdateAsync(Product product)
     {
         _ctx.Products.Update(product);
-        _logger.LogInformation("Product {ProductId} updated in context", product.Id);
-        string cacheKey = string.Format(ProductByIdKeyTemplate, product.Id);
-        _cache.Remove(cacheKey);
         return Task.CompletedTask;
     }
 
@@ -112,9 +150,6 @@ public class ProductRepository : IProductRepository
     public Task DeleteAsync(Product product)
     {
         _ctx.Products.Remove(product);
-        _logger.LogInformation("Product {ProductId} removed from context", product.Id);
-        string cacheKey = string.Format(ProductByIdKeyTemplate, product.Id);
-        _cache.Remove(cacheKey);
         return Task.CompletedTask;
     }
 

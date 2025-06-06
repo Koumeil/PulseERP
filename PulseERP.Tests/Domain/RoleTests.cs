@@ -1,50 +1,96 @@
-using FluentAssertions;
+using PulseERP.Domain.Errors;
 using PulseERP.Domain.ValueObjects;
 
 namespace PulseERP.Tests.Domain;
 
 public class RoleTests
 {
-    [Fact]
-    public void Same_Name_Ignoring_Case_Should_Be_Equal()
+    [Theory]
+    [InlineData("Admin", "Admin")]
+    [InlineData("  manager  ", "Manager")]
+    [InlineData("SYSTEM ADMIN", "System Admin")]
+    [InlineData("custoMer support", "Customer Support")]
+    public void Constructor_ValidInput_ShouldNormalizeAndStoreTitleCase(
+        string input,
+        string expected
+    )
     {
-        var r1 = Role.Create("Admin");
-        var r2 = Role.Create("admin");
-        r1.Should().Be(r2);
+        var role = new Role(input);
+
+        Assert.Equal(expected, role.Value);
+        Assert.Equal(expected, role.ToString());
     }
 
     [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public void Create_WithEmptyOrNullInput_ShouldReturn_DefaultUser(string? raw)
+    public void Constructor_InvalidNullOrWhitespace_ShouldThrow(string? input)
     {
-        // Act
-        Role result = Role.Create(raw);
-
-        // Assert
-        result.Should().Be(Role.User);
+        var ex = Assert.Throws<DomainValidationException>(() => new Role(input!));
+        Assert.Contains("null or whitespace", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public void Default_Create_Should_Return_User()
+    public void Constructor_TooLong_ShouldThrow()
     {
-        var role = Role.Create(); // aucun paramètre
-        role.Should().Be(Role.User);
+        var input = new string('x', 51);
+        var ex = Assert.Throws<DomainValidationException>(() => new Role(input));
+        Assert.Contains("exceed 50 characters", ex.Message);
     }
 
     [Fact]
-    public void Explicit_Null_Or_Empty_Should_Return_User()
+    public void Equality_SameNormalizedValue_DifferentCases_ShouldBeEqual()
     {
-        Role.Create(null!).Should().Be(Role.User);
-        Role.Create("").Should().Be(Role.User);
+        var role1 = new Role("admin");
+        var role2 = new Role("ADMIN");
+
+        Assert.Equal(role1, role2);
+        Assert.True(role1 == role2);
+        Assert.False(role1 != role2);
+        Assert.Equal(role1.GetHashCode(), role2.GetHashCode());
     }
 
     [Fact]
-    public void Case_Insensitive_Equality()
+    public void Equality_DifferentValues_ShouldNotBeEqual()
     {
-        var r1 = Role.Create("Admin");
-        var r2 = Role.Create("admin");
-        r1.Should().Be(r2);
+        var role1 = new Role("Manager");
+        var role2 = new Role("Developer");
+
+        Assert.NotEqual(role1, role2);
+        Assert.False(role1 == role2);
+        Assert.True(role1 != role2);
+    }
+
+    [Fact]
+    public void ToString_ShouldReturnNormalizedValue()
+    {
+        var role = new Role(" support agent ");
+        Assert.Equal("Support Agent", role.ToString());
+    }
+
+    [Fact]
+    public void Equals_WithObject_ShouldReturnTrueForSameValue()
+    {
+        Role role1 = new("admin");
+        object role2 = new Role("ADMIN");
+
+        Assert.True(role1.Equals(role2));
+    }
+
+    [Fact]
+    public void GetHashCode_ShouldBeCaseInsensitive()
+    {
+        Role role1 = new("adMin");
+        Role role2 = new("ADMIN");
+
+        Assert.Equal(role1.GetHashCode(), role2.GetHashCode());
+    }
+
+    [Fact]
+    public void Struct_Default_ShouldHaveEmptyValue()
+    {
+        Role role = default;
+        Assert.Null(role.Value); // car struct et non class → pas de valeur assignée par défaut
     }
 }

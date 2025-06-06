@@ -1,9 +1,8 @@
 // Application/Mapping/Brands/BrandProfile.cs
 using AutoMapper;
+using PulseERP.Abstractions.Common.DTOs.Brands.Commands;
+using PulseERP.Abstractions.Common.DTOs.Brands.Models;
 using PulseERP.Abstractions.Common.Pagination;
-using PulseERP.Application.Brands.Commands;
-using PulseERP.Application.Brands.Models;
-using PulseERP.Application.Common.Models;
 using PulseERP.Domain.Entities;
 
 namespace PulseERP.Application.Mapping.Brands;
@@ -21,7 +20,7 @@ public class BrandProfile : Profile
             );
 
         // CreateBrandRequest → Domain
-        CreateMap<CreateBrandCommand, Brand>().ConstructUsing(cmd => Brand.Create(cmd.Name));
+        CreateMap<CreateBrandCommand, Brand>().ConstructUsing(cmd => new Brand(cmd.Name));
 
         // PaginationResult<Brand> → PaginationResult<BrandDto>
         CreateMap<PagedResult<Brand>, PagedResult<BrandSummary>>()

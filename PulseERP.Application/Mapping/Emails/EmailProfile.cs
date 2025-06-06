@@ -1,6 +1,6 @@
 using AutoMapper;
-using PulseERP.Application.Common.Models;
-using PulseERP.Domain.ValueObjects.Adresses;
+using PulseERP.Abstractions.Common.DTOs.Common.Models;
+using PulseERP.Domain.VO;
 
 namespace PulseERP.Application.Mapping.Emails;
 
@@ -11,6 +11,7 @@ public class EmailProfile : Profile
         CreateMap<EmailAddress, EmailAddressModel>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
-        CreateMap<EmailAddressModel, EmailAddress>().ConstructUsing(dto => EmailAddress.Create(dto.Value));
+        CreateMap<EmailAddressModel, EmailAddress>()
+            .ConstructUsing(dto => new EmailAddress(dto.Value));
     }
 }

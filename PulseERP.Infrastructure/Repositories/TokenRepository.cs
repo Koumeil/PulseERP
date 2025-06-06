@@ -3,14 +3,11 @@ using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Token;
-using PulseERP.Domain.Security.Interfaces;
+using PulseERP.Domain.Interfaces;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-/// <summary>
-/// Unified repository for all authentication tokens, using TokenType to distinguish.
-/// </summary>
 public class TokenRepository : ITokenRepository
 {
     private readonly CoreDbContext _ctx;
