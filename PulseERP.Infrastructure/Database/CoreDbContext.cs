@@ -6,11 +6,8 @@ using PulseERP.Domain.VO;
 
 namespace PulseERP.Infrastructure.Database;
 
-public class CoreDbContext : DbContext
+public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(options)
 {
-    public CoreDbContext(DbContextOptions<CoreDbContext> options)
-        : base(options) { }
-
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Product> Products { get; set; }
@@ -19,99 +16,98 @@ public class CoreDbContext : DbContext
     public DbSet<Inventory> Inventories { get; set; }
     public DbSet<InventoryMovement> InventoryMovements { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(builder);
+        base.OnModelCreating(modelBuilder);
 
         // 1. Conversion des Value Objects Money, Currency
-        builder.Owned<Money>();
-        builder.Owned<Currency>();
+        modelBuilder.Owned<Money>();
+        modelBuilder.Owned<Currency>();
 
         // 2. Conversion globale DateTime ↔ UTC/Local
-        UtcLocalDateTimeConverter.ApplyConversions(builder);
+        UtcLocalDateTimeConverter.ApplyConversions(modelBuilder);
 
         // ==============================================
         // Configuration Entity : User
         // ==============================================
-        builder.Entity<User>(u =>
+        modelBuilder.Entity<User>(entity =>
         {
-            u.Property(x => x.FirstName).IsRequired().HasMaxLength(100);
-            u.Property(x => x.LastName).IsRequired().HasMaxLength(100);
-            u.Property(x => x.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            u.Property(x => x.Email)
+            entity.Property(e => e.Email)
                 .IsRequired()
                 .HasMaxLength(255)
                 .HasConversion(vo => vo.ToString(), str => new EmailAddress(str));
 
-            u.Property(x => x.PhoneNumber)
+            entity.Property(e => e.PhoneNumber)
                 .IsRequired()
                 .HasMaxLength(20)
                 .HasConversion(vo => vo.Value, str => new Phone(str));
 
-            u.Property(x => x.Role)
+            entity.Property(e => e.Role)
                 .IsRequired()
                 .HasMaxLength(50)
                 .HasColumnName("RoleName")
                 .HasConversion(vo => vo.Value, str => new Role(str));
 
-            u.HasIndex(x => x.Email).IsUnique();
+            entity.HasIndex(e => e.Email).IsUnique();
         });
 
         // ==============================================
         // Configuration Entity : Customer
         // ==============================================
-        builder.Entity<Customer>(c =>
+        modelBuilder.Entity<Customer>(entity =>
         {
-            c.Property(x => x.FirstName).IsRequired().HasMaxLength(100);
-            c.Property(x => x.LastName).IsRequired().HasMaxLength(100);
-            c.Property(x => x.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            c.Property(x => x.Email)
+            entity.Property(e => e.Email)
                 .IsRequired()
                 .HasMaxLength(255)
                 .HasConversion(vo => vo.ToString(), str => new EmailAddress(str));
 
-            c.Property(x => x.Phone)
+            entity.Property(e => e.Phone)
                 .IsRequired()
                 .HasMaxLength(20)
                 .HasConversion(vo => vo.Value, str => new Phone(str));
 
-            c.OwnsOne(
-                x => x.Address,
-                a =>
+            entity.OwnsOne(
+                e => e.Address,
+                addressBuilder =>
                 {
-                    a.Property(ad => ad.Street).HasColumnName("Street");
-                    a.Property(ad => ad.City).HasColumnName("City");
-                    a.Property(ad => ad.PostalCode).HasColumnName("PostalCode");
-                    a.Property(ad => ad.Country).HasColumnName("Country");
-                }
-            );
+                    addressBuilder.Property(a => a.Street).HasColumnName("Street");
+                    addressBuilder.Property(a => a.City).HasColumnName("City");
+                    addressBuilder.Property(a => a.PostalCode).HasColumnName("PostalCode");
+                    addressBuilder.Property(a => a.Country).HasColumnName("Country");
+                });
 
-            c.HasIndex(x => x.Email).IsUnique();
+            entity.HasIndex(e => e.Email).IsUnique();
         });
 
         // ==============================================
         // Configuration Entity : Product
         // ==============================================
         var currencyConverter = new ValueConverter<Currency, string>(
-            v => v.Code, // Convertir Currency en string
-            v => new Currency(v) // Convertir string en Currency
+            v => v.Code,
+            v => new Currency(v)
         );
 
-        builder.Entity<Product>(p =>
+        modelBuilder.Entity<Product>(entity =>
         {
-            p.Property(p => p.Name)
+            entity.Property(e => e.Name)
                 .HasConversion(v => v.Value, v => new ProductName(v))
                 .HasMaxLength(200);
 
-            p.HasOne(x => x.Brand)
+            entity.HasOne(e => e.Brand)
                 .WithMany()
-                .HasForeignKey(x => x.BrandId)
+                .HasForeignKey(e => e.BrandId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            p.Property(p => p.Description)
+            entity.Property(e => e.Description)
                 .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasConversion(
@@ -119,79 +115,77 @@ public class CoreDbContext : DbContext
                     str => str == null ? null : new ProductDescription(str)
                 );
 
-            p.Property(p => p.IsActive).HasDefaultValue(true);
-            p.Property(p => p.IsService).HasDefaultValue(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsService).HasDefaultValue(false);
 
-            // Configuration de Money avec OwnsOne
-            p.OwnsOne(
-                x => x.Price,
-                price =>
+            entity.OwnsOne(
+                e => e.Price,
+                priceBuilder =>
                 {
-                    price
-                        .Property(m => m.Amount)
+                    priceBuilder
+                        .Property(p => p.Amount)
                         .HasColumnName("PriceAmount")
                         .HasPrecision(18, 2)
                         .IsRequired();
 
-                    price
-                        .Property(m => m.Currency)
+                    priceBuilder
+                        .Property(p => p.Currency)
                         .HasColumnName("PriceCurrency")
                         .IsRequired()
                         .HasConversion(currencyConverter);
-                }
-            );
+                });
         });
 
         // ==============================================
         // Configuration Entity : Inventory
-        builder.Entity<Inventory>(i =>
+        // ==============================================
+        modelBuilder.Entity<Inventory>(entity =>
         {
-            i.HasKey(x => x.Id);
-            i.Property(x => x.Quantity).HasDefaultValue(0);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Quantity).HasDefaultValue(0);
 
-            // 1:1 vers Product (FK = Inventory.ProductId → Products.Id)
-            i.HasOne<Product>()
+            entity.HasOne<Product>()
                 .WithOne(p => p.Inventory)
-                .HasForeignKey<Inventory>(i => i.ProductId)
+                .HasForeignKey<Inventory>(e => e.ProductId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade); // Configure cascade delete for Inventory
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // 1:N vers InventoryMovements, en utilisant Inventory.Id
-            i.HasMany(i => i.Movements)
+            entity.HasMany(e => e.Movements)
                 .WithOne(m => m.Inventory)
                 .HasForeignKey(m => m.InventoryId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade); // Configure cascade delete for InventoryMovements
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ==============================================
         // Configuration Entity : InventoryMovement
-        builder.Entity<InventoryMovement>(m =>
+        // ==============================================
+        modelBuilder.Entity<InventoryMovement>(entity =>
         {
-            m.HasKey(x => x.Id);
-            m.Property(x => x.QuantityChange).IsRequired();
-            m.Property(x => x.Type).IsRequired();
-            m.Property(x => x.OccurredAt).IsRequired();
-            m.Property(x => x.Reason).IsRequired();
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.QuantityChange).IsRequired();
+            entity.Property(e => e.Type).IsRequired();
+            entity.Property(e => e.OccurredAt).IsRequired();
+            entity.Property(e => e.Reason).IsRequired();
 
-            // Relation vers Inventory (FK = InventoryMovement.InventoryId → Inventories.Id)
-            m.HasOne(x => x.Inventory)
+            entity.HasOne(e => e.Inventory)
                 .WithMany(i => i.Movements)
-                .HasForeignKey(x => x.InventoryId)
+                .HasForeignKey(e => e.InventoryId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade); // Ensure cascading delete here too
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ==============================================
         // Configuration Entity : Brand
-        builder.Entity<Brand>(b =>
+        // ==============================================
+        modelBuilder.Entity<Brand>(entity =>
         {
-            b.Property(x => x.Id).ValueGeneratedNever();
-            b.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            b.HasIndex(x => x.Name).IsUnique();
-            b.Property(x => x.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            b.HasMany(b => b.Products)
+            entity.HasMany(e => e.Products)
                 .WithOne(p => p.Brand)
                 .HasForeignKey(p => p.BrandId)
                 .IsRequired();
@@ -199,11 +193,12 @@ public class CoreDbContext : DbContext
 
         // ==============================================
         // Configuration Entity : RefreshToken
-        builder.Entity<RefreshToken>(rt =>
+        // ==============================================
+        modelBuilder.Entity<RefreshToken>(entity =>
         {
-            rt.HasIndex(x => x.Token).IsUnique();
-            rt.HasIndex(x => x.UserId);
-            rt.Property(x => x.Expires).IsRequired();
+            entity.HasIndex(e => e.Token).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.Property(e => e.Expires).IsRequired();
         });
     }
 }

@@ -7,21 +7,12 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-public class BrandRepository : IBrandRepository
+public class BrandRepository(CoreDbContext ctx) : IBrandRepository
 {
-    private readonly CoreDbContext _ctx;
-    private readonly ILogger<Brand> _logger;
-
-    public BrandRepository(CoreDbContext ctx, ILogger<Brand> logger)
-    {
-        _ctx = ctx;
-        _logger = logger;
-    }
-
     public async Task<PagedResult<Brand>> GetAllAsync(PaginationParams paginationParams)
     {
-        var query = _ctx.Brands.AsNoTracking().Include(b => b.Products);
-        int total = await query.CountAsync();
+        var query = ctx.Brands.AsNoTracking().Include(b => b.Products);
+        var total = await query.CountAsync();
 
         var items = await query
             .OrderBy(b => b.Name)
@@ -40,45 +31,47 @@ public class BrandRepository : IBrandRepository
 
     public async Task<Brand?> FindByIdAsync(Guid id)
     {
-        Brand? brand = await _ctx.Brands.SingleOrDefaultAsync(b => b.Id == id);
+        var brand = await ctx.Brands.SingleOrDefaultAsync(b => b.Id == id);
         return brand;
     }
 
     public async Task<Brand?> FindByNameAsync(string name)
     {
-        string normalized = name.Trim().ToLowerInvariant();
-        Brand? brand = await _ctx.Brands.SingleOrDefaultAsync(b =>
-            b.Name.Trim().ToLower() == normalized
+        var normalized = name.Trim().ToLowerInvariant();
+        var brand = await ctx.Brands.SingleOrDefaultAsync(b =>
+            b.Name.Trim().Equals(normalized
+                , StringComparison.CurrentCultureIgnoreCase)
         );
         return brand;
     }
 
     public async Task<bool> ExistsByNameAsync(string name, Guid? excludeId = null)
     {
-        string normalized = name.Trim().ToLowerInvariant();
-        return await _ctx.Brands.AnyAsync(b =>
-            b.Name.Trim().ToLower() == normalized
+        var normalized = name.Trim().ToLowerInvariant();
+        return await ctx.Brands.AnyAsync(b =>
+            b.Name.Trim().Equals(normalized
+                , StringComparison.CurrentCultureIgnoreCase)
             && (!excludeId.HasValue || b.Id != excludeId.Value)
         );
     }
 
     public Task AddAsync(Brand brand)
     {
-        _ctx.Brands.Add(brand);
+        ctx.Brands.Add(brand);
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(Brand brand)
     {
-        _ctx.Brands.Update(brand);
+        ctx.Brands.Update(brand);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Brand brand)
     {
-        _ctx.Brands.Remove(brand);
+        ctx.Brands.Remove(brand);
         return Task.CompletedTask;
     }
 
-    public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
+    public Task<int> SaveChangesAsync() => ctx.SaveChangesAsync();
 }

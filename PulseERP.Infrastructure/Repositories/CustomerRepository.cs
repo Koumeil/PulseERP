@@ -10,20 +10,13 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-public class CustomerRepository : ICustomerRepository
+public class CustomerRepository(CoreDbContext ctx, ILogger<CustomerRepository> logger) : ICustomerRepository
 {
-    private readonly CoreDbContext _ctx;
-    private readonly ILogger<CustomerRepository> _logger;
-
-    public CustomerRepository(CoreDbContext ctx, ILogger<CustomerRepository> logger)
-    {
-        _ctx = ctx;
-        _logger = logger;
-    }
+    private readonly ILogger<CustomerRepository> _logger = logger;
 
     public async Task<PagedResult<Customer>> GetAllAsync(CustomerFilter customerFilter)
     {
-        var query = _ctx.Customers.AsNoTracking();
+        var query = ctx.Customers.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(customerFilter.Search))
         {
@@ -78,31 +71,31 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<Customer?> FindByIdAsync(Guid id)
     {
-        return await _ctx.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id);
+        return await ctx.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<Customer?> FindByEmailAsync(EmailAddress email)
     {
-        return await _ctx.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Email == email);
+        return await ctx.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Email == email);
     }
 
     public Task AddAsync(Customer customer)
     {
-        _ctx.Customers.Add(customer);
+        ctx.Customers.Add(customer);
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(Customer customer)
     {
-        _ctx.Customers.Update(customer);
+        ctx.Customers.Update(customer);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Customer customer)
     {
-        _ctx.Customers.Remove(customer);
+        ctx.Customers.Remove(customer);
         return Task.CompletedTask;
     }
 
-    public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
+    public Task<int> SaveChangesAsync() => ctx.SaveChangesAsync();
 }

@@ -18,11 +18,10 @@ public static class ProblemDetailsExtensions
     {
         services.AddProblemDetails(opts =>
         {
-            // Toujours masquer stack trace / exceptionDetails
+            // Always hidden stack trace / exceptionDetails
             opts.IncludeExceptionDetails = (_, __) => false;
 
-            opts.Map<ValidationException>(
-                (ctx, ex) =>
+            opts.Map<ValidationException>((ctx, ex) =>
                 {
                     // LOG ici !
                     var logger = ctx.RequestServices.GetRequiredService<
@@ -43,109 +42,101 @@ public static class ProblemDetailsExtensions
             );
 
             // NotFound → 404
-            opts.Map<NotFoundException>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#not_found",
-                        Title = "Resource not found",
-                        Status = StatusCodes.Status404NotFound,
-                        Detail = ex.Message,
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<NotFoundException>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#not_found",
+                    Title = "Resource not found",
+                    Status = StatusCodes.Status404NotFound,
+                    Detail = ex.Message,
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // Unauthorized → 401
-            opts.Map<UnauthorizedAccessException>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#unauthorized",
-                        Title = "Unauthorized",
-                        Status = StatusCodes.Status401Unauthorized,
-                        Detail = ex.Message,
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<UnauthorizedAccessException>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#unauthorized",
+                    Title = "Unauthorized",
+                    Status = StatusCodes.Status401Unauthorized,
+                    Detail = ex.Message,
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // Fallback → 500
-            opts.Map<Exception>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#internal_server_error",
-                        Title = "Internal server error",
-                        Status = StatusCodes.Status500InternalServerError,
-                        Detail = env.IsDevelopment()
-                            ? ex.Message
-                            : "Une erreur inattendue est survenue.",
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<Exception>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#internal_server_error",
+                    Title = "Internal server error",
+                    Status = StatusCodes.Status500InternalServerError,
+                    Detail = env.IsDevelopment()
+                        ? ex.Message
+                        : "Une erreur inattendue est survenue.",
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // DomainException → 400 (business rule violation)
-            opts.Map<DomainException>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#domain_error",
-                        Title = "Business rule violation",
-                        Status = StatusCodes.Status400BadRequest,
-                        Detail = ex.Message,
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<DomainException>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#domain_error",
+                    Title = "Business rule violation",
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = ex.Message,
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // ConflictException → 409
-            opts.Map<ConflictException>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#conflict",
-                        Title = "Conflict",
-                        Status = StatusCodes.Status409Conflict,
-                        Detail = ex.Message,
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<ConflictException>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#conflict",
+                    Title = "Conflict",
+                    Status = StatusCodes.Status409Conflict,
+                    Detail = ex.Message,
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // UnauthorizedException → 401
-            opts.Map<UnauthorizedException>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#unauthorized",
-                        Title = "Unauthorized",
-                        Status = StatusCodes.Status401Unauthorized,
-                        Detail = ex.Message,
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<UnauthorizedException>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#unauthorized",
+                    Title = "Unauthorized",
+                    Status = StatusCodes.Status401Unauthorized,
+                    Detail = ex.Message,
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // ForbiddenException → 403
-            opts.Map<ForbiddenException>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#forbidden",
-                        Title = "Forbidden",
-                        Status = StatusCodes.Status403Forbidden,
-                        Detail = ex.Message,
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<ForbiddenException>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#forbidden",
+                    Title = "Forbidden",
+                    Status = StatusCodes.Status403Forbidden,
+                    Detail = ex.Message,
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // BadRequestException → 400
-            opts.Map<BadRequestException>(
-                (ctx, ex) =>
-                    new ProblemDetails
-                    {
-                        Type = "https://docs.pulserp.com/errors#bad_request",
-                        Title = "Bad request",
-                        Status = StatusCodes.Status400BadRequest,
-                        Detail = ex.Message,
-                        Instance = ctx.Request.Path,
-                    }
+            opts.Map<BadRequestException>((ctx, ex) =>
+                new ProblemDetails
+                {
+                    Type = "https://docs.pulserp.com/errors#bad_request",
+                    Title = "Bad request",
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = ex.Message,
+                    Instance = ctx.Request.Path,
+                }
             );
 
             // Ajout d'extensions communes

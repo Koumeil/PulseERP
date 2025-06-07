@@ -1,0 +1,30 @@
+2025-06-08 01:46:34.240 +02:00 [INF] Executed DbCommand (31ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [b].[Id], [b].[CreatedAt], [b].[DeletedAt], [b].[IsActive], [b].[IsDeleted], [b].[Name], [b].[UpdatedAt]
+FROM [Brands] AS [b]
+2025-06-08 01:46:34.365 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Products] AS [p]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2025-06-08 01:46:34.369 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2025-06-08 01:46:34.372 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Users] AS [u]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2025-06-08 01:46:34.390 +02:00 [INF] Seed data successfully inserted (if needed).
+2025-06-08 01:46:34.481 +02:00 [INF] User profile is available. Using '/Users/kouumss/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-06-08 01:46:34.714 +02:00 [INF] Now listening on: https://localhost:7232
+2025-06-08 01:46:34.714 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-06-08 01:46:34.714 +02:00 [INF] Hosting environment: Development
+2025-06-08 01:46:34.714 +02:00 [INF] Content root path: /Users/kouumss/Desktop/Projects/PulseERP/PulseERP.API

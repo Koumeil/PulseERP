@@ -7,18 +7,11 @@ using PulseERP.Domain.VO;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
-public class UserRepository : IUserRepository
+public class UserRepository(CoreDbContext context) : IUserRepository
 {
-    private readonly CoreDbContext _context;
-
-    public UserRepository(CoreDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<PagedResult<User>> GetAllAsync(UserFilter filter)
     {
-        var query = _context.Users.AsNoTracking();
+        var query = context.Users.AsNoTracking();
 
         // Apply search filters (FirstName, LastName, Email, Phone)
         if (!string.IsNullOrWhiteSpace(filter.Search))
@@ -76,40 +69,40 @@ public class UserRepository : IUserRepository
     public async Task<User?> FindByIdAsync(Guid id, bool bypassCache)
     {
         var user = bypassCache
-            ? await _context.Users.FirstOrDefaultAsync(u => u.Id == id)
-            : await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            ? await context.Users.FirstOrDefaultAsync(u => u.Id == id)
+            : await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
         return user;
     }
 
     public async Task<User?> FindByEmailAsync(EmailAddress email, bool bypassCache)
     {
         var user = bypassCache
-            ? await _context.Users.FirstOrDefaultAsync(u => u.Email == email)
-            : await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
+            ? await context.Users.FirstOrDefaultAsync(u => u.Email == email)
+            : await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
         return user;
     }
 
     public async Task AddAsync(User user)
     {
-        await _context.Users.AddAsync(user);
+        await context.Users.AddAsync(user);
     }
 
     public Task UpdateAsync(User user)
     {
-        _context.Users.Update(user);
+        context.Users.Update(user);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(User user)
     {
-        _context.Users.Remove(user);
+        context.Users.Remove(user);
         return Task.CompletedTask;
     }
 
     public Task<int> SaveChangesAsync()
     {
-        return _context.SaveChangesAsync();
+        return context.SaveChangesAsync();
     }
 
-    public Task<bool> ExistsAsync(Guid id) => _context.Users.AnyAsync(u => u.Id == id);
+    public Task<bool> ExistsAsync(Guid id) => context.Users.AnyAsync(u => u.Id == id);
 }

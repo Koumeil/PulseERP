@@ -1,3 +1,6 @@
+namespace PulseERP.API.Controllers;
+
+
 using Microsoft.AspNetCore.Mvc;
 using PulseERP.Abstractions.Common.DTOs.Inventories.Models;
 using PulseERP.Abstractions.Common.DTOs.Products.Commands;
@@ -6,27 +9,20 @@ using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
 using PulseERP.API.Contracts;
 using PulseERP.Application.Interfaces;
-using PulseERP.Domain.Entities;
 
 [ApiController]
 [Route("api/products")]
-public class ProductsController : ControllerBase
-{
-    private readonly IProductService _productService;
-    private readonly ILogger<ProductsController> _logger;
 
-    public ProductsController(IProductService productService, ILogger<ProductsController> logger)
-    {
-        _productService = productService;
-        _logger = logger;
-    }
+public class ProductsController(IProductService productService)
+    : ControllerBase
+{
 
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PagedResult<ProductSummary>>>> GetAll(
         [FromQuery] ProductFilter productFilter
     )
     {
-        var result = await _productService.GetAllProductsAsync(productFilter);
+        var result = await productService.GetAllProductsAsync(productFilter);
         return Ok(
             new ApiResponse<PagedResult<ProductSummary>>(
                 true,
@@ -39,7 +35,7 @@ public class ProductsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ApiResponse<ProductDetails>>> GetById(Guid id)
     {
-        var result = await _productService.GetProductByIdAsync(id);
+        var result = await productService.GetProductByIdAsync(id);
         return Ok(new ApiResponse<ProductDetails>(true, result, "Product retrieved successfully"));
     }
 
@@ -48,7 +44,7 @@ public class ProductsController : ControllerBase
         [FromBody] CreateProductCommand request
     )
     {
-        var result = await _productService.CreateProductAsync(request);
+        var result = await productService.CreateProductAsync(request);
         var response = new ApiResponse<ProductDetails>(
             true,
             result,
@@ -63,35 +59,35 @@ public class ProductsController : ControllerBase
         [FromBody] UpdateProductCommand request
     )
     {
-        var result = await _productService.UpdateProductAsync(id, request);
+        var result = await productService.UpdateProductAsync(id, request);
         return Ok(new ApiResponse<ProductDetails>(true, result, "Product updated successfully"));
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await _productService.DeleteProductAsync(id);
+        await productService.DeleteProductAsync(id);
         return NoContent();
     }
 
     [HttpPatch("{id:guid}/activate")]
     public async Task<ActionResult<ApiResponse<object>>> Activate(Guid id)
     {
-        await _productService.ActivateProductAsync(id);
+        await productService.ActivateProductAsync(id);
         return Ok(new ApiResponse<object>(true, null, "Product activated successfully"));
     }
 
     [HttpPatch("{id:guid}/restore")]
     public async Task<ActionResult<ApiResponse<object>>> Restore(Guid id)
     {
-        await _productService.RestoreProductAsync(id);
+        await productService.RestoreProductAsync(id);
         return Ok(new ApiResponse<object>(true, null, "Product restored successfully"));
     }
 
     [HttpPatch("{id:guid}/deactivate")]
     public async Task<ActionResult<ApiResponse<object>>> Deactivate(Guid id)
     {
-        await _productService.DeactivateProductAsync(id);
+        await productService.DeactivateProductAsync(id);
         return Ok(new ApiResponse<object>(true, null, "Product deactivated successfully"));
     }
 
@@ -101,7 +97,7 @@ public class ProductsController : ControllerBase
         [FromBody] RestockProductCommand request
     )
     {
-        await _productService.RestockProductAsync(id, request.Quantity);
+        await productService.RestockProductAsync(id, request.Quantity);
         return Ok(new ApiResponse<object>(true, null, "Product restocked successfully"));
     }
 
@@ -111,7 +107,7 @@ public class ProductsController : ControllerBase
         [FromBody] SellProductCommand request
     )
     {
-        await _productService.SellProductAsync(id, request.Quantity);
+        await productService.SellProductAsync(id, request.Quantity);
         return Ok(new ApiResponse<object>(true, null, "Product sold successfully"));
     }
 
@@ -121,7 +117,7 @@ public class ProductsController : ControllerBase
         [FromBody] ChangeProductPriceCommand request
     )
     {
-        var result = await _productService.ChangeProductPriceAsync(id, request.NewPrice);
+        var result = await productService.ChangeProductPriceAsync(id, request.NewPrice);
         return Ok(
             new ApiResponse<ProductDetails>(true, result, "Product price changed successfully")
         );
@@ -133,7 +129,7 @@ public class ProductsController : ControllerBase
         [FromBody] ApplyDiscountCommand request
     )
     {
-        var result = await _productService.ApplyDiscountAsync(id, request.Percentage);
+        var result = await productService.ApplyDiscountAsync(id, request.Percentage);
         return Ok(new ApiResponse<ProductDetails>(true, result, "Discount applied successfully"));
     }
 
@@ -143,7 +139,7 @@ public class ProductsController : ControllerBase
         [FromQuery] int threshold = 5
     )
     {
-        var result = await _productService.IsProductLowStockAsync(id, threshold);
+        var result = await productService.IsProductLowStockAsync(id, threshold);
         return Ok(new ApiResponse<bool>(true, result, "Low stock status retrieved successfully"));
     }
 
@@ -153,7 +149,7 @@ public class ProductsController : ControllerBase
         [FromQuery(Name = "minThreshold")] int minThreshold
     )
     {
-        var result = await _productService.NeedsRestockingAsync(id, minThreshold);
+        var result = await productService.NeedsRestockingAsync(id, minThreshold);
         return Ok(
             new ApiResponse<bool>(true, result, "Needs restock status retrieved successfully")
         );
@@ -164,7 +160,7 @@ public class ProductsController : ControllerBase
         ActionResult<ApiResponse<IReadOnlyCollection<ProductSummary>>>
     > GetLowStockList([FromQuery] int threshold = 5)
     {
-        var result = await _productService.GetProductsBelowThresholdAsync(threshold);
+        var result = await productService.GetProductsBelowThresholdAsync(threshold);
         return Ok(
             new ApiResponse<IReadOnlyCollection<ProductSummary>>(
                 true,
@@ -179,7 +175,7 @@ public class ProductsController : ControllerBase
         ActionResult<ApiResponse<IReadOnlyCollection<InventoryMovementModel>>>
     > GetInventoryMovements(Guid id)
     {
-        var result = await _productService.GetInventoryMovementsAsync(id);
+        var result = await productService.GetInventoryMovementsAsync(id);
         return Ok(
             new ApiResponse<IReadOnlyCollection<InventoryMovementModel>>(
                 true,
@@ -195,7 +191,7 @@ public class ProductsController : ControllerBase
         [FromBody] ReturnProductCommand request
     )
     {
-        var result = await _productService.ReturnProductAsync(id, request.Quantity);
+        var result = await productService.ReturnProductAsync(id, request.Quantity);
         return Ok(
             new ApiResponse<ProductDetails>(true, result, "Product return processed successfully")
         );
@@ -207,7 +203,7 @@ public class ProductsController : ControllerBase
     )
     {
         var inactivity = TimeSpan.FromDays(request.InactivityDays);
-        await _productService.ArchiveStaleProductsAsync(inactivity, request.OutOfStockDays);
+        await productService.ArchiveStaleProductsAsync(inactivity, request.OutOfStockDays);
         return Ok(new ApiResponse<object>(true, null, "Stale products archived successfully"));
     }
 
@@ -217,7 +213,7 @@ public class ProductsController : ControllerBase
         [FromQuery] ProductFilter filter
     )
     {
-        var result = await _productService.GetProductsByBrandAsync(brandName, filter);
+        var result = await productService.GetProductsByBrandAsync(brandName, filter);
         return Ok(
             new ApiResponse<PagedResult<ProductSummary>>(
                 true,
@@ -227,109 +223,3 @@ public class ProductsController : ControllerBase
         );
     }
 }
-
-
-// using Microsoft.AspNetCore.Mvc;
-// using PulseERP.Abstractions.Common.Filters;
-// using PulseERP.Abstractions.Common.Pagination;
-// using PulseERP.API.Contracts;
-// using PulseERP.Application.Interfaces;
-// using PulseERP.Application.Products.Commands;
-// using PulseERP.Application.Products.Models;
-
-// [ApiController]
-// [Route("api/products")]
-// public class ProductsController : ControllerBase
-// {
-//     private readonly IProductService _productService;
-//     private readonly ILogger<ProductsController> _logger;
-
-//     public ProductsController(IProductService productService, ILogger<ProductsController> logger)
-//     {
-//         _productService = productService;
-//         _logger = logger;
-//     }
-
-//     // GET /api/products
-//     [HttpGet]
-//     public async Task<ActionResult<ApiResponse<PagedResult<ProductSummary>>>> GetAll(
-//         [FromQuery] ProductFilter productFilter
-//     )
-//     {
-//         var result = await _productService.GetAllProductsAsync(productFilter);
-//         return Ok(
-//             new ApiResponse<PagedResult<ProductSummary>>(
-//                 true,
-//                 result,
-//                 "Products retrieved successfully"
-//             )
-//         );
-//     }
-
-//     // GET /api/products/{id}
-//     [HttpGet("{id:guid}")]
-//     public async Task<ActionResult<ApiResponse<ProductDetails>>> GetById(Guid id)
-//     {
-//         var result = await _productService.GetProductByIdAsync(id);
-//         return Ok(new ApiResponse<ProductDetails>(true, result, "Product retrieved successfully"));
-//     }
-
-//     // POST /api/products
-//     [HttpPost]
-//     public async Task<ActionResult<ApiResponse<ProductDetails>>> Create(
-//         [FromBody] CreateProductCommand request
-//     )
-//     {
-//         var result = await _productService.CreateProductAsync(request);
-//         var response = new ApiResponse<ProductDetails>(
-//             true,
-//             result,
-//             "Product created successfully"
-//         );
-
-//         return CreatedAtAction(nameof(GetById), new { id = response.Data?.Id }, response);
-//     }
-
-//     // PUT /api/products/{id}
-//     [HttpPut("{id:guid}")]
-//     public async Task<ActionResult<ApiResponse<ProductDetails>>> Update(
-//         Guid id,
-//         [FromBody] UpdateProductCommand request
-//     )
-//     {
-//         var result = await _productService.UpdateProductAsync(id, request);
-//         return Ok(new ApiResponse<ProductDetails>(true, result, "Product updated successfully"));
-//     }
-
-//     // DELETE /api/products/{id}
-//     [HttpDelete("{id:guid}")]
-//     public async Task<IActionResult> Delete(Guid id)
-//     {
-//         await _productService.DeleteProductAsync(id);
-//         return NoContent(); // standard REST response
-//     }
-
-//     // PATCH /api/products/{id}/activate
-//     [HttpPatch("{id:guid}/activate")]
-//     public async Task<ActionResult<ApiResponse<object>>> Activate(Guid id)
-//     {
-//         await _productService.ActivateProductAsync(id);
-//         return Ok(new ApiResponse<object>(true, null, "Product activated successfully"));
-//     }
-
-//     // PATCH /api/products/{id}/restore
-//     [HttpPatch("{id:guid}/restore")]
-//     public async Task<ActionResult<ApiResponse<object>>> Restore(Guid id)
-//     {
-//         await _productService.RestoreProductAsync(id);
-//         return Ok(new ApiResponse<object>(true, null, "Product restored successfully"));
-//     }
-
-//     // PATCH /api/products/{id}/deactivate
-//     [HttpPatch("{id:guid}/deactivate")]
-//     public async Task<ActionResult<ApiResponse<object>>> Deactivate(Guid id)
-//     {
-//         await _productService.DeactivateProductAsync(id);
-//         return Ok(new ApiResponse<object>(true, null, "Product deactivated successfully"));
-//     }
-// }

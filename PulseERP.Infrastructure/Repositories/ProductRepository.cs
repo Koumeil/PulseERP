@@ -9,20 +9,11 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-public class ProductRepository : IProductRepository
+public class ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> logger) : IProductRepository
 {
-    private readonly CoreDbContext _ctx;
-    private readonly ILogger<ProductRepository> _logger;
-
-    public ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> logger)
-    {
-        _ctx = ctx;
-        _logger = logger;
-    }
-
     public async Task<PagedResult<Product>> GetAllAsync(ProductFilter filter)
     {
-        var query = _ctx
+        var query = ctx
             .Products.Include(p => p.Brand)
             .Include(p => p.Inventory)
             .AsNoTracking()
@@ -30,7 +21,7 @@ public class ProductRepository : IProductRepository
 
         if (!string.IsNullOrWhiteSpace(filter.Search))
         {
-            string keyword = $"%{filter.Search.Trim().ToLowerInvariant()}%";
+            var keyword = $"%{filter.Search.Trim().ToLowerInvariant()}%";
             query = query.Where(p =>
                 EF.Functions.Like(p.Name.Value.ToLower(), keyword)
                 || (
@@ -42,7 +33,7 @@ public class ProductRepository : IProductRepository
 
         if (!string.IsNullOrWhiteSpace(filter.Status))
         {
-            string status = filter.Status.Trim();
+            var status = filter.Status.Trim();
             query = query.Where(p => p.Status.ToString() == status);
         }
 
@@ -53,7 +44,7 @@ public class ProductRepository : IProductRepository
 
         if (!string.IsNullOrWhiteSpace(filter.Brand))
         {
-            string brand = filter.Brand.Trim().ToLowerInvariant();
+            var brand = filter.Brand.Trim().ToLowerInvariant();
             query = query.Where(p => p.Brand.Name.ToLower().Contains(brand));
         }
 
@@ -88,7 +79,7 @@ public class ProductRepository : IProductRepository
             _ => query.OrderBy(p => p.Name.Value),
         };
 
-        int totalItems = await query.CountAsync();
+        var totalItems = await query.CountAsync();
 
         var items = await query
             .Skip((filter.PageNumber - 1) * filter.PageSize)
@@ -106,7 +97,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<IReadOnlyCollection<Product>> GetAllRawAsync()
     {
-        return await _ctx
+        return await ctx
             .Products.Include(p => p.Inventory)
             .ThenInclude(i => i.Movements)
             .Include(p => p.Brand)
@@ -116,7 +107,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<Product?> FindByIdAsync(Guid id)
     {
-        var product = await _ctx
+        var product = await ctx
             .Products.Include(p => p.Brand)
             .Include(p => p.Inventory)
             .SingleOrDefaultAsync(p => p.Id == id);
@@ -126,7 +117,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<Product?> GetByIdAsync(Guid id)
     {
-        Product? product = await _ctx
+        var product = await ctx
             .Products.Include(p => p.Brand)
             .SingleOrDefaultAsync(p => p.Id == id);
         return product;
@@ -134,25 +125,25 @@ public class ProductRepository : IProductRepository
 
     public Task AddAsync(Product product)
     {
-        _ctx.Products.Add(product);
-        _logger.LogInformation("Product {ProductId} added to context", product.Id);
+        ctx.Products.Add(product);
+        logger.LogInformation("Product {ProductId} added to context", product.Id);
         return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
     public Task UpdateAsync(Product product)
     {
-        _ctx.Products.Update(product);
+        ctx.Products.Update(product);
         return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
     public Task DeleteAsync(Product product)
     {
-        _ctx.Products.Remove(product);
+        ctx.Products.Remove(product);
         return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
+    public Task<int> SaveChangesAsync() => ctx.SaveChangesAsync();
 }
