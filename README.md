@@ -22,7 +22,7 @@ Construit autour des meilleures pratiques modernes telles que la **Clean Archite
 - 📈 **MediaTR-Notification** : EventHandler dédié pour chaque fonctionnalité, avec service d'envoi d’e-mails via SMTP (ServiceEmail) 
 - 🧪 **Tests unitaires & d’intégration** (xUnit + FluentAssertions)
 - 📦 **CI/CD** avec GitHub Actions pour build, tests et couverture  
-z
+
 ---
 
 ## 📂 Structure du projet (arborescence)
