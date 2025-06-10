@@ -1,11 +1,21 @@
 [![Build Status](https://github.com/Kouumss/PulseERP/actions/workflows/ci.yml/badge.svg)](https://github.com/Kouumss/PulseERP/actions)  
-[![License](https://img.shields.io/badge/License-Proprietary-yellow)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com)  
 
-# PulseERP
+TEST////////////////////////////
 
->**PulseERP** est un back-end ERP modulaire conçu pour les petites et moyennes entreprises, développé en **C# 13 / .NET 9** 
-Il applique rigoureusement les principes **Clean Architecture** & **Domain-Drive-Design**. : les couches Domain, Application, Abstractions, Infrastructure et API sont clairement séparées, testées (xUnit + FluentAssertions) et accompagnées d’une pipeline CI GitHub Actions qui construit, analyse et valide automatiquement chaque commit.
+content = """[![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/PulseERP/ci.yml?branch=main)](https://github.com/your-org/PulseERP/actions)  
+[![Coverage](https://img.shields.io/codecov/c/github/your-org/PulseERP/main)](https://codecov.io/gh/your-org/PulseERP)  
+[![Docker Pulls](https://img.shields.io/docker/pulls/your-dockerhub/pulseerp)](https://hub.docker.com/r/your-dockerhub/pulseerp)  
+[![NuGet](https://img.shields.io/nuget/v/PulseERP)](https://www.nuget.org/packages/PulseERP)  
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)  
+
+# PulseERP
+>**🚀 PulseERP** - Mini ERP évolutif pour petites entreprises
+>
+PulseERP est une solution logicielle spécialement pensée pour répondre aux besoins essentiels des petites entreprises. Conçu pour simplifier la gestion quotidienne des clients, employés, produits, et inventaires, monitoring, PulseERP offre une expérience intuitive, robuste et évolutive.
+
+Construit autour des meilleures pratiques modernes telles que la **Clean Architecture** & **Domain-Drive-Design**. (DDD), ce projet est en constante amélioration et bénéficie d'une conception modulaire facilitant l’ajout futur d’un front-end Angular ou Blazor pour une expérience utilisateur complète et immersive. Inclus une pipeline CI GitHub Actions qui construit, analyse et valide automatiquement.
 
 ---
 
@@ -13,14 +23,15 @@ Il applique rigoureusement les principes **Clean Architecture** & **Domain-Drive
 
 ## 🌟 Fonctionnalités clés
 
-- 🏗️ **Architecture hexagonale** strictement découplée (Domain, Application, Infrastructure, API)  
+- 🏗️ **Clean Architecture** strictement découplée (Domain, Application, Infrastructure, API)  
 - 🚀 **Performances optimisées** (Entity Framework Core + Redis pour le cache)  
-- 🔒 **Sécurité renforcée** (JWT avec Refresh Tokens, FluentValidation, Polly)  
-- 📊 **Gestion complète** des produits, marques et clients  
-- 📈 **Pagination avancée** et filtres dynamiques sur toutes les ressources  
-- 🧪 **Tests unitaires & d’intégration** (xUnit + FluentAssertions)  
+- 🔒 **Sécurité renforcée** (JWT avec Refresh Tokens, FluentValidation)  
+- 📊 **Gestion complète** des produits, marques, clients, utilisateurs, Inventaire 
+- 📈 **Pagination avancée** et filtres dynamiques sur toutes les ressources
+- 📈 **MediaTR-Notification** : EventHandler dédié pour chaque fonctionnalité, avec service d'envoi d’e-mails via SMTP (ServiceEmail) 
+- 🧪 **Tests unitaires & d’intégration** (xUnit + FluentAssertions)
 - 📦 **CI/CD** avec GitHub Actions pour build, tests et couverture  
-
+z
 ---
 
 ## 📂 Structure du projet (arborescence)
@@ -64,50 +75,6 @@ PulseERP/
 └── README.md                        # 📄 Cette documentation
 
 ```
-
----
-
-## 🔗 Diagrammes d’architecture & dépendances
-
-### 1. Vue globale (Hexagonale)
-
-```mermaid
-graph TD
-    A[API] --> B[Application]
-    B --> C[Domain]
-    B --> D[Infrastructure]
-    D --> C
-    D --> E[(SQL Server)]
-    D --> F[(Redis)]
-```
-
----
-
-### 2. Dépendances des projets (Project References)
-
-```mermaid
-graph LR
-    subgraph PulseERP.Abstractions
-    end
-    subgraph PulseERP.Domain
-    end
-    subgraph PulseERP.Application
-    end
-    subgraph PulseERP.Infrastructure
-    end
-    subgraph PulseERP.API
-    end
-    subgraph PulseERP.Tests
-    end
-
-    PulseERP.Abstractions --> PulseERP.Domain
-    PulseERP.Domain --> PulseERP.Application
-    PulseERP.Domain --> PulseERP.Infrastructure
-    PulseERP.Application --> PulseERP.API
-    PulseERP.Infrastructure --> PulseERP.API
-    PulseERP.Domain --> PulseERP.Tests
-```
-
 ---
 
 ### PulseERP.Tests
@@ -167,6 +134,31 @@ Les fichiers `appsettings*.json` contiennent des valeurs vides pour les secrets 
 
 En environnement de développement, utilisez les User Secrets pour sécuriser la chaîne de connexion, la clé JWT, le mot de passe SMTP, etc. :
 
+# 1. Cloner le dépôt
+```bash
+git clone https://github.com/your-org/PulseERP.git
+cd PulseERP
+```
+
+# 2. Configurer les secrets utilisateurs
+#   dotnet user-secrets init --project PulseERP.API
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Data Source=.;Initial Catalog=PulseERP;User ID=sa;Password=Your_password123"
+dotnet user-secrets set "RedisSettings:Configuration" "localhost:6379"
+dotnet user-secrets set "RedisSettings:InstanceName" "PulseERP:"
+dotnet user-secrets set "JwtSettings:SecretKey" "votre-clé-secrète-Ici"
+dotnet user-secrets set "EmailSettings:Password" "votre-mot-de-passe-smtp"
+dotnet user-secrets set "EmailSettings:FromEmail" "votre-email@domaine.com"
+dotnet user-secrets set "AppSettings:FrontendUrl" "https://localhost:4200"
+dotnet user-secrets set "AppSettings:FrontendClearUrl" "https://localhost:4200"
+```
+# 3. Restaurer & lancer
+```bash
+dotnet restore
+dotnet build --configuration Release
+dotnet run --project PulseERP.API
+```
+
 
 ## 🔧 Compilation & tests locaux
 
@@ -195,16 +187,6 @@ $ cd PulseERP.API
 $ dotnet run --launch-profile https
 # Swagger : https://localhost:5001/swagger
 ```
-
-Variables d’environnement essentielles :
-
-| Nom                          | Exemple                                                   | Description              |
-| ---------------------------- | --------------------------------------------------------- | ------------------------ |
-| `ConnectionStrings__Default` | `Server=.;Database=PulseERP;TrustServerCertificate=True;` | DB SQL Server/PostgreSQL |
-| `Jwt__SecretKey`             | `V3ryLongR@ndomKey…`                                      | Clé HMAC JWT 512 bits    |
-| `Email__Password`            | `***`                                                     | Mot de passe SMTP        |
-
----
 
 ## 🌀 CI GitHub Actions
 
@@ -236,18 +218,6 @@ Un push sur **main** ⇒ build, tests, rapport de couverture.
 
 ---
 
-## 🎯 Principes clés du projet
-
-* **Clean Architecture** : toutes les dépendances pointent vers le domaine.
-* **DDD** : Value Objects immuables (`Money`, `Role`, `EmailAddress`…), agrégats (`Product`, `User`).
-* **Validation** : FluentValidation via pipeline `ValidationBehavior` dans Application.
-* **Résilience** : Polly (retry, circuit‑breaker) bientôt ajouté dans Infrastructure.
-* **Logging structuré** : Serilog JSON + enrichers (UserId, CorrelationId) + Export OpenTelemetry (à venir).
-
----
-
----
-
 ## 🤝 Contribuer
 
 1. Fork : `git clone`
@@ -260,13 +230,8 @@ Un push sur **main** ⇒ build, tests, rapport de couverture.
 
 ## 📄 Licence
 
-Copyright © 2024 Koumayl Messaoudi. All rights reserved.
-
-This software is proprietary and confidential.  
-Unauthorized copying of this file, via any medium, is strictly prohibited.  
-All rights reserved.
-
-For permissions, contact: [koumayl.messaoudi@gmail.com]
+Ce projet est sous licence MIT.
+Voir LICENSE.md pour plus de détails.
 
 
 ---
