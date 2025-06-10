@@ -2,14 +2,6 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com)  
 
-TEST////////////////////////////
-
-content = """[![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/PulseERP/ci.yml?branch=main)](https://github.com/your-org/PulseERP/actions)  
-[![Coverage](https://img.shields.io/codecov/c/github/your-org/PulseERP/main)](https://codecov.io/gh/your-org/PulseERP)  
-[![Docker Pulls](https://img.shields.io/docker/pulls/your-dockerhub/pulseerp)](https://hub.docker.com/r/your-dockerhub/pulseerp)  
-[![NuGet](https://img.shields.io/nuget/v/PulseERP)](https://www.nuget.org/packages/PulseERP)  
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)  
-
 # PulseERP
 >**🚀 PulseERP** - Mini ERP évolutif pour petites entreprises
 >
