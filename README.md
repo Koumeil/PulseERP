@@ -2,9 +2,8 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com)  
 
-# PulseERP
->**🚀 PulseERP** - Mini ERP évolutif pour petites entreprises
->
+# PulseERP **🚀 PulseERP** - Mini ERP évolutif pour petites entreprises
+
 PulseERP est une solution logicielle spécialement pensée pour répondre aux besoins essentiels des petites entreprises. Conçu pour simplifier la gestion quotidienne des clients, employés, produits, et inventaires, monitoring, PulseERP offre une expérience intuitive, robuste et évolutive.
 
 Construit autour des meilleures pratiques modernes telles que la **Clean Architecture** & **Domain-Drive-Design**. (DDD), ce projet est en constante amélioration et bénéficie d'une conception modulaire facilitant l’ajout futur d’un front-end Angular ou Blazor pour une expérience utilisateur complète et immersive. Inclus une pipeline CI GitHub Actions qui construit, analyse et valide automatiquement.
