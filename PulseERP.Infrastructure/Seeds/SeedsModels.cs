@@ -26,7 +26,7 @@ public class CustomerSeed
     public string Status { get; set; } = default!;
     public string? Industry { get; set; }
     public string? Source { get; set; }
-    public bool IsVIP { get; set; }
+    public bool IsVip { get; set; }
     public bool IsActive { get; set; }
     public DateTime FirstContactDate { get; set; }
     public DateTime? LastInteractionDate { get; set; }

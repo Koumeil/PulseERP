@@ -1,5 +1,5 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
@@ -9,11 +9,11 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-public class ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> logger) : IProductRepository
+public class ProductRepository(CoreDbContext context) : IProductRepository
 {
     public async Task<PagedResult<Product>> GetAllAsync(ProductFilter filter)
     {
-        var query = ctx
+        var query = context
             .Products.Include(p => p.Brand)
             .Include(p => p.Inventory)
             .AsNoTracking()
@@ -72,11 +72,11 @@ public class ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> log
         {
             "priceasc" => query.OrderBy(p => p.Price.Amount),
             "pricedesc" => query.OrderByDescending(p => p.Price.Amount),
-            "nameasc" => query.OrderBy(p => p.Name.Value),
-            "namedesc" => query.OrderByDescending(p => p.Name.Value),
+            "nameasc" => query.OrderBy(p => p.Name),
+            "namedesc" => query.OrderByDescending(p => p.Name),
             "stockasc" => query.OrderBy(p => p.Inventory.Quantity),
             "stockdesc" => query.OrderByDescending(p => p.Inventory.Quantity),
-            _ => query.OrderBy(p => p.Name.Value),
+            _ => query.OrderBy(p => p.Name),
         };
 
         var totalItems = await query.CountAsync();
@@ -97,53 +97,41 @@ public class ProductRepository(CoreDbContext ctx, ILogger<ProductRepository> log
 
     public async Task<IReadOnlyCollection<Product>> GetAllRawAsync()
     {
-        return await ctx
+        return await context
             .Products.Include(p => p.Inventory)
-            .ThenInclude(i => i.Movements)
             .Include(p => p.Brand)
             .AsNoTracking()
             .ToListAsync();
     }
 
-    public async Task<Product?> FindByIdAsync(Guid id)
-    {
-        var product = await ctx
-            .Products.Include(p => p.Brand)
-            .Include(p => p.Inventory)
-            .SingleOrDefaultAsync(p => p.Id == id);
-
-        return product;
-    }
-
-    public async Task<Product?> GetByIdAsync(Guid id)
-    {
-        var product = await ctx
-            .Products.Include(p => p.Brand)
-            .SingleOrDefaultAsync(p => p.Id == id);
-        return product;
-    }
-
     public Task AddAsync(Product product)
     {
-        ctx.Products.Add(product);
-        logger.LogInformation("Product {ProductId} added to context", product.Id);
+        context.Products.Add(product);
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc/>
+    public async Task<Product?> FindByIdAsync(Guid id)
+    {
+        return await context.Products.Include(p => p.Inventory)
+            .Include(p => p.Brand)
+            .FirstOrDefaultAsync(p => p.Id == id);
+    }
+
     public Task UpdateAsync(Product product)
     {
-        ctx.Products.Update(product);
+        context.Products.Update(product);
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc/>
+    public Task<int> SaveChangesAsync()
+    {
+        return context.SaveChangesAsync();
+    }
+
+
     public Task DeleteAsync(Product product)
     {
-        ctx.Products.Remove(product);
+        context.Products.Remove(product);
         return Task.CompletedTask;
     }
-
-    /// <inheritdoc/>
-    public Task<int> SaveChangesAsync() => ctx.SaveChangesAsync();
 }

@@ -1,6 +1,6 @@
 namespace PulseERP.Domain.Extensions;
 
-using PulseERP.Domain.Enums.Inventory;
+using Enums.Inventory;
 
 public static class InventoryMovementTypeExtensions
 {

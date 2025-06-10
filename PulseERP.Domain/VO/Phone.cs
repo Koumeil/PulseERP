@@ -13,7 +13,7 @@ public sealed class Phone : ValueObject, IEquatable<Phone>
 
     // Simple E.164 pattern: “+” followed by 1–15 digits.
     // You can replace or extend this with a more complex pattern if needed.
-    private static readonly Regex _e164Regex = new(@"^\+[1-9]\d{1,14}$", RegexOptions.Compiled);
+    private static readonly Regex E164Regex = new(@"^\+[1-9]\d{1,14}$", RegexOptions.Compiled);
 
     #endregion
 
@@ -41,7 +41,7 @@ public sealed class Phone : ValueObject, IEquatable<Phone>
             throw new DomainValidationException("Phone number cannot be null or whitespace.");
 
         var trimmed = phone.Trim();
-        if (!_e164Regex.IsMatch(trimmed))
+        if (!E164Regex.IsMatch(trimmed))
             throw new DomainValidationException(
                 $"Invalid phone format (expected E.164); got '{phone}'."
             );

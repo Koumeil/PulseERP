@@ -1,7 +1,7 @@
 namespace PulseERP.Domain.VO;
 
 using System.Globalization;
-using PulseERP.Domain.Errors;
+using Errors;
 
 /// <summary>
 /// Immutable Value Object representing a monetary amount with a specific currency (ISO 4217 code).

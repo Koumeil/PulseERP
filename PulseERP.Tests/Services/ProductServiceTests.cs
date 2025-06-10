@@ -149,7 +149,6 @@ public class ProductServiceTests
         var product = CreateTestProduct("Old Product", "Old Description");
 
         _productRepositoryMock.Setup(x => x.FindByIdAsync(productId)).ReturnsAsync(product);
-        _productRepositoryMock.Setup(x => x.UpdateAsync(It.IsAny<Product>())).Verifiable();
         _productRepositoryMock.Setup(x => x.SaveChangesAsync()).ReturnsAsync(1);
 
         var result = await _productService.UpdateProductAsync(productId, command);

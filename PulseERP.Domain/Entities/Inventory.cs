@@ -1,20 +1,17 @@
 namespace PulseERP.Domain.Entities;
 
-using PulseERP.Domain.Common;
 using PulseERP.Domain.Enums.Inventory;
-using PulseERP.Domain.Errors;
-using PulseERP.Domain.Events.ProductEvents;
-using PulseERP.Domain.Events.StockEvents;
-using PulseERP.Domain.Extensions;
+using Errors;
+using Events.ProductEvents;
+using Events.StockEvents;
+using Extensions;
 
 public sealed class Inventory : BaseEntity
 {
-    public Guid ProductId { get; private set; }
+    public Guid ProductId { get; }
 
     public int Quantity { get; private set; }
 
-    private readonly List<InventoryMovement> _movements = new();
-    public IReadOnlyCollection<InventoryMovement> Movements => _movements.AsReadOnly();
 
     private Inventory() { }
 
@@ -26,7 +23,6 @@ public sealed class Inventory : BaseEntity
         ProductId = productId;
         Quantity = initialQuantity;
 
-        AddMovement(initialQuantity, InventoryMovementType.InitialStock);
     }
 
     public void Restock(int amount)
@@ -35,7 +31,6 @@ public sealed class Inventory : BaseEntity
             throw new DomainValidationException("Restock amount must be positive.");
 
         Quantity += amount;
-        AddMovement(amount, InventoryMovementType.Inbound);
         AddDomainEvent(new ProductRestockedEvent(ProductId, amount));
     }
 
@@ -47,7 +42,6 @@ public sealed class Inventory : BaseEntity
             throw new DomainValidationException("Cannot decrease more than current quantity.");
 
         Quantity -= amount;
-        AddMovement(-amount, InventoryMovementType.Outbound);
         AddDomainEvent(new ProductStockDecreasedEvent(ProductId, amount));
     }
 
@@ -70,7 +64,6 @@ public sealed class Inventory : BaseEntity
                     : InventoryMovementType.CorrectionDecrease
             );
 
-        AddMovement(delta, type);
         AddDomainEvent(new ProductStockAdjustedEvent(ProductId, newQuantity));
     }
 
@@ -78,26 +71,4 @@ public sealed class Inventory : BaseEntity
 
     public bool IsOutOfStock() => Quantity == 0;
 
-    public void HandleReturn(int quantity)
-    {
-        if (quantity <= 0)
-            throw new DomainValidationException("Return amount must be positive.");
-
-        Quantity += quantity;
-        AddMovement(quantity, InventoryMovementType.Return);
-        Quantity += quantity;
-        AddMovement(quantity, InventoryMovementType.Return);
-        AddDomainEvent(new ProductStockReturnedEvent(ProductId, quantity));
-    }
-
-    private void AddMovement(int quantityChange, InventoryMovementType type)
-    {
-        var movement = new InventoryMovement(
-            quantityChange,
-            type,
-            DateTime.UtcNow,
-            type.GetDescription()
-        );
-        _movements.Add(movement);
-    }
 }

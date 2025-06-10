@@ -7,32 +7,15 @@ using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.API.Contracts;
 using PulseERP.Domain.VO;
 
+namespace PulseERP.API.Controllers;
+
 [ApiController]
 [Route("api/auth")]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController(
+    IAuthenticationService authService,
+    IPasswordService passwordService)
+    : ControllerBase
 {
-    private readonly IAuthenticationService _authService;
-    private readonly IPasswordService _passwordService;
-
-    public AuthenticationController(
-        IAuthenticationService authService,
-        IPasswordService passwordService
-    )
-    {
-        _authService = authService;
-        _passwordService = passwordService;
-    }
-
-    // POST /api/auth/register
-    [HttpPost("register")]
-    public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(
-        [FromBody] RegisterRequest request
-    )
-    {
-        var authResult = await _authService.RegisterAsync(request, string.Empty, string.Empty);
-        return Ok(new ApiResponse<AuthResponse>(true, authResult, null));
-    }
-
     // POST /api/auth/login
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(
@@ -41,7 +24,7 @@ public class AuthenticationController : ControllerBase
     {
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
         var ua = Request.Headers["User-Agent"].ToString();
-        var authResult = await _authService.LoginAsync(request, ip, ua);
+        var authResult = await authService.LoginAsync(request, ip, ua);
         return Ok(new ApiResponse<AuthResponse>(true, authResult, null));
     }
 
@@ -53,17 +36,17 @@ public class AuthenticationController : ControllerBase
     {
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
         var ua = Request.Headers["User-Agent"].ToString();
-        var authResult = await _authService.RefreshTokenAsync(request.Token, ip, ua);
+        var authResult = await authService.RefreshTokenAsync(request.Token, ip, ua);
         return Ok(new ApiResponse<AuthResponse>(true, authResult, null));
     }
 
     // DELETE /api/auth/token
-    [HttpDelete("token")]
+    [HttpDelete("revoke-refresh-token")]
     public async Task<ActionResult<ApiResponse<object>>> RevokeRefreshToken(
         [FromBody] LogoutRequest cmd
     )
     {
-        await _authService.LogoutAsync(cmd.RefreshTokenDto);
+        await authService.LogoutAsync(cmd.RefreshTokenDto);
         return Ok(new ApiResponse<object>(true, null, null));
     }
 
@@ -73,7 +56,7 @@ public class AuthenticationController : ControllerBase
         [FromBody] RequestPasswordResetCommand cmd
     )
     {
-        await _passwordService.RequestPasswordResetAsync(new EmailAddress(cmd.Email));
+        await passwordService.RequestPasswordResetAsync(new EmailAddress(cmd.Email));
         return Ok(
             new ApiResponse<object>(true, null, "If the email exists, a reset link has been sent.")
         );
@@ -85,7 +68,7 @@ public class AuthenticationController : ControllerBase
         [FromBody] ResetPasswordWithTokenCommand cmd
     )
     {
-        await _passwordService.ResetPasswordWithTokenAsync(cmd.Token, cmd.NewPassword);
+        await passwordService.ResetPasswordWithTokenAsync(cmd.Token, cmd.NewPassword);
         return Ok(new ApiResponse<object>(true, null, "Password has been reset successfully."));
     }
 
@@ -103,7 +86,17 @@ public class AuthenticationController : ControllerBase
         if (!Guid.TryParse(sub, out var userId))
             throw new UnauthorizedAccessException("Invalid 'sub' claim.");
 
-        await _passwordService.ChangePasswordAsync(userId, cmd.CurrentPassword, cmd.NewPassword);
+        await passwordService.ChangePasswordAsync(userId, cmd.CurrentPassword, cmd.NewPassword);
         return Ok(new ApiResponse<object>(true, null, "Password changed successfully."));
     }
+
+    // POST /api/auth/activate-account
+    [HttpPost("activate-account")]
+    public async Task<ActionResult<ApiResponse<object>>> ActivateAccount(
+        [FromBody] ActivateAccountRequest request)
+    {
+        await authService.ActivateAccountAsync(request);
+        return Ok(new ApiResponse<object>(true, null, "Account activated successfully."));
+    }
+
 }

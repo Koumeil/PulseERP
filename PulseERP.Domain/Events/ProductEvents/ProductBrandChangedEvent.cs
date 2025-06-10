@@ -6,15 +6,9 @@ namespace PulseERP.Domain.Events.ProductEvents;
 /// <summary>
 /// Raised when the brand of a product changes.
 /// </summary>
-public sealed class ProductBrandChangedEvent : IDomainEvent
+public sealed class ProductBrandChangedEvent(Guid productId, Brand newBrand) : IDomainEvent
 {
-    public Guid ProductId { get; }
-    public Brand NewBrand { get; }
+    public Guid ProductId { get; } = productId;
+    public Brand NewBrand { get; } = newBrand;
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-
-    public ProductBrandChangedEvent(Guid productId, Brand newBrand)
-    {
-        ProductId = productId;
-        NewBrand = newBrand;
-    }
 }

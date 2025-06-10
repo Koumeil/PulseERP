@@ -1,6 +1,7 @@
 using AutoMapper;
 using PulseERP.Abstractions.Common.DTOs.Users.Models;
 using PulseERP.Abstractions.Common.Pagination;
+using PulseERP.Abstractions.Security.DTOs;
 using PulseERP.Domain.Entities;
 
 namespace PulseERP.Application.Mapping.Users;
@@ -9,6 +10,17 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
+
+        // User => UserInfos
+
+        CreateMap<User, UserInfo>()
+            .ForCtorParam("Id", opt => opt.MapFrom(src => src.Id))
+            .ForCtorParam("FirstName", opt => opt.MapFrom(src => src.FirstName))
+            .ForCtorParam("LastName", opt => opt.MapFrom(src => src.LastName))
+            .ForCtorParam("Email", opt => opt.MapFrom(src => src.Email.ToString()))
+            .ForCtorParam("Phone", opt => opt.MapFrom(src => src.PhoneNumber.ToString()))
+            .ForCtorParam("Role", opt => opt.MapFrom(src => src.Role.ToString()));
+
         // User → UserDto
 
         CreateMap<User, UserSummary>()

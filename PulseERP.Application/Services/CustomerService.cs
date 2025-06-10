@@ -13,25 +13,15 @@ using PulseERP.Domain.VO;
 
 namespace PulseERP.Application.Services;
 
-public sealed class CustomerService : ICustomerService
+public sealed class CustomerService(ICustomerRepository repo, IMapper mapper, ILogger<CustomerService> log)
+    : ICustomerService
 {
-    private readonly ICustomerRepository _repo;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CustomerService> _log;
-
-    public CustomerService(ICustomerRepository repo, IMapper mapper, ILogger<CustomerService> log)
-    {
-        _repo = repo;
-        _mapper = mapper;
-        _log = log;
-    }
-
     public async Task<PagedResult<CustomerSummary>> GetAllCustomersAsync(
         CustomerFilter customerFilter
     )
     {
-        var result = await _repo.GetAllAsync(customerFilter);
-        var summaries = _mapper.Map<List<CustomerSummary>>(result.Items);
+        var result = await repo.GetAllAsync(customerFilter);
+        var summaries = mapper.Map<List<CustomerSummary>>(result.Items);
 
         return new PagedResult<CustomerSummary>
         {
@@ -44,14 +34,14 @@ public sealed class CustomerService : ICustomerService
 
     public async Task<CustomerDetails> FindCustomerByIdAsync(Guid id)
     {
-        var customer = await _repo.FindByIdAsync(id);
-        return _mapper.Map<CustomerDetails>(customer);
+        var customer = await repo.FindByIdAsync(id);
+        return mapper.Map<CustomerDetails>(customer);
     }
 
     public async Task<CustomerDetails> FindCustomerByEmailAsync(EmailAddress email)
     {
-        var customer = await _repo.FindByEmailAsync(email);
-        return _mapper.Map<CustomerDetails>(customer);
+        var customer = await repo.FindByEmailAsync(email);
+        return mapper.Map<CustomerDetails>(customer);
     }
 
     public async Task<CustomerDetails> CreateCustomerAsync(CreateCustomerCommand cmd)
@@ -66,21 +56,21 @@ public sealed class CustomerService : ICustomerService
             Enum.Parse<CustomerType>(cmd.Type),
             Enum.Parse<CustomerStatus>(cmd.Status),
             DateTime.UtcNow,
-            cmd.IsVIP
+            cmd.IsVip
         );
 
         customer.SetIndustry(cmd.Industry);
         customer.SetSource(cmd.Source);
 
-        await _repo.AddAsync(customer);
-        await _repo.SaveChangesAsync();
+        await repo.AddAsync(customer);
+        await repo.SaveChangesAsync();
 
-        return _mapper.Map<CustomerDetails>(customer);
+        return mapper.Map<CustomerDetails>(customer);
     }
 
     public async Task<CustomerDetails> UpdateCustomerAsync(Guid id, UpdateCustomerCommand cmd)
     {
-        var customer = await _repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
+        var customer = await repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
 
         customer.UpdateDetails(
             firstName: cmd.FirstName,
@@ -95,39 +85,39 @@ public sealed class CustomerService : ICustomerService
             },
             type: cmd.Type is null ? null : Enum.Parse<CustomerType>(cmd.Type),
             status: cmd.Status is null ? null : Enum.Parse<CustomerStatus>(cmd.Status),
-            isVIP: cmd.IsVIP,
+            isVip: cmd.IsVip,
             industry: cmd.Industry,
             source: cmd.Source
         );
 
-        await _repo.UpdateAsync(customer);
-        await _repo.SaveChangesAsync();
+        await repo.UpdateAsync(customer);
+        await repo.SaveChangesAsync();
 
-        return _mapper.Map<CustomerDetails>(customer);
+        return mapper.Map<CustomerDetails>(customer);
     }
 
     public async Task AssignCustomerToUserAsync(Guid customerId, Guid userId)
     {
-        var customer = await _repo.FindByIdAsync(customerId);
+        var customer = await repo.FindByIdAsync(customerId);
         if (customer is null)
         {
-            _log.LogWarning("Customer {CustomerId} not found for assignment.", customerId);
+            log.LogWarning("Customer {CustomerId} not found for assignment.", customerId);
             throw new NotFoundException("Customer", customerId);
         }
         customer.AssignTo(userId);
 
-        await _repo.UpdateAsync(customer);
-        await _repo.SaveChangesAsync();
+        await repo.UpdateAsync(customer);
+        await repo.SaveChangesAsync();
 
-        _log.LogInformation("Customer {CustomerId} assigned to user {UserId}.", customerId, userId);
+        log.LogInformation("Customer {CustomerId} assigned to user {UserId}.", customerId, userId);
     }
 
     public async Task RecordCustomerInteractionAsync(Guid customerId, string note)
     {
-        var customer = await _repo.FindByIdAsync(customerId);
+        var customer = await repo.FindByIdAsync(customerId);
         if (customer is null)
         {
-            _log.LogWarning(
+            log.LogWarning(
                 "Customer {CustomerId} not found for recording interaction.",
                 customerId
             );
@@ -137,28 +127,28 @@ public sealed class CustomerService : ICustomerService
         customer.RecordInteraction();
         customer.AddNote(note);
 
-        await _repo.UpdateAsync(customer);
-        await _repo.SaveChangesAsync();
+        await repo.UpdateAsync(customer);
+        await repo.SaveChangesAsync();
 
-        _log.LogInformation("Interaction recorded for customer {CustomerId}.", customerId);
+        log.LogInformation("Interaction recorded for customer {CustomerId}.", customerId);
     }
 
     public async Task RestoreCustomerAsync(Guid id)
     {
-        var customer = await _repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
+        var customer = await repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
 
         if (customer.IsDeleted)
             throw new InvalidOperationException($"Le customer ({id}) a déjà été restauré.");
 
         customer.MarkAsRestored();
 
-        await _repo.UpdateAsync(customer);
-        await _repo.SaveChangesAsync();
+        await repo.UpdateAsync(customer);
+        await repo.SaveChangesAsync();
     }
 
     public async Task ActivateCustomerAsync(Guid id)
     {
-        var customer = await _repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
+        var customer = await repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
 
         if (customer.IsDeleted)
             throw new InvalidOperationException(
@@ -170,13 +160,13 @@ public sealed class CustomerService : ICustomerService
 
         customer.MarkAsActivate();
 
-        await _repo.UpdateAsync(customer);
-        await _repo.SaveChangesAsync();
+        await repo.UpdateAsync(customer);
+        await repo.SaveChangesAsync();
     }
 
     public async Task DeactivateCustomerAsync(Guid id)
     {
-        var customer = await _repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
+        var customer = await repo.FindByIdAsync(id) ?? throw new NotFoundException("Customer", id);
 
         if (customer.IsDeleted)
             throw new InvalidOperationException(
@@ -188,14 +178,14 @@ public sealed class CustomerService : ICustomerService
 
         customer.MarkAsDeactivate();
 
-        await _repo.UpdateAsync(customer);
-        await _repo.SaveChangesAsync();
+        await repo.UpdateAsync(customer);
+        await repo.SaveChangesAsync();
     }
 
     public async Task DeleteCustomerAsync(Guid id)
     {
-        var customer = await _repo.FindByIdAsync(id) ?? throw new NotFoundException("Brand", id);
-        await _repo.DeleteAsync(customer);
-        await _repo.SaveChangesAsync();
+        var customer = await repo.FindByIdAsync(id) ?? throw new NotFoundException("Brand", id);
+        await repo.DeleteAsync(customer);
+        await repo.SaveChangesAsync();
     }
 }

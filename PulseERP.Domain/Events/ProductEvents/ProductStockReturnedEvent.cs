@@ -2,18 +2,11 @@ using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Domain.Events.ProductEvents;
 
-public sealed class ProductStockReturnedEvent : IDomainEvent
+public sealed class ProductStockReturnedEvent(Guid productId, int quantityReturned) : IDomainEvent
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 
-    public Guid ProductId { get; }
+    public Guid ProductId { get; } = productId;
 
-    public int QuantityReturned { get; }
-
-
-    public ProductStockReturnedEvent(Guid productId, int quantityReturned)
-    {
-        ProductId = productId;
-        QuantityReturned = quantityReturned;
-    }
+    public int QuantityReturned { get; } = quantityReturned;
 }

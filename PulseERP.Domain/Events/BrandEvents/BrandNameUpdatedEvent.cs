@@ -1,7 +1,7 @@
 namespace PulseERP.Domain.Events.BrandEvents;
 
 using System;
-using PulseERP.Domain.Interfaces;
+using Interfaces;
 
 /// <summary>
 /// Event raised when a brand’s name is updated.

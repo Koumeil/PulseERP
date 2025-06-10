@@ -15,5 +15,5 @@ public sealed record CreateCustomerCommand(
     string Status, // Active, Inactive…
     string? Industry,
     string? Source,
-    bool IsVIP
+    bool IsVip
 );

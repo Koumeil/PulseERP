@@ -1,4 +1,4 @@
-using PulseERP.Domain.Common;
+using PulseERP.Domain.Entities;
 using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Domain.Events.DomainEvents;

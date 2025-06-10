@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Abstractions.Settings;
-using PulseERP.Infrastructure.Smtp.Template;
+using PulseERP.Infrastructure.Smtp.Templates;
 
 namespace PulseERP.Infrastructure.Smtp;
 
@@ -13,15 +13,16 @@ namespace PulseERP.Infrastructure.Smtp;
 /// Email service for PulseERP. Sends account-related emails (reset, welcome, lockout, etc.) via SMTP.
 /// All templates are managed via EmailTemplates.
 /// </summary>
-public class SmtpEmailService : IEmailSenderService
+public class SmtpEmailService(IOptions<EmailSettings> opts, ILogger<SmtpEmailService> logger)
+    : IEmailSenderService
 {
-    private readonly EmailSettings _settings;
-    private readonly ILogger<SmtpEmailService> _logger;
+    private readonly EmailSettings _settings = opts?.Value ?? throw new ArgumentNullException(nameof(opts));
 
-    public SmtpEmailService(IOptions<EmailSettings> opts, ILogger<SmtpEmailService> logger)
+    public Task SendActivationEmailAsync(string toEmail, string userFullName, string activationUrl)
     {
-        _settings = opts?.Value ?? throw new ArgumentNullException(nameof(opts));
-        _logger = logger;
+        var subject = "🔔 Activez votre compte Pulse ERP";
+        var builder = EmailTemplates.BuildActivation(activationUrl, userFullName);
+        return SendEmailAsync(toEmail, subject, builder);
     }
 
     /// <inheritdoc />
@@ -91,7 +92,7 @@ public class SmtpEmailService : IEmailSenderService
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Email '{Subject}' sent to {Recipient} at {SentAt}.",
                 subject,
                 toEmail,
@@ -100,7 +101,7 @@ public class SmtpEmailService : IEmailSenderService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
+            logger.LogError(
                 ex,
                 "Failed to send email '{Subject}' to {Recipient}.",
                 subject,

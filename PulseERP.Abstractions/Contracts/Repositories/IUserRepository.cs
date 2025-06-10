@@ -4,10 +4,6 @@ using PulseERP.Domain.Entities;
 using PulseERP.Domain.VO;
 
 namespace PulseERP.Abstractions.Contracts.Repositories;
-
-/// <summary>
-/// Central repository abstraction for <see cref="User"/> entity, read & write.
-/// </summary>
 public interface IUserRepository
 {
     Task<PagedResult<User>> GetAllAsync(UserFilter filter);

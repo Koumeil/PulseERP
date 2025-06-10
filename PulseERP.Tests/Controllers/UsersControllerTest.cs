@@ -84,7 +84,7 @@ public class UsersControllerTests
     [Fact]
     public async Task Create_ReturnsCreatedAtAction_WithUserInfo()
     {
-        var cmd = new CreateUserCommand("first", "last", "email", "phone", "role");
+        var cmd = new CreateUserCommand("first", "last", "email", "phone");
         var info = new UserInfo(Guid.NewGuid(), cmd.FirstName, cmd.LastName, cmd.Email, "User", "+32489200305");
 
         _mockService.Setup(s => s.CreateAsync(cmd)).ReturnsAsync(info);
@@ -101,7 +101,7 @@ public class UsersControllerTests
     [Fact]
     public async Task Create_WhenValidationFails_ThrowsDomainValidationException()
     {
-        var cmd = new CreateUserCommand(null!, null!, null!, null!, null!);
+        var cmd = new CreateUserCommand(null!, null!, null!, null!);
 
         _mockService.Setup(s => s.CreateAsync(cmd)).ThrowsAsync(new DomainValidationException("Invalid data"));
 

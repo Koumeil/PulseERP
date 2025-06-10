@@ -12,4 +12,8 @@ public interface ITokenService
     );
     Task<RefreshTokenValidationResult> ValidateAndRevokeRefreshTokenAsync(string token);
     Guid? ValidateAccessToken(string token);
+    Task<string> GenerateActivationTokenAsync(Guid userId);
+
+    Task<ActivationTokenValidationResult> ValidateAndRevokeActivationTokenAsync(string token);
+
 }

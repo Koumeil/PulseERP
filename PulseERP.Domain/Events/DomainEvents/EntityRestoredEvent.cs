@@ -1,8 +1,9 @@
+using PulseERP.Domain.Entities;
+
 namespace PulseERP.Domain.Events.DomainEvents;
 
 using System;
-using PulseERP.Domain.Common;
-using PulseERP.Domain.Interfaces;
+using Interfaces;
 
 /// <summary>
 /// Standard domain event triggered when an entity is restored from soft-deletion.

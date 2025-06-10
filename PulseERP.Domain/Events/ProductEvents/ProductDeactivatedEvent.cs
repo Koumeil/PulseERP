@@ -2,13 +2,8 @@ using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Domain.Events.ProductEvents;
 
-public sealed class ProductDeactivatedEvent : IDomainEvent
+public sealed class ProductDeactivatedEvent(Guid productId) : IDomainEvent
 {
-    public Guid ProductId { get; }
+    public Guid ProductId { get; } = productId;
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-
-    public ProductDeactivatedEvent(Guid productId)
-    {
-        ProductId = productId;
-    }
 }

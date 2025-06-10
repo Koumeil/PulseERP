@@ -16,7 +16,7 @@ public sealed record CustomerSummary(
     Guid? AssignedToUserId,
     string? Industry,
     string? Source,
-    bool IsVIP,
+    bool IsVip,
     bool IsActive,
     List<string> Notes,
     List<string> Tags

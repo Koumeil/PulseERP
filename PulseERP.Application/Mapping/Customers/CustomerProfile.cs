@@ -30,7 +30,7 @@ public class CustomerProfile : Profile
                 Enum.Parse<CustomerType>(cmd.Type),
                 Enum.Parse<CustomerStatus>(cmd.Status),
                 DateTime.UtcNow,
-                cmd.IsVIP,
+                cmd.IsVip,
                 null, // industry
                 null, // source
                 null, // lastInteractionDate
@@ -63,7 +63,7 @@ public class CustomerProfile : Profile
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.Industry, opt => opt.MapFrom(src => src.Industry))
             .ForMember(dest => dest.Source, opt => opt.MapFrom(src => src.Source))
-            .ForMember(dest => dest.IsVIP, opt => opt.MapFrom(src => src.IsVIP))
+            .ForMember(dest => dest.IsVip, opt => opt.MapFrom(src => src.IsVip))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
     }
 }

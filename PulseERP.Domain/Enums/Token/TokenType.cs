@@ -4,4 +4,5 @@ public enum TokenType
 {
     Refresh,
     PasswordReset,
+    Activation
 }

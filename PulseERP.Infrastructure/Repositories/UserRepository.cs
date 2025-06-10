@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PulseERP.Abstractions.Common.Filters;
 using PulseERP.Abstractions.Common.Pagination;
@@ -7,6 +8,7 @@ using PulseERP.Domain.VO;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
+
 public class UserRepository(CoreDbContext context) : IUserRepository
 {
     public async Task<PagedResult<User>> GetAllAsync(UserFilter filter)
@@ -103,6 +105,5 @@ public class UserRepository(CoreDbContext context) : IUserRepository
     {
         return context.SaveChangesAsync();
     }
-
     public Task<bool> ExistsAsync(Guid id) => context.Users.AnyAsync(u => u.Id == id);
 }

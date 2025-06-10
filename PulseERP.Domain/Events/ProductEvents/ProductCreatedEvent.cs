@@ -6,13 +6,8 @@ namespace PulseERP.Domain.Events.ProductEvents;
 /// <summary>
 /// Raised when a new product is created in the system.
 /// </summary>
-public sealed class ProductCreatedEvent : IDomainEvent
+public sealed class ProductCreatedEvent(Guid productId) : IDomainEvent
 {
-    public Guid ProductId { get; }
+    public Guid ProductId { get; } = productId;
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-
-    public ProductCreatedEvent(Guid productId)
-    {
-        ProductId = productId;
-    }
 }

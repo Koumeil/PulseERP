@@ -13,9 +13,6 @@ using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Infrastructure.Identity;
 
-/// <summary>
-/// Handles access, refresh and password reset tokens with a single repository and TokenType logic.
-/// </summary>
 public class TokenService : ITokenService
 {
     private readonly JwtSettings _settings;
@@ -46,11 +43,33 @@ public class TokenService : ITokenService
         _time = time;
         _logger = logger;
     }
+    public async Task<string> GenerateActivationTokenAsync(Guid userId)
+    {
+        // 1. Generate raw token
+        var rawToken = _gen.GenerateToken();
+        var hash = _hasher.Hash(rawToken);
+
+        // 2. Define expiration for activation token (ex: 2 days)
+        var expiresUtc = _time.UtcNow.AddDays(2);
+
+        // 3. Create token entity (generic model: RefreshToken)
+        var entity = TokenEntity.Create(
+            _time,
+            userId,
+            hash,
+            TokenType.Activation,
+            expiresUtc
+        );
+
+        // 4. Persist token
+        await _tokenRepo.AddAsync(entity);
+
+        // 5. Return the RAW token (the one to send in email link)
+        return rawToken;
+    }
 
     public AccessToken GenerateAccessToken(Guid userId, string email, string role)
     {
-        _logger.LogInformation("Generating access token for user {UserId}", userId);
-
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
@@ -85,18 +104,12 @@ public class TokenService : ITokenService
         string userAgent
     )
     {
-        _logger.LogInformation(
-            "Generating refresh token for user {UserId} from IP {Ip}",
-            userId,
-            ipAddress
-        );
-
         var rawToken = _gen.GenerateToken();
         var hash = _hasher.Hash(rawToken);
 
         var expiresUtc = _time.UtcNow.AddDays(_settings.RefreshTokenExpirationDays);
 
-        var entity = RefreshToken.Create(
+        var entity = TokenEntity.Create(
             _time,
             userId,
             hash,
@@ -120,15 +133,39 @@ public class TokenService : ITokenService
 
         var hash = _hasher.Hash(token);
         var entity = await _tokenRepo.GetByTokenAndTypeAsync(hash, TokenType.Refresh);
-        if (entity is null || !entity.IsActive)
+        if (entity is null || !entity!.IsActive)
         {
             _logger.LogWarning("Refresh token invalid or expired at {TimeLocal}.", _time.NowLocal);
             return new RefreshTokenValidationResult(false, null);
         }
+        if (entity.Revoked is not null)
+            return new RefreshTokenValidationResult(false, null);
 
         await _tokenRepo.RevokeAllByUserIdAndTypeAsync(entity.UserId, TokenType.Refresh);
         return new RefreshTokenValidationResult(true, entity.UserId);
     }
+
+    public async Task<ActivationTokenValidationResult> ValidateAndRevokeActivationTokenAsync(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return new ActivationTokenValidationResult(false, null);
+
+        var hash = _hasher.Hash(token);
+        var entity = await _tokenRepo.GetByTokenAndTypeAsync(hash, TokenType.Activation);
+
+        if (entity is null || !entity.IsActive)
+        {
+            _logger.LogWarning("Activation token invalid or expired at {TimeLocal}.", _time.NowLocal);
+            return new ActivationTokenValidationResult(false, null);
+        }
+        if (entity.Revoked is not null)
+            return new ActivationTokenValidationResult(false, null);
+
+        await _tokenRepo.RevokeAllByUserIdAndTypeAsync(entity.UserId, TokenType.Activation);
+
+        return new ActivationTokenValidationResult(true, entity.UserId);
+    }
+
 
     public Guid? ValidateAccessToken(string token)
     {

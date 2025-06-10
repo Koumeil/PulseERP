@@ -1,4 +1,6 @@
+using System.Text.Json;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Common.DTOs.Inventories.Models;
 using PulseERP.Abstractions.Common.DTOs.Products.Commands;
@@ -14,26 +16,14 @@ using PulseERP.Domain.VO;
 
 namespace PulseERP.Application.Services;
 
-public sealed class ProductService : IProductService
+public sealed class ProductService(
+    IProductRepository productRepository,
+    IBrandRepository brandRepository,
+    IMapper mapper,
+    ILogger<ProductService> logger)
+    : IProductService
 {
-    private readonly IProductRepository _productRepository;
-    private readonly IBrandRepository _brandRepository;
-    private readonly IMapper _mapper;
-    private readonly ILogger<ProductService> _logger;
     private readonly string _currencyCode = CurrencyHelper.GetCurrencyByCurrentRegion().ToString();
-
-    public ProductService(
-        IProductRepository productRepository,
-        IBrandRepository brandRepository,
-        IMapper mapper,
-        ILogger<ProductService> logger
-    )
-    {
-        _productRepository = productRepository;
-        _brandRepository = brandRepository;
-        _mapper = mapper;
-        _logger = logger;
-    }
 
     /// <summary>
     /// Retrieves a paged list of all products, applying brand/status/min/max stock filters.
@@ -41,11 +31,11 @@ public sealed class ProductService : IProductService
     public async Task<PagedResult<ProductSummary>> GetAllProductsAsync(ProductFilter filter)
     {
         // The repository should translate Brand, Status, MinStockLevel, MaxStockLevel, Search and Sort.
-        var result = await _productRepository.GetAllAsync(filter);
+        var result = await productRepository.GetAllAsync(filter);
 
         return new PagedResult<ProductSummary>
         {
-            Items = _mapper.Map<List<ProductSummary>>(result.Items),
+            Items = mapper.Map<List<ProductSummary>>(result.Items),
             TotalItems = result.TotalItems,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
@@ -61,10 +51,10 @@ public sealed class ProductService : IProductService
     public async Task<ProductDetails> GetProductByIdAsync(Guid id)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
-        return _mapper.Map<ProductDetails>(product);
+        return mapper.Map<ProductDetails>(product);
     }
 
     /// <summary>
@@ -89,13 +79,14 @@ public sealed class ProductService : IProductService
             cmd.IsService
         );
 
+
         // 3. Persist and log.
-        await _productRepository.AddAsync(product);
-        await _productRepository.SaveChangesAsync();
+        await productRepository.AddAsync(product);
+        await productRepository.SaveChangesAsync();
 
-        _logger.LogInformation("Product created: {@Product}", product);
+        logger.LogInformation("Product created: {@Product}", product);
 
-        return _mapper.Map<ProductDetails>(product);
+        return mapper.Map<ProductDetails>(product);
     }
 
     /// <summary>
@@ -103,30 +94,19 @@ public sealed class ProductService : IProductService
     /// </summary>
     public async Task<ProductDetails> UpdateProductAsync(Guid id, UpdateProductCommand cmd)
     {
-        Product? product =
-            await _productRepository.FindByIdAsync(id)
+        var product =
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
-
-        await UpdateBrandIfNeededAsync(product, cmd.BrandName);
-
         try
         {
             if (cmd.Price.HasValue)
             {
                 Money newPrice = new(cmd.Price.Value, product.Price.Currency);
-
-                if (!product.Price.Currency.Equals(newPrice.Currency))
-                {
-                    throw new DomainValidationException(
-                        $"Cannot update product {product.Id} with different currency. Existing: {product.Price.Currency}, New: {newPrice.Currency}."
-                    );
-                }
-
-                if (product.Price.CompareTo(newPrice) != 0)
-                {
-                    product.SetPrice(newPrice);
-                }
+                product.SetPrice(newPrice);
             }
+
+            if (cmd.Quantity.HasValue)
+                product.SetQuantity(cmd.Quantity.Value);
 
             product.UpdateDetails(
                 !string.IsNullOrWhiteSpace(cmd.Name) ? new ProductName(cmd.Name.Trim()) : null,
@@ -135,28 +115,20 @@ public sealed class ProductService : IProductService
                     : null,
                 cmd.IsService
             );
-
-            // 3. Adjust quantity if requested (uses SetQuantity internally).
-            if (cmd.Quantity.HasValue)
+            if (cmd.BrandName != null)
             {
-                product.SetQuantity(cmd.Quantity.Value);
+                var brand = await GetOrCreateBrandAsync(cmd.BrandName);
+                product.SetBrand(brand);
             }
-
-            await _productRepository.UpdateAsync(product);
-            await _productRepository.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Product updated: {ProductId}, {ProductName}, {ProductPrice}",
-                product.Id,
-                product.Name,
-                product.Price
-            );
-            return _mapper.Map<ProductDetails>(product);
+            await productRepository.SaveChangesAsync();
+            return mapper.Map<ProductDetails>(product);
         }
-        catch (DomainValidationException ex)
+        catch (Exception ex)
         {
-            _logger.LogWarning("Validation error updating product {Id}: {Message}", id, ex.Message);
-            throw; // propagate for controller to turn into HTTP 400
+            // Pour diagnostiquer d'autres exceptions, loggez le type et message
+            logger.LogError(ex, "Exception inattendue ({TypeName}) lors de UpdateProductAsync: {Message}",
+                ex.GetType().FullName, ex.Message);
+            throw;
         }
     }
 
@@ -166,15 +138,15 @@ public sealed class ProductService : IProductService
     public async Task DeleteProductAsync(Guid id)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         product.MarkAsDeleted();
 
-        await _productRepository.UpdateAsync(product);
-        await _productRepository.SaveChangesAsync();
+        await productRepository.UpdateAsync(product);
+        await productRepository.SaveChangesAsync();
 
-        _logger.LogWarning("Product deleted: {Id}", id);
+        logger.LogWarning("Product deleted: {Id}", id);
     }
 
     /// <summary>
@@ -183,15 +155,15 @@ public sealed class ProductService : IProductService
     public async Task ActivateProductAsync(Guid id)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         product.MarkAsActivate();
 
-        await _productRepository.UpdateAsync(product);
-        await _productRepository.SaveChangesAsync();
+        await productRepository.UpdateAsync(product);
+        await productRepository.SaveChangesAsync();
 
-        _logger.LogInformation("Product activated: {Id}", id);
+        logger.LogInformation("Product activated: {Id}", id);
     }
 
     /// <summary>
@@ -200,15 +172,15 @@ public sealed class ProductService : IProductService
     public async Task DeactivateProductAsync(Guid id)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         product.MarkAsDeactivate();
 
-        await _productRepository.UpdateAsync(product);
-        await _productRepository.SaveChangesAsync();
+        await productRepository.UpdateAsync(product);
+        await productRepository.SaveChangesAsync();
 
-        _logger.LogInformation("Product deactivated: {Id}", id);
+        logger.LogInformation("Product deactivated: {Id}", id);
     }
 
     /// <summary>
@@ -217,15 +189,15 @@ public sealed class ProductService : IProductService
     public async Task RestoreProductAsync(Guid id)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         product.MarkAsRestored();
 
-        await _productRepository.UpdateAsync(product);
-        await _productRepository.SaveChangesAsync();
+        await productRepository.UpdateAsync(product);
+        await productRepository.SaveChangesAsync();
 
-        _logger.LogInformation("Product restored: {Id}", id);
+        logger.LogInformation("Product restored: {Id}", id);
     }
 
     /// <summary>
@@ -237,20 +209,20 @@ public sealed class ProductService : IProductService
             throw new DomainValidationException("Quantity must be greater than 0 for restock.");
 
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         try
         {
             product.Restock(quantity);
-            await _productRepository.UpdateAsync(product);
-            await _productRepository.SaveChangesAsync();
+            await productRepository.UpdateAsync(product);
+            await productRepository.SaveChangesAsync();
 
-            _logger.LogInformation("Product restocked: {Id} (+{Qty})", id, quantity);
+            logger.LogInformation("Product restocked: {Id} (+{Qty})", id, quantity);
         }
         catch (DomainValidationException ex)
         {
-            _logger.LogWarning(
+            logger.LogWarning(
                 "Validation error restocking product {Id}: {Message}",
                 id,
                 ex.Message
@@ -265,7 +237,7 @@ public sealed class ProductService : IProductService
     public async Task SellProductAsync(Guid id, int quantity)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         try
@@ -276,14 +248,14 @@ public sealed class ProductService : IProductService
                 );
 
             product.RegisterSale(quantity, DateTime.UtcNow);
-            await _productRepository.UpdateAsync(product);
-            await _productRepository.SaveChangesAsync();
+            await productRepository.UpdateAsync(product);
+            await productRepository.SaveChangesAsync();
 
-            _logger.LogInformation("Product sold: {Id}, Qty: {Qty}", id, quantity);
+            logger.LogInformation("Product sold: {Id}, Qty: {Qty}", id, quantity);
         }
         catch (DomainValidationException ex)
         {
-            _logger.LogWarning("Validation error selling product {Id}: {Message}", id, ex.Message);
+            logger.LogWarning("Validation error selling product {Id}: {Message}", id, ex.Message);
             throw;
         }
     }
@@ -294,21 +266,21 @@ public sealed class ProductService : IProductService
     public async Task<ProductDetails> ChangeProductPriceAsync(Guid id, decimal newPrice)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         try
         {
             product.SetPrice(new Money(newPrice, new Currency(_currencyCode)));
-            await _productRepository.UpdateAsync(product);
-            await _productRepository.SaveChangesAsync();
+            await productRepository.UpdateAsync(product);
+            await productRepository.SaveChangesAsync();
 
-            _logger.LogInformation("Product price changed: {Id} -> {Price}", id, newPrice);
-            return _mapper.Map<ProductDetails>(product);
+            logger.LogInformation("Product price changed: {Id} -> {Price}", id, newPrice);
+            return mapper.Map<ProductDetails>(product);
         }
         catch (DomainValidationException ex)
         {
-            _logger.LogWarning(
+            logger.LogWarning(
                 "Validation error changing price for product {Id}: {Message}",
                 id,
                 ex.Message
@@ -323,21 +295,21 @@ public sealed class ProductService : IProductService
     public async Task<ProductDetails> ApplyDiscountAsync(Guid id, decimal percentage)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         try
         {
             product.ApplyDiscount(percentage);
-            await _productRepository.UpdateAsync(product);
-            await _productRepository.SaveChangesAsync();
+            await productRepository.UpdateAsync(product);
+            await productRepository.SaveChangesAsync();
 
-            _logger.LogInformation("Applied discount of {Pct}% to product {Id}", percentage, id);
-            return _mapper.Map<ProductDetails>(product);
+            logger.LogInformation("Applied discount of {Pct}% to product {Id}", percentage, id);
+            return mapper.Map<ProductDetails>(product);
         }
         catch (DomainValidationException ex)
         {
-            _logger.LogWarning(
+            logger.LogWarning(
                 "Validation error applying discount for product {Id}: {Message}",
                 id,
                 ex.Message
@@ -352,7 +324,7 @@ public sealed class ProductService : IProductService
     public async Task<bool> IsProductLowStockAsync(Guid id, int threshold = 5)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         return product.Inventory.IsLowStock(threshold);
@@ -364,7 +336,7 @@ public sealed class ProductService : IProductService
     public async Task<bool> NeedsRestockingAsync(Guid id, int minThreshold)
     {
         var product =
-            await _productRepository.FindByIdAsync(id)
+            await productRepository.FindByIdAsync(id)
             ?? throw new NotFoundException("Product", id);
 
         return product.NeedsRestocking(minThreshold);
@@ -378,63 +350,15 @@ public sealed class ProductService : IProductService
     )
     {
         // For large datasets, consider pushing this filter down into the repository (GetLowStockAsync).
-        var all = await _productRepository.GetAllAsync(new ProductFilter());
+        var all = await productRepository.GetAllAsync(new ProductFilter());
 
         var filtered = all
             .Items.Where(p => p.Inventory.Quantity <= threshold && p.IsActive)
             .ToList();
 
-        return _mapper.Map<List<ProductSummary>>(filtered);
+        return mapper.Map<List<ProductSummary>>(filtered);
     }
 
-    /// <summary>
-    /// Returns the full list of InventoryMovements for a given product.
-    /// </summary>
-    public async Task<IReadOnlyCollection<InventoryMovementModel>> GetInventoryMovementsAsync(
-        Guid id
-    )
-    {
-        var product =
-            await _productRepository.FindByIdAsync(id)
-            ?? throw new NotFoundException("Product", id);
-
-        // Inventory.Movements should already be eager‐loaded by the repository
-        var movements = product.Inventory.Movements;
-        return _mapper.Map<List<InventoryMovementModel>>(movements);
-    }
-
-    /// <summary>
-    /// Processes a return by adding 'quantity' back into inventory.
-    /// </summary>
-    public async Task<ProductDetails> ReturnProductAsync(Guid id, int quantity)
-    {
-        if (quantity <= 0)
-            throw new DomainValidationException("Return amount must be positive");
-
-        var product =
-            await _productRepository.FindByIdAsync(id)
-            ?? throw new NotFoundException("Product", id);
-
-        try
-        {
-            // Assumes you have added Inventory.HandleReturn(int) to your Inventory entity.
-            product.Inventory.HandleReturn(quantity);
-            await _productRepository.UpdateAsync(product);
-            await _productRepository.SaveChangesAsync();
-
-            _logger.LogInformation("Return processed for product {Id}: +{Qty}", id, quantity);
-            return _mapper.Map<ProductDetails>(product);
-        }
-        catch (DomainValidationException ex)
-        {
-            _logger.LogWarning(
-                "Validation error on return for product {Id}: {Message}",
-                id,
-                ex.Message
-            );
-            throw;
-        }
-    }
 
     /// <summary>
     /// Archives any product that has been out of stock for more than 'outOfStockDays' AND is inactive for 'inactivityPeriod'.
@@ -442,7 +366,7 @@ public sealed class ProductService : IProductService
     public async Task ArchiveStaleProductsAsync(TimeSpan inactivityPeriod, int outOfStockDays)
     {
         // Pull all products (no pagination) so we can check each one.
-        var allProducts = await _productRepository.GetAllRawAsync();
+        var allProducts = await productRepository.GetAllRawAsync();
         var now = DateTime.UtcNow;
 
         foreach (var product in allProducts)
@@ -457,13 +381,13 @@ public sealed class ProductService : IProductService
                 product.ArchiveIfOutOfStockAndInactive();
                 if (product.IsDeleted) // only update if it actually changed
                 {
-                    await _productRepository.UpdateAsync(product);
-                    _logger.LogInformation("Archived stale product {Id}", product.Id);
+                    await productRepository.UpdateAsync(product);
+                    logger.LogInformation("Archived stale product {Id}", product.Id);
                 }
             }
         }
 
-        await _productRepository.SaveChangesAsync();
+        await productRepository.SaveChangesAsync();
     }
 
     /// <summary>
@@ -492,43 +416,10 @@ public sealed class ProductService : IProductService
         brandName = brandName.Trim();
 
         if (string.IsNullOrWhiteSpace(brandName))
-        {
             throw new DomainValidationException("BrandName is required.");
-        }
 
-        var brand = await _brandRepository.FindByNameAsync(brandName);
-
-        if (brand is not null)
-            return brand;
-
-        brand = new Brand(brandName);
-        await _brandRepository.AddAsync(brand);
-        await _brandRepository.SaveChangesAsync();
-        _logger.LogInformation("Brand created: {Brand}", brandName);
-
-        return brand;
-    }
-
-    /// <summary>
-    /// Changes the product's brand only if the provided brand name is non‐empty.
-    /// </summary>
-    private async Task UpdateBrandIfNeededAsync(Product product, string? brandName)
-    {
-        if (string.IsNullOrWhiteSpace(brandName))
-            return;
-
-        var brand = await GetOrCreateBrandAsync(brandName.Trim());
-        var oldBrand = product.Brand;
-        product.SetBrand(brand);
-
-        // Maintain bidirectional consistency:
-        if (oldBrand is not null)
-        {
-            oldBrand.RemoveProduct(product);
-            await _brandRepository.UpdateAsync(oldBrand);
-        }
-        brand.AddProduct(product);
-        await _brandRepository.UpdateAsync(brand);
+        var brand = await brandRepository.FindByNameAsync(brandName);
+        return brand ?? new Brand(brandName);
     }
 
     #endregion

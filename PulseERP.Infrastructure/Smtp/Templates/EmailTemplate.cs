@@ -1,26 +1,26 @@
 using System.Globalization;
 using MimeKit;
 
-namespace PulseERP.Infrastructure.Smtp.Template
+namespace PulseERP.Infrastructure.Smtp.Templates;
+
+internal static class EmailTemplates
 {
-    internal static class EmailTemplates
+    // Format français « vendredi 30 mai 2025 à 17 h 30 »
+    private static string FormatFrenchDate(DateTime dt)
     {
-        // Format français « vendredi 30 mai 2025 à 17 h 30 »
-        private static string FormatFrenchDate(DateTime dt)
-        {
-            var fr = CultureInfo.GetCultureInfo("fr-BE");
-            return dt.ToString("dddd d MMMM yyyy 'à' H 'h' mm", fr);
-        }
+        var fr = CultureInfo.GetCultureInfo("fr-BE");
+        return dt.ToString("dddd d MMMM yyyy 'à' H 'h' mm", fr);
+    }
 
-        /// <summary>
-        /// Compte verrouillé
-        /// </summary>
-        public static BodyBuilder BuildAccountLocked(DateTime lockoutEnd, string userFullName)
-        {
-            var friendlyDate = FormatFrenchDate(lockoutEnd);
+    /// <summary>
+    /// Compte verrouillé
+    /// </summary>
+    public static BodyBuilder BuildAccountLocked(DateTime lockoutEnd, string userFullName)
+    {
+        var friendlyDate = FormatFrenchDate(lockoutEnd);
 
-            var html =
-                $@"
+        var html =
+            $@"
 <!DOCTYPE html>
 <html lang=""fr"">
 <head><meta charset=""UTF-8""/><style>
@@ -52,8 +52,8 @@ namespace PulseERP.Infrastructure.Smtp.Template
 </html>
 ";
 
-            var text =
-                $@"
+        var text =
+            $@"
 Bonjour {userFullName},
 
 Votre compte Pulse ERP est verrouillé jusqu’au {friendlyDate}.
@@ -65,16 +65,16 @@ Merci de votre confiance,
 L’équipe Pulse ERP
 ";
 
-            return new BodyBuilder { HtmlBody = html, TextBody = text };
-        }
+        return new BodyBuilder { HtmlBody = html, TextBody = text };
+    }
 
-        /// <summary>
-        /// Email de bienvenue
-        /// </summary>
-        public static BodyBuilder BuildWelcome(string userFullName, string loginUrl)
-        {
-            var html =
-                $@"
+    /// <summary>
+    /// Email de bienvenue
+    /// </summary>
+    public static BodyBuilder BuildWelcome(string userFullName, string loginUrl)
+    {
+        var html =
+            $@"
 <!DOCTYPE html>
 <html lang=""fr"">
 <head><meta charset=""UTF-8""/><style>
@@ -105,8 +105,8 @@ L’équipe Pulse ERP
 </html>
 ";
 
-            var text =
-                $@"
+        var text =
+            $@"
 Bonjour {userFullName},
 
 Votre compte Pulse ERP a été créé avec succès.
@@ -118,22 +118,22 @@ Nous sommes ravis de vous compter parmi nous !
 – L’équipe Pulse ERP
 ";
 
-            return new BodyBuilder { HtmlBody = html, TextBody = text };
-        }
+        return new BodyBuilder { HtmlBody = html, TextBody = text };
+    }
 
-        /// <summary>
-        /// Réinitialisation du mot de passe
-        /// </summary>
-        public static BodyBuilder BuildPasswordReset(
-            string resetUrl,
-            DateTime expiresAtUtc,
-            string userFullName
-        )
-        {
-            var expiry = FormatFrenchDate(expiresAtUtc);
+    /// <summary>
+    /// Réinitialisation du mot de passe
+    /// </summary>
+    public static BodyBuilder BuildPasswordReset(
+        string resetUrl,
+        DateTime expiresAtUtc,
+        string userFullName
+    )
+    {
+        var expiry = FormatFrenchDate(expiresAtUtc);
 
-            var html =
-                $@"
+        var html =
+            $@"
 <!DOCTYPE html>
 <html lang=""fr"">
 <head><meta charset=""UTF-8""/><style>
@@ -165,8 +165,8 @@ Nous sommes ravis de vous compter parmi nous !
 </html>
 ";
 
-            var text =
-                $@"
+        var text =
+            $@"
 Bonjour {userFullName},
 
 Nous avons reçu une demande de réinitialisation de votre mot de passe.
@@ -178,18 +178,18 @@ Si vous n’êtes pas à l’origine, ignorez cet email.
 – L’équipe Pulse ERP
 ";
 
-            return new BodyBuilder { HtmlBody = html, TextBody = text };
-        }
+        return new BodyBuilder { HtmlBody = html, TextBody = text };
+    }
 
-        /// <summary>
-        /// Confirmation de changement de mot de passe
-        /// </summary>
-        public static BodyBuilder BuildPasswordChanged(string userFullName)
-        {
-            var date = FormatFrenchDate(DateTime.UtcNow);
+    /// <summary>
+    /// Confirmation de changement de mot de passe
+    /// </summary>
+    public static BodyBuilder BuildPasswordChanged(string userFullName)
+    {
+        var date = FormatFrenchDate(DateTime.UtcNow);
 
-            var html =
-                $@"
+        var html =
+            $@"
 <!DOCTYPE html>
 <html lang=""fr"">
 <head><meta charset=""UTF-8""/><style>
@@ -220,8 +220,8 @@ Si vous n’êtes pas à l’origine, ignorez cet email.
 </html>
 ";
 
-            var text =
-                $@"
+        var text =
+            $@"
 Bonjour {userFullName},
 
 Votre mot de passe a été mis à jour le {date}.
@@ -232,7 +232,62 @@ https://support.pulseepr.com
 – L’équipe Pulse ERP
 ";
 
-            return new BodyBuilder { HtmlBody = html, TextBody = text };
-        }
+        return new BodyBuilder { HtmlBody = html, TextBody = text };
+    }
+
+
+    /// <summary>
+    /// Activation du compte
+    /// </summary>
+    public static BodyBuilder BuildActivation(string activationUrl, string userFullName)
+    {
+        var html =
+            $@"
+<!DOCTYPE html>
+<html lang=""fr"">
+<head><meta charset=""UTF-8""/><style>
+  body {{ margin:0; padding:0; font-family:'Segoe UI',sans-serif; background:#f0f8ff; }}
+  .container {{ width:100%; max-width:600px; margin:40px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }}
+  .header {{ background:#1976d2; color:#fff; padding:20px; text-align:center; }}
+  .header h1 {{ margin:0; font-size:24px; }}
+  .content {{ padding:30px; color:#333; line-height:1.6; }}
+  .content p {{ margin-bottom:16px; }}
+  .btn {{ display:inline-block; padding:14px 28px; background:#1976d2; color:#fff; text-decoration:none; border-radius:4px; font-weight:600; }}
+  .footer {{ background:#f1f9ff; padding:20px; text-align:center; font-size:13px; color:#555; }}
+</style></head>
+<body>
+  <div class=""container"">
+    <div class=""header""><h1>🔔 Activez votre compte</h1></div>
+    <div class=""content"">
+      <p>Bonjour <strong>{userFullName}</strong>,</p>
+      <p>Votre compte Pulse ERP a été créé.</p>
+      <p>Pour activer votre compte et définir votre mot de passe, cliquez sur le bouton ci-dessous :</p>
+      <p style=""text-align:center;"">
+        <a href=""{activationUrl}"" class=""btn"">Activer mon compte</a>
+      </p>
+      <p>Ce lien est valable pendant une durée limitée.</p>
+      <p><em>L’équipe Pulse ERP</em></p>
+    </div>
+    <div class=""footer"">Email automatique – merci de ne pas répondre.</div>
+  </div>
+</body>
+</html>
+";
+
+        var text =
+            $@"
+Bonjour {userFullName},
+
+Votre compte Pulse ERP a été créé.
+
+Pour l’activer et définir votre mot de passe, cliquez sur ce lien :
+{activationUrl}
+
+Ce lien est valable pendant une durée limitée.
+
+– L’équipe Pulse ERP
+";
+
+        return new BodyBuilder { HtmlBody = html, TextBody = text };
     }
 }

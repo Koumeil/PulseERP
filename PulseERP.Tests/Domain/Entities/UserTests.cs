@@ -16,12 +16,11 @@ public class UserTests
     [Fact]
     public void Constructor_ShouldInitializePropertiesAndRaiseEvent()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
 
         Assert.Equal("John", user.FirstName);
         Assert.Equal("Doe", user.LastName);
         Assert.Equal(ValidEmail, user.Email);
-        Assert.Equal(ValidPassword, user.PasswordHash);
         Assert.NotNull(user.PasswordLastChangedAt);
         Assert.False(user.RequirePasswordChange);
         Assert.Equal(0, user.FailedLoginAttempts);
@@ -37,7 +36,7 @@ public class UserTests
     public void Constructor_InvalidFirstName_ShouldThrow(string? invalidName)
     {
         Assert.Throws<DomainValidationException>(() =>
-            new User(invalidName!, "Doe", ValidEmail, ValidPhoneNumber, ValidPassword)
+            new User(invalidName!, "Doe", ValidEmail, ValidPhoneNumber)
         );
     }
 
@@ -48,14 +47,14 @@ public class UserTests
     public void Constructor_InvalidLastName_ShouldThrow(string? invalidName)
     {
         Assert.Throws<DomainValidationException>(() =>
-            new User("John", invalidName!, ValidEmail, ValidPhoneNumber, ValidPassword)
+            new User("John", invalidName!, ValidEmail, ValidPhoneNumber)
         );
     }
 
     [Fact]
     public void CheckPasswordExpiration_ShouldUpdateRequirePasswordChange()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         user.CheckPasswordExpiration(DateTime.UtcNow.AddDays(61));
         Assert.True(user.RequirePasswordChange);
     }
@@ -63,24 +62,17 @@ public class UserTests
     [Fact]
     public void UpdatePassword_ShouldUpdateHashAndRaiseEvent()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         user.UpdatePassword("NEW_HASHED");
         Assert.Equal("NEW_HASHED", user.PasswordHash);
         Assert.False(user.RequirePasswordChange);
     }
 
-    [Fact]
-    public void ForcePasswordReset_ShouldRequireChange()
-    {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
-        user.ForcePasswordReset();
-        Assert.True(user.RequirePasswordChange);
-    }
 
     [Fact]
     public void RegisterFailedLogin_ShouldLockoutAfterMaxAttempts()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         DateTime now = DateTime.UtcNow;
         for (int i = 0; i < 5; i++)
             user.RegisterFailedLogin(now);
@@ -92,7 +84,7 @@ public class UserTests
     [Fact]
     public void RegisterSuccessfulLogin_ShouldResetLockout()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         user.RegisterFailedLogin(DateTime.UtcNow);
         user.RegisterSuccessfulLogin(DateTime.UtcNow);
         Assert.Equal(0, user.FailedLoginAttempts);
@@ -103,7 +95,7 @@ public class UserTests
     [Fact]
     public void ResetLockout_ShouldClearLockoutData()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         user.RegisterFailedLogin(DateTime.UtcNow);
         user.ResetLockout();
         Assert.Equal(0, user.FailedLoginAttempts);
@@ -113,7 +105,7 @@ public class UserTests
     [Fact]
     public void ChangeRole_ShouldUpdateRoleAndRaiseEvent()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         var newRole = new Role("Manager");
         user.ChangeRole(newRole);
         Assert.Equal(newRole, user.Role);
@@ -122,7 +114,7 @@ public class UserTests
     [Fact]
     public void ActivateUser_DeactivateUser_TogglesStateCorrectly()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         user.MarkAsDeactivate();
         user.MarkAsActivate();
         Assert.True(user.IsActive);
@@ -131,7 +123,7 @@ public class UserTests
     [Fact]
     public void DeleteAndRestoreUser_ShouldToggleDeletedState()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         user.MarkAsDeleted();
         Assert.True(user.IsDeleted);
         user.MarkAsRestored();
@@ -141,7 +133,7 @@ public class UserTests
     [Fact]
     public void UpdateEmail_ShouldChangeValueAndRaiseEvent()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         var newEmail = new EmailAddress("new@example.com");
         user.UpdateEmail(newEmail);
         Assert.Equal(newEmail, user.Email);
@@ -150,7 +142,7 @@ public class UserTests
     [Fact]
     public void UpdatePhone_ShouldChangeValueAndRaiseEvent()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         var newPhone = new Phone("+12345678901");
         user.UpdatePhone(newPhone);
         Assert.Equal(newPhone, user.PhoneNumber);
@@ -159,7 +151,7 @@ public class UserTests
     [Fact]
     public void UpdateName_ShouldChangeOnlyWhenDifferent()
     {
-        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber, ValidPassword);
+        var user = new User("John", "Doe", ValidEmail, ValidPhoneNumber);
         user.UpdateName("John", "Smith");
         Assert.Equal("Smith", user.LastName);
     }

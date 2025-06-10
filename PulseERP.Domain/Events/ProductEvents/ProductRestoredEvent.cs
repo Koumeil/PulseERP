@@ -5,7 +5,7 @@ namespace PulseERP.Domain.Events.ProductEvents;
 /// <summary>
 /// Event raised when a brand is restored from soft-delete.
 /// </summary>
-public sealed class ProductRestoredEvent : IDomainEvent
+public sealed class ProductRestoredEvent(Guid productId) : IDomainEvent
 {
     /// <summary>
     /// UTC timestamp when the product was restored.
@@ -15,7 +15,5 @@ public sealed class ProductRestoredEvent : IDomainEvent
     /// <summary>
     /// Identifier of the restored product.
     /// </summary>
-    public Guid ProductId { get; }
-
-    public ProductRestoredEvent(Guid productId) => ProductId = productId;
+    public Guid ProductId { get; } = productId;
 }

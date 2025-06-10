@@ -3,18 +3,9 @@ using PulseERP.Domain.VO;
 
 namespace PulseERP.Domain.Events.UserEvents;
 
-/// <summary>
-/// Event triggered when the user’s phone changes.
-/// </summary>
-public sealed class UserPhoneChangedEvent : IDomainEvent
+public sealed class UserPhoneChangedEvent(Guid userId, string newPhone) : IDomainEvent
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-    public Guid UserId { get; }
-    public Phone NewPhone { get; }
-
-    public UserPhoneChangedEvent(Guid userId, Phone newPhone)
-    {
-        UserId = userId;
-        NewPhone = newPhone ?? throw new ArgumentNullException(nameof(newPhone));
-    }
+    public Guid UserId { get; } = userId;
+    public string NewPhone { get; } = newPhone ?? throw new ArgumentNullException(nameof(newPhone));
 }

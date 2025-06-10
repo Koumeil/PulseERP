@@ -193,27 +193,6 @@ public class ProductTests
         Assert.Equal(newBrand, product.Brand);
     }
 
-    [Fact]
-    public void UpdateDetails_ShouldUpdateFields_WhenValidValuesArePassed()
-    {
-        // Arrange
-        var name = new ProductName("Test Product");
-        var brand = new Brand("Brand A");
-        var currency = new Currency("EUR");
-        var price = new Money(10, currency);
-        var quantity = 10;
-        var product = new Product(name, null, brand, price, quantity, false);
-
-        var newDescription = new ProductDescription("Updated Description");
-        var newServiceFlag = true;
-
-        // Act
-        product.UpdateDetails(description: newDescription, isService: newServiceFlag);
-
-        // Assert
-        Assert.Equal(newDescription, product.Description);
-        Assert.True(product.IsService);
-    }
 
     [Fact]
     public void SetQuantity_ShouldThrowException_WhenQuantityIsNegative()

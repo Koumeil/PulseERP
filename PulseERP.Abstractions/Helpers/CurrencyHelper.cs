@@ -3,7 +3,7 @@ namespace PulseERP.Application.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using PulseERP.Domain.VO;
+using Domain.VO;
 
 public static class CurrencyHelper
 {

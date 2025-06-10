@@ -5,13 +5,8 @@ namespace PulseERP.Domain.Events.ProductEvents;
 /// <summary>
 /// Raised when product details like name, description, price or type are updated.
 /// </summary>
-public sealed class ProductDetailsUpdatedEvent : IDomainEvent
+public sealed class ProductDetailsUpdatedEvent(Guid productId) : IDomainEvent
 {
-    public Guid ProductId { get; }
+    public Guid ProductId { get; } = productId;
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-
-    public ProductDetailsUpdatedEvent(Guid productId)
-    {
-        ProductId = productId;
-    }
 }

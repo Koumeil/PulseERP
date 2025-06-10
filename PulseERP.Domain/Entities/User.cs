@@ -1,111 +1,45 @@
 namespace PulseERP.Domain.Entities;
 
 using System;
-using PulseERP.Domain.Common;
-using PulseERP.Domain.Errors;
-using PulseERP.Domain.Events.UserEvents;
-using PulseERP.Domain.ValueObjects;
-using PulseERP.Domain.VO;
-
-/// <summary>
-/// Aggregate root representing an application user, including authentication and security behavior.
-/// </summary>
+using Errors;
+using Events.UserEvents;
+using ValueObjects;
+using VO;
 public sealed class User : BaseEntity
 {
     #region Constants
 
-    private const int PASSWORD_EXPIRATION_DAYS = 60;
-    private const int MAX_FAILED_LOGIN_ATTEMPTS = 5;
-    private static readonly TimeSpan LOCKOUT_DURATION = TimeSpan.FromMinutes(15);
+    private const int PasswordExpirationDays = 60;
+    private const int MaxFailedLoginAttempts = 5;
+    private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
 
     #endregion
 
     #region Properties
 
-    /// <summary>
-    /// First name of the user.
-    /// </summary>
-    public string FirstName { get; private set; } = default!;
-
-    /// <summary>
-    /// Last name of the user.
-    /// </summary>
+    public string FirstName { get; private set; } = null!;
     public string LastName { get; private set; } = default!;
-
-    /// <summary>
-    /// Email address of the user (Value Object).
-    /// </summary>
     public EmailAddress Email { get; private set; } = default!;
-
-    /// <summary>
-    /// Phone number of the user (Value Object). May be null.
-    /// </summary>
     public Phone PhoneNumber { get; private set; } = default!;
-
-    /// <summary>
-    /// Hashed password string. Never stores plain text.
-    /// </summary>
-    public string PasswordHash { get; private set; } = default!;
-
-    /// <summary>
-    /// UTC timestamp when the password was last changed (null if never changed).
-    /// </summary>
+    public string? PasswordHash { get; private set; }
     public DateTime? PasswordLastChangedAt { get; private set; }
-
-    /// <summary>
-    /// True if the user must change password on next login (expired or forced).
-    /// </summary>
     public bool RequirePasswordChange { get; private set; }
-
-    /// <summary>
-    /// Number of consecutive failed login attempts.
-    /// </summary>
     public int FailedLoginAttempts { get; private set; }
-
-    /// <summary>
-    /// UTC timestamp when the lockout ends. Null if not locked.
-    /// </summary>
     public DateTime? LockoutEnd { get; private set; }
-
-    /// <summary>
-    /// UTC timestamp of the last successful login. Null if never logged in.
-    /// </summary>
     public DateTime? LastLoginDate { get; private set; }
-
-    /// <summary>
-    /// Role of the user (Value Object).
-    /// </summary> /// <summary>
-    /// Role of the user (Value Object).
-    /// </summary>
     public Role Role { get; private set; }
-
-    /// <summary>
-    /// Returns true if the next failed login attempt will lock the account.
-    /// </summary>
     public bool WillBeLockedOutAfterNextFailure =>
-        FailedLoginAttempts + 1 >= MAX_FAILED_LOGIN_ATTEMPTS;
+        FailedLoginAttempts + 1 >= MaxFailedLoginAttempts;
 
     #endregion
 
     #region Constructors
 
-    /// <summary>
-    /// Creates a new user with required invariants.
-    /// </summary>
-    /// <param name="firstName">First name (1–100 characters).</param>
-    /// <param name="lastName">Last name (1–100 characters).</param>
-    /// <param name="email">EmailAddress VO (non-null).</param>
-    /// <param name="passwordHash">Hashed password string (non-null, non-empty).</param>
-    /// <param name="role">Role VO (non-null).</param>
-    /// <exception cref="DomainValidationException">
-    /// Thrown if any invariant is violated.
-    /// </exception>
     public User(
         string firstName,
         string lastName,
         EmailAddress email,
-        Phone phoneNumber,
-        string passwordHash
+        Phone phoneNumber
     )
     {
         if (string.IsNullOrWhiteSpace(firstName))
@@ -125,32 +59,26 @@ public sealed class User : BaseEntity
             );
         Email = email ?? throw new ArgumentNullException(nameof(email));
 
-        if (string.IsNullOrWhiteSpace(passwordHash))
-            throw new DomainValidationException("PasswordHash cannot be null or whitespace.");
 
         FirstName = trimmedFirst;
         LastName = trimmedLast;
         PhoneNumber = phoneNumber;
-        PasswordHash = passwordHash;
         PasswordLastChangedAt = DateTime.UtcNow;
         RequirePasswordChange = false;
         FailedLoginAttempts = 0;
         LockoutEnd = null;
         LastLoginDate = null;
         Role = SystemRoles.Default;
+        SetIsActive(true);
 
-        AddDomainEvent(new UserCreatedEvent(Id));
+
+        AddDomainEvent(new UserCreatedEvent(Id, FirstName, LastName, Email.Value));
     }
 
     #endregion
 
     #region Domain Behaviors
 
-    /// <summary>
-    /// Checks if the password is expired as of <paramref name="nowUtc"/>.
-    /// If expired or never changed, sets <see cref="RequirePasswordChange"/> to true.
-    /// </summary>
-    /// <param name="nowUtc">Current UTC datetime.</param>
     public void CheckPasswordExpiration(DateTime nowUtc)
     {
         if (PasswordLastChangedAt is null)
@@ -160,7 +88,7 @@ public sealed class User : BaseEntity
         else
         {
             var ageInDays = (nowUtc - PasswordLastChangedAt.Value).TotalDays;
-            RequirePasswordChange = (ageInDays > PASSWORD_EXPIRATION_DAYS);
+            RequirePasswordChange = (ageInDays > PasswordExpirationDays);
         }
 
         MarkAsUpdated();
@@ -180,7 +108,7 @@ public sealed class User : BaseEntity
         RequirePasswordChange = false;
         MarkAsUpdated();
 
-        AddDomainEvent(new UserPasswordChangedEvent(Id));
+        AddDomainEvent(new UserPasswordChangedEvent(Id, FirstName, LastName, Email.Value));
     }
 
     /// <summary>
@@ -191,7 +119,7 @@ public sealed class User : BaseEntity
         RequirePasswordChange = true;
         MarkAsUpdated();
 
-        AddDomainEvent(new UserPasswordResetForcedEvent(Id));
+        AddDomainEvent(new UserPasswordResetForcedEvent(Id, FirstName, LastName, Email.Value, LockoutEnd!.Value));
     }
 
     /// <summary>
@@ -213,8 +141,8 @@ public sealed class User : BaseEntity
 
         FailedLoginAttempts++;
 
-        if (FailedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS)
-            LockoutEnd = nowUtc.Add(LOCKOUT_DURATION);
+        if (FailedLoginAttempts >= MaxFailedLoginAttempts)
+            LockoutEnd = nowUtc.Add(LockoutDuration);
 
         MarkAsUpdated();
         AddDomainEvent(new UserLockedOutEvent(Id, LockoutEnd));
@@ -260,7 +188,7 @@ public sealed class User : BaseEntity
         {
             Role = newRole;
             MarkAsUpdated();
-            AddDomainEvent(new UserRoleChangedEvent(Id, newRole));
+            AddDomainEvent(new UserRoleChangedEvent(Id, newRole.ToString()));
         }
     }
 
@@ -277,7 +205,7 @@ public sealed class User : BaseEntity
         {
             Email = newEmail;
             MarkAsUpdated();
-            AddDomainEvent(new UserEmailChangedEvent(Id, newEmail));
+            AddDomainEvent(new UserEmailChangedEvent(Id, newEmail.ToString()));
         }
     }
 
@@ -290,19 +218,12 @@ public sealed class User : BaseEntity
         if (newPhone is null)
             throw new DomainValidationException("Phone cannot be null.");
 
-        if (PhoneNumber is null || !PhoneNumber.Equals(newPhone))
-        {
-            PhoneNumber = newPhone;
-            MarkAsUpdated();
-            AddDomainEvent(new UserPhoneChangedEvent(Id, newPhone));
-        }
+        if (PhoneNumber.Equals(newPhone)) return;
+        PhoneNumber = newPhone;
+        MarkAsUpdated();
+        AddDomainEvent(new UserPhoneChangedEvent(Id, newPhone.ToString()));
     }
 
-    /// <summary>
-    /// Updates the user’s first and/or last name.
-    /// </summary>
-    /// <param name="firstName">New first name (optional, 1–100 chars).</param>
-    /// <param name="lastName">New last name (optional, 1–100 chars).</param>
     public void UpdateName(string? firstName, string? lastName)
     {
         var updated = false;
@@ -349,36 +270,31 @@ public sealed class User : BaseEntity
         if (!IsDeleted)
         {
             base.MarkAsDeleted();
-            AddDomainEvent(new UserDeactivatedEvent(Id));
+            AddDomainEvent(new UserDeletedEvent(Id));
         }
     }
 
-    /// <summary>
-    /// Restores the brand from soft-deleted state.
-    /// </summary>
     public override void MarkAsRestored()
     {
         if (IsDeleted)
         {
             base.MarkAsRestored();
-            AddDomainEvent(new UserRestoredEvent(Id));
+            AddDomainEvent(new UserRestoredEvent(Id, FirstName, LastName, Email.Value));
         }
     }
 
     public override void MarkAsDeactivate()
     {
         base.MarkAsDeactivate();
-        AddDomainEvent(new UserDeactivatedEvent(Id));
+        AddDomainEvent(new UserDeactivatedEvent(Id, FirstName, LastName, Email.Value));
     }
 
     public override void MarkAsActivate()
     {
         base.MarkAsActivate();
-        AddDomainEvent(new UserActivatedEvent(Id));
+        AddDomainEvent(new UserActivatedEvent(Id, FirstName, LastName, Email.Value));
     }
 
     #endregion
 }
 
-
-/// </summary>

@@ -16,7 +16,6 @@ public interface IProductService
     Task DeactivateProductAsync(Guid id);
     Task DeleteProductAsync(Guid id);
     Task<PagedResult<ProductSummary>> GetAllProductsAsync(ProductFilter filter);
-    Task<IReadOnlyCollection<InventoryMovementModel>> GetInventoryMovementsAsync(Guid id);
     Task<ProductDetails> GetProductByIdAsync(Guid id);
     Task<IReadOnlyCollection<ProductSummary>> GetProductsBelowThresholdAsync(int threshold = 5);
     Task<PagedResult<ProductSummary>> GetProductsByBrandAsync(
@@ -27,7 +26,6 @@ public interface IProductService
     Task<bool> NeedsRestockingAsync(Guid id, int minThreshold);
     Task RestockProductAsync(Guid id, int quantity);
     Task RestoreProductAsync(Guid id);
-    Task<ProductDetails> ReturnProductAsync(Guid id, int quantity);
     Task SellProductAsync(Guid id, int quantity);
     Task<ProductDetails> UpdateProductAsync(Guid id, UpdateProductCommand cmd);
 }

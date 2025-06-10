@@ -2,12 +2,6 @@ using PulseERP.Domain.Errors;
 
 namespace PulseERP.Domain.VO;
 
-/// Immutable Value Object representing a product’s name.
-/// Invariants:
-///   • Must be non-null, non-empty, trimmed.
-///   • Length between 1 and 200 characters (inclusive).
-///   • Cannot consist solely of whitespace.
-/// </summary>
 public sealed class ProductName : ValueObject, IEquatable<ProductName>
 {
     #region Properties
@@ -99,6 +93,9 @@ public sealed class ProductName : ValueObject, IEquatable<ProductName>
 
     /// <inheritdoc/>
     public override string ToString() => Value;
+
+    public static implicit operator string(ProductName name) => name.Value;
+
 
     #endregion
 }

@@ -22,7 +22,7 @@ public class CustomerEnumTests
             type: type,
             status: status,
             firstContact: DateTime.UtcNow,
-            isVIP: false
+            isVip: false
         );
     }
 

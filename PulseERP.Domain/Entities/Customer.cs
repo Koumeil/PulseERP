@@ -1,10 +1,9 @@
 namespace PulseERP.Domain.Entities;
 
-using PulseERP.Domain.Common;
 using PulseERP.Domain.Enums.Customer;
-using PulseERP.Domain.Errors;
-using PulseERP.Domain.Events.CustomerEvents;
-using PulseERP.Domain.VO;
+using Errors;
+using Events.CustomerEvents;
+using VO;
 
 /// <summary>
 /// Represents a customer in the system. Acts as an aggregate root for customer-related operations.
@@ -33,7 +32,7 @@ public sealed class Customer : BaseEntity
     public Guid? AssignedToUserId { get; private set; }
     public string? Industry { get; private set; }
     public string? Source { get; private set; }
-    public bool IsVIP { get; private set; }
+    public bool IsVip { get; private set; }
     public IReadOnlyCollection<string> Notes => _notes.AsReadOnly();
     public IReadOnlyCollection<string> Tags => _tags.AsReadOnly();
 
@@ -53,7 +52,7 @@ public sealed class Customer : BaseEntity
         CustomerType type,
         CustomerStatus status,
         DateTime firstContact,
-        bool isVIP,
+        bool isVip,
         string? industry = null,
         string? source = null,
         DateTime? lastInteractionDate = null,
@@ -73,7 +72,7 @@ public sealed class Customer : BaseEntity
         AssignedToUserId = assignedToUserId;
         Industry = string.IsNullOrWhiteSpace(industry) ? null : industry.Trim();
         Source = string.IsNullOrWhiteSpace(source) ? null : source.Trim();
-        IsVIP = isVIP;
+        IsVip = isVip;
 
         AddDomainEvent(new CustomerCreatedEvent(Id));
     }
@@ -116,7 +115,7 @@ public sealed class Customer : BaseEntity
         Address? address = null,
         CustomerType? type = null,
         CustomerStatus? status = null,
-        bool? isVIP = null,
+        bool? isVip = null,
         string? industry = null,
         string? source = null
     )
@@ -142,9 +141,9 @@ public sealed class Customer : BaseEntity
             changed = true;
         }
 
-        if (isVIP.HasValue && IsVIP != isVIP.Value)
+        if (isVip.HasValue && IsVip != isVip.Value)
         {
-            IsVIP = isVIP.Value;
+            IsVip = isVip.Value;
             changed = true;
         }
 

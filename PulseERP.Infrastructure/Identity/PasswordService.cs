@@ -347,7 +347,7 @@ namespace PulseERP.Infrastructure.Identity
             var expiresUtc = _dateTimeProvider.UtcNow.AddHours(1);
 
             // 4. Créer et persister un RefreshToken de type PasswordReset
-            var resetTokenEntity = RefreshToken.Create(
+            var resetTokenEntity = TokenEntity.Create(
                 _dateTimeProvider,
                 user.Id,
                 tokenHash,

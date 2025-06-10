@@ -22,7 +22,7 @@ public class CustomerTests
         Assert.Equal(_email, customer.Email);
         Assert.Equal(_phone, customer.Phone);
         Assert.Equal(_address, customer.Address);
-        Assert.True(customer.IsVIP);
+        Assert.True(customer.IsVip);
         Assert.Contains(customer.DomainEvents, e => e is CustomerCreatedEvent);
     }
 

@@ -6,15 +6,9 @@ namespace PulseERP.Domain.Events.ProductEvents;
 /// <summary>
 /// Raised when a product's price changes.
 /// </summary>
-public sealed class ProductPriceChangedEvent : IDomainEvent
+public sealed class ProductPriceChangedEvent(Guid productId, Money newPrice) : IDomainEvent
 {
-    public Guid ProductId { get; }
-    public Money NewPrice { get; }
+    public Guid ProductId { get; } = productId;
+    public Money NewPrice { get; } = newPrice;
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-
-    public ProductPriceChangedEvent(Guid productId, Money newPrice)
-    {
-        ProductId = productId;
-        NewPrice = newPrice;
-    }
 }

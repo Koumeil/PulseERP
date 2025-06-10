@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Contracts.Repositories;
 using PulseERP.Abstractions.Security.Interfaces;
 using PulseERP.Domain.Interfaces;
@@ -26,7 +27,8 @@ public static class InfrastructureServiceCollectionExtensions
         // Database context
         services.AddDbContext<CoreDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-        );
+                .EnableSensitiveDataLogging().LogTo(Console.WriteLine, LogLevel.Information));
+
 
         // DateTime provider
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
@@ -37,6 +39,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Identity services
         services.AddScoped<IRoleService, RoleService>();

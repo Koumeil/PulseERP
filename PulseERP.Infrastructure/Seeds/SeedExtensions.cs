@@ -91,7 +91,7 @@ public static class SeedExtensions
                             customerType,
                             customerStatus,
                             c.FirstContactDate,
-                            c.IsVIP,
+                            c.IsVip,
                             c.Industry,
                             c.Source
                         )
@@ -109,7 +109,7 @@ public static class SeedExtensions
                     var hashedPassword = passwordService.HashPassword(u.Password);
 
                     context.Users.Add(
-                        new User(u.FirstName, u.LastName, email, phone, hashedPassword)
+                        new User(u.FirstName, u.LastName, email, phone)
                     );
                 }
             }

@@ -2,10 +2,9 @@ namespace PulseERP.Domain.Entities;
 
 using System;
 using System.Collections.Generic;
-using PulseERP.Domain.Common;
-using PulseERP.Domain.Errors;
-using PulseERP.Domain.Events.BrandEvents;
-using PulseERP.Domain.Events.CustomerEvents;
+using Errors;
+using Events.BrandEvents;
+using Events.CustomerEvents;
 
 /// <summary>
 /// Represents a brand of products. Acts as an aggregate root for brand-related operations.
@@ -47,6 +46,7 @@ public sealed class Brand : BaseEntity
     public Brand(string name)
     {
         SetName(name);
+        SetIsActive(true);
         // IsActive est déjà true par défaut dans BaseEntity
         AddDomainEvent(new BrandCreatedEvent(Id, Name));
     }

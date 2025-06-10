@@ -1,7 +1,7 @@
 namespace PulseERP.Domain.VO;
 
 using System;
-using PulseERP.Domain.Errors;
+using Errors;
 
 /// <summary>
 /// Immutable Value Object representing a postal address.

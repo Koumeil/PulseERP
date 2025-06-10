@@ -1,12 +1,11 @@
 namespace PulseERP.Domain.Entities;
 
 using System;
-using PulseERP.Domain.Common;
 using PulseERP.Domain.Enums.Inventory;
 using PulseERP.Domain.Enums.Product;
-using PulseERP.Domain.Errors;
-using PulseERP.Domain.Events.ProductEvents;
-using PulseERP.Domain.VO;
+using Errors;
+using Events.ProductEvents;
+using VO;
 
 /// <summary>
 /// Aggregate root representing a product in the catalog, including inventory and lifecycle state.
@@ -43,7 +42,7 @@ public sealed class Product : BaseEntity
     {
         if (brand is null)
             throw new DomainValidationException("Brand is required.");
-        if (price is null || price.IsZero())
+        if (price.IsZero())
             throw new DomainValidationException("Price must be greater than zero.");
         if (quantity < 0)
             throw new DomainValidationException("Quantity cannot be negative.");
@@ -55,7 +54,7 @@ public sealed class Product : BaseEntity
         Price = price;
         IsService = isService;
         Inventory = new Inventory(Id, quantity);
-
+        SetIsActive(true);
         UpdateStatus();
         AddDomainEvent(new ProductCreatedEvent(Id));
     }
@@ -66,23 +65,22 @@ public sealed class Product : BaseEntity
 
     public void SetPrice(Money newPrice)
     {
-        if (newPrice == null || newPrice.IsZero())
+        if (newPrice.IsZero())
             throw new DomainValidationException("Price must be greater than zero.");
 
-        if (!Price.Equals(newPrice))
-        {
-            Price = newPrice;
-            MarkAsUpdated();
-            AddDomainEvent(new ProductPriceChangedEvent(Id, newPrice));
-        }
+        if (Price.Equals(newPrice)) return;
+        Price = newPrice;
+        MarkAsUpdated();
+        AddDomainEvent(new ProductPriceChangedEvent(Id, newPrice));
     }
 
     public void ApplyDiscount(decimal percentage)
     {
-        if (percentage <= 0 || percentage >= 100)
+        if (percentage is <= 0 or >= 100)
             throw new DomainValidationException("Discount must be between 0 and 100 (exclusive).");
 
         var discountedPrice = Price.Multiply(1 - (percentage / 100m));
+
         SetPrice(discountedPrice);
     }
 
@@ -91,12 +89,10 @@ public sealed class Product : BaseEntity
         Brand = newBrand ?? throw new DomainValidationException("Brand is required.");
         BrandId = newBrand.Id;
 
-        Brand?.RemoveProduct(this);
-        newBrand.AddProduct(this);
-
         MarkAsUpdated();
         AddDomainEvent(new ProductBrandChangedEvent(Id, newBrand));
     }
+
 
     public void UpdateDetails(
         ProductName? name = null,
@@ -104,52 +100,33 @@ public sealed class Product : BaseEntity
         bool? isService = null
     )
     {
-        var changes = false;
+        var changes = TryUpdateName(name) || TryUpdateDescription(description) || TryUpdateServiceFlag(isService);
 
-        if (TryUpdateName(name))
-            changes = true;
-        if (TryUpdateDescription(description))
-            changes = true;
-
-        if (TryUpdateServiceFlag(isService))
-            changes = true;
-
-        if (changes)
-        {
-            UpdateStatus();
-            MarkAsUpdated();
-            AddDomainEvent(new ProductDetailsUpdatedEvent(Id));
-        }
+        if (!changes) return;
+        UpdateStatus();
+        MarkAsUpdated();
+        AddDomainEvent(new ProductDetailsUpdatedEvent(Id));
     }
 
     private bool TryUpdateName(ProductName? name)
     {
-        if (name is not null && !Name.Equals(name))
-        {
-            Name = name;
-            return true;
-        }
-        return false;
+        if (name is null || Name.Equals(name)) return false;
+        Name = name;
+        return true;
     }
 
     private bool TryUpdateDescription(ProductDescription? description)
     {
-        if (description is not null && !Equals(Description, description))
-        {
-            Description = description;
-            return true;
-        }
-        return false;
+        if (description is null || Equals(Description, description)) return false;
+        Description = description;
+        return true;
     }
 
     private bool TryUpdateServiceFlag(bool? isService)
     {
-        if (isService.HasValue && IsService != isService.Value)
-        {
-            IsService = isService.Value;
-            return true;
-        }
-        return false;
+        if (!isService.HasValue || IsService == isService.Value) return false;
+        IsService = isService.Value;
+        return true;
     }
 
     public void SetQuantity(int newQuantity)
@@ -157,7 +134,7 @@ public sealed class Product : BaseEntity
         if (newQuantity < 0)
             throw new DomainValidationException("Quantity cannot be negative.");
 
-        int current = Inventory.Quantity;
+        var current = Inventory.Quantity;
 
         if (newQuantity == current)
             return;
@@ -173,7 +150,6 @@ public sealed class Product : BaseEntity
         else
         {
             MarkOutOfStock();
-            Restock(newQuantity);
         }
     }
 
@@ -193,7 +169,7 @@ public sealed class Product : BaseEntity
         AddDomainEvent(new ProductSoldEvent(Id, quantitySold, saleDateUtc));
     }
 
-    public void MarkOutOfStock()
+    private void MarkOutOfStock()
     {
         Inventory.AdjustTo(0, InventoryMovementType.CorrectionDecrease);
         UpdateStatus();
@@ -238,20 +214,16 @@ public sealed class Product : BaseEntity
 
     public override void MarkAsDeleted()
     {
-        if (!IsDeleted)
-        {
-            base.MarkAsDeleted();
-            AddDomainEvent(new ProductDeletedEvent(Id));
-        }
+        if (IsDeleted) return;
+        base.MarkAsDeleted();
+        AddDomainEvent(new ProductDeletedEvent(Id));
     }
 
     public override void MarkAsRestored()
     {
-        if (IsDeleted)
-        {
-            base.MarkAsRestored();
-            AddDomainEvent(new ProductRestoredEvent(Id));
-        }
+        if (!IsDeleted) return;
+        base.MarkAsRestored();
+        AddDomainEvent(new ProductRestoredEvent(Id));
     }
 
     public override void MarkAsDeactivate()

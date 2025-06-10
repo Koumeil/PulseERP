@@ -5,13 +5,8 @@ namespace PulseERP.Domain.Events.ProductEvents;
 /// <summary>
 /// Raised when a product is marked as discontinued.
 /// </summary>
-public sealed class ProductDeletedEvent : IDomainEvent
+public sealed class ProductDeletedEvent(Guid productId) : IDomainEvent
 {
-    public Guid ProductId { get; }
+    public Guid ProductId { get; } = productId;
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-
-    public ProductDeletedEvent(Guid productId)
-    {
-        ProductId = productId;
-    }
 }

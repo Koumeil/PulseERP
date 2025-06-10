@@ -232,36 +232,6 @@ public class ProductsControllerTests
     }
 
     [Fact]
-    public async Task GetInventoryMovements_ReturnsOk()
-    {
-        var id = Guid.NewGuid();
-
-        _mockService.Setup(s => s.GetInventoryMovementsAsync(id)).ReturnsAsync(new List<InventoryMovementModel>());
-
-        var action = await _controller.GetInventoryMovements(id);
-
-        var ok = Assert.IsType<OkObjectResult>(action.Result);
-        var resp = Assert.IsType<ApiResponse<IReadOnlyCollection<InventoryMovementModel>>>(ok.Value);
-        Assert.Equal("Inventory movements retrieved successfully", resp.Message);
-    }
-
-    [Fact]
-    public async Task ReturnProduct_ReturnsOk()
-    {
-        var id = Guid.NewGuid();
-        var cmd = new ReturnProductCommand { Quantity = 2 };
-        var details = new ProductDetails { Id = id, Price = 100 };
-
-        _mockService.Setup(s => s.ReturnProductAsync(id, cmd.Quantity)).ReturnsAsync(details);
-
-        var action = await _controller.ReturnProduct(id, cmd);
-
-        var ok = Assert.IsType<OkObjectResult>(action.Result);
-        var resp = Assert.IsType<ApiResponse<ProductDetails>>(ok.Value);
-        Assert.Equal("Product return processed successfully", resp.Message);
-    }
-
-    [Fact]
     public async Task ArchiveStaleProducts_ReturnsOk()
     {
         var cmd = new ArchiveStaleProductsCommand { InactivityDays = 30, OutOfStockDays = 15 };

@@ -1,5 +1,7 @@
 using System.Reflection;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using PulseERP.Application.Handlers;
 using PulseERP.Application.Interfaces;
 using PulseERP.Application.Mapping.Addresses;
 using PulseERP.Application.Mapping.Auth;
@@ -16,7 +18,11 @@ public static class ApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        // Application services
+
+        // MediaTR
+        services.AddMediatR(typeof(UserCreatedEventHandler).Assembly);
+
+        // A pplication services
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<ICustomerService, CustomerService>();

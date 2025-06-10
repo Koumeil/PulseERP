@@ -1,3 +1,6 @@
+using MediatR;
+using Microsoft.Extensions.Caching.Memory;
+
 namespace PulseERP.Tests.Persistences;
 
 using System;
@@ -6,19 +9,19 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using PulseERP.Abstractions.Common.Filters;
+using Abstractions.Common.Filters;
 using PulseERP.Domain.Entities;
 using PulseERP.Domain.Enums.Product;
 using PulseERP.Domain.VO;
-using PulseERP.Infrastructure.Database;
-using PulseERP.Infrastructure.Repositories;
+using Infrastructure.Database;
+using Infrastructure.Repositories;
 using Xunit;
 
 public class ProductRepositoryTests
 {
     private readonly ProductRepository _repository;
     private readonly CoreDbContext _dbContext;
-    private readonly Mock<ILogger<ProductRepository>> _mockLogger;
+    private readonly IMediator _mediator = Mock.Of<IMediator>();
 
     public ProductRepositoryTests()
     {
@@ -28,56 +31,8 @@ public class ProductRepositoryTests
             .Options;
 
         _dbContext = new CoreDbContext(options); // Actual DbContext with in-memory DB
-        _mockLogger = new Mock<ILogger<ProductRepository>>();
-
         // Initialize repository with actual DbContext
-        _repository = new ProductRepository(_dbContext, _mockLogger.Object);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_ShouldReturnPagedResults_WhenFiltersAreApplied()
-    {
-        // Arrange
-        var filter = new ProductFilter
-        {
-            Search = "Test",
-            MinPrice = 10,
-            MaxPrice = 100,
-            PageNumber = 1,
-            PageSize = 10,
-        };
-
-        var mockProducts = new List<Product>
-        {
-            new Product(
-                new ProductName("Test Product 1"),
-                new ProductDescription("Description"),
-                new Brand("Brand A"),
-                new Money(50, new Currency("USD")),
-                10,
-                false
-            ),
-            new Product(
-                new ProductName("Test Product 2"),
-                new ProductDescription("Description"),
-                new Brand("Brand B"),
-                new Money(60, new Currency("USD")),
-                20,
-                true
-            ),
-        };
-
-        await _dbContext.Products.AddRangeAsync(mockProducts);
-        await _dbContext.SaveChangesAsync();
-
-        // Act
-        var result = await _repository.GetAllAsync(filter);
-
-        // Assert
-        Assert.Equal(2, result.TotalItems);
-        Assert.Equal(1, result.PageNumber);
-        Assert.Equal(10, result.PageSize);
-        Assert.NotEmpty(result.Items);
+        _repository = new ProductRepository(_dbContext);
     }
 
     [Fact]

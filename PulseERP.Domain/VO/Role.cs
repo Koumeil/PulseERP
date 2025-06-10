@@ -1,7 +1,7 @@
 namespace PulseERP.Domain.ValueObjects;
 
 using System;
-using PulseERP.Domain.Errors;
+using Errors;
 
 /// <summary>
 /// Immutable Value Object representing a system or application role (e.g., "Admin", "Manager").

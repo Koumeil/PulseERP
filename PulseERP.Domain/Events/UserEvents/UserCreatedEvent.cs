@@ -2,13 +2,15 @@ using PulseERP.Domain.Interfaces;
 
 namespace PulseERP.Domain.Events.UserEvents;
 
-/// <summary>
-/// Event triggered when a new user is created.
-/// </summary>
-public sealed class UserCreatedEvent : IDomainEvent
+public sealed class UserCreatedEvent(
+    Guid userId,
+    string firstName,
+    string lastName,
+    string email) : IDomainEvent
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
-    public Guid UserId { get; }
-
-    public UserCreatedEvent(Guid userId) => UserId = userId;
+    public Guid UserId { get; } = userId;
+    public string Email { get; } = email;
+    public string FirstName { get; } = firstName;
+    public string LastName { get; } = lastName;
 }

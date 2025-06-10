@@ -2,9 +2,7 @@ namespace PulseERP.Domain.VO;
 
 using System;
 using System.Security.Cryptography;
-using System.Text;
-using PulseERP.Domain.Common;
-using PulseERP.Domain.Errors;
+using Errors;
 
 /// <summary>
 /// Immutable Value Object representing a hashed password.

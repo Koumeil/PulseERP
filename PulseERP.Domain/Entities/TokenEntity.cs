@@ -1,22 +1,21 @@
 namespace PulseERP.Domain.Entities;
 
-using PulseERP.Domain.Common;
-using PulseERP.Domain.Enums.Token;
-using PulseERP.Domain.Events.ProductEvents;
-using PulseERP.Domain.Events.RefreshTokenEvents;
-using PulseERP.Domain.Interfaces;
+using Enums.Token;
+using Events.ProductEvents;
+using Events.RefreshTokenEvents;
+using Interfaces;
 
 /// <summary>
 /// Represents a refresh token entity for authentication. Acts as an aggregate root.
 /// </summary>
-public sealed class RefreshToken : BaseEntity
+public sealed class TokenEntity : BaseEntity
 {
     #region Properties
 
     /// <summary>
     /// The token string value.
     /// </summary>
-    public string Token { get; private set; } = default!;
+    public string Token { get; private set; } = null!;
 
     /// <summary>
     /// Identifier of the associated user.
@@ -57,7 +56,7 @@ public sealed class RefreshToken : BaseEntity
 
     #region Fields
 
-    private readonly IDateTimeProvider _dateTimeProvider = default!;
+    private readonly IDateTimeProvider _dateTimeProvider = null!;
 
     #endregion
 
@@ -66,7 +65,7 @@ public sealed class RefreshToken : BaseEntity
     /// <summary>
     /// Protected constructor for EF Core.
     /// </summary>
-    private RefreshToken() { }
+    private TokenEntity() { }
 
     #endregion
 
@@ -75,7 +74,7 @@ public sealed class RefreshToken : BaseEntity
     /// <summary>
     /// Creates a new refresh token with provided IP and user agent. Expires after <paramref name="expiresAt"/>.
     /// </summary>
-    public static RefreshToken Create(
+    public static TokenEntity Create(
         IDateTimeProvider dateTimeProvider,
         Guid userId,
         string token,
@@ -85,14 +84,14 @@ public sealed class RefreshToken : BaseEntity
         string? createdByUserAgent = null
     )
     {
-        if (dateTimeProvider is null)
-            throw new ArgumentNullException(nameof(dateTimeProvider));
+        ArgumentNullException.ThrowIfNull(dateTimeProvider);
+
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId is required.", nameof(userId));
         if (expiresAt <= dateTimeProvider.UtcNow)
             throw new ArgumentException("Expiration must be in the future.", nameof(expiresAt));
 
-        var tokenInstance = new RefreshToken(
+        var tokenInstance = new TokenEntity(
             dateTimeProvider,
             userId,
             token,
@@ -101,7 +100,7 @@ public sealed class RefreshToken : BaseEntity
             createdByIp,
             createdByUserAgent
         );
-
+        tokenInstance.SetIsActive(true);
         tokenInstance.AddDomainEvent(new RefreshTokenCreatedEvent(tokenInstance.Id));
 
         return tokenInstance;
@@ -111,7 +110,7 @@ public sealed class RefreshToken : BaseEntity
 
     #region Private Constructors
 
-    private RefreshToken(
+    private TokenEntity(
         IDateTimeProvider dateTimeProvider,
         Guid userId,
         string token,
@@ -141,13 +140,14 @@ public sealed class RefreshToken : BaseEntity
             return;
 
         Revoked = revokedAt;
+        MarkAsDeleted();
         AddDomainEvent(new RefreshTokenRevokedEvent(Id, revokedAt));
         MarkAsUpdated();
     }
 
-    public bool IsRevoked() => Revoked is not null;
+    private bool IsRevoked() => Revoked is not null;
 
-    public bool IsExpired() => Expires <= (_dateTimeProvider?.UtcNow ?? DateTime.UtcNow);
+    private bool IsExpired() => Expires <= (_dateTimeProvider?.UtcNow ?? DateTime.UtcNow);
 
     #endregion
 }

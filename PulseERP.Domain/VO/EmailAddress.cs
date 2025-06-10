@@ -2,7 +2,7 @@ namespace PulseERP.Domain.VO;
 
 using System;
 using System.Text.RegularExpressions;
-using PulseERP.Domain.Errors;
+using Errors;
 
 /// <summary>
 /// Immutable Value Object representing a validated email address.
@@ -16,7 +16,7 @@ public sealed class EmailAddress : ValueObject, IEquatable<EmailAddress>
     #region Fields
 
     // Simplified regex to validate “local@domain.tld” (does not cover every RFC nuance but suffices for most cases).
-    private static readonly Regex _emailRegex = new(
+    private static readonly Regex EmailRegex = new(
         @"^(?!.*\.\.)([^@\s\.]+(?:\.[^@\s\.]+){0,2})@([^@\s\.]+(?:\.[^@\s\.]+){1,2})$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant
     );
@@ -49,7 +49,7 @@ public sealed class EmailAddress : ValueObject, IEquatable<EmailAddress>
             throw new DomainValidationException("EmailAddress cannot be null or whitespace.");
 
         var trimmed = email.Trim();
-        if (!_emailRegex.IsMatch(trimmed))
+        if (!EmailRegex.IsMatch(trimmed))
             throw new DomainValidationException($"Invalid email format: '{email}'.");
 
         Value = trimmed.ToLowerInvariant();

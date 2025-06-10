@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PulseERP.Abstractions.Common.Filters;
@@ -10,13 +11,11 @@ using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Repositories;
 
-public class CustomerRepository(CoreDbContext ctx, ILogger<CustomerRepository> logger) : ICustomerRepository
+public class CustomerRepository(CoreDbContext context) : ICustomerRepository
 {
-    private readonly ILogger<CustomerRepository> _logger = logger;
-
     public async Task<PagedResult<Customer>> GetAllAsync(CustomerFilter customerFilter)
     {
-        var query = ctx.Customers.AsNoTracking();
+        var query = context.Customers.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(customerFilter.Search))
         {
@@ -45,8 +44,8 @@ public class CustomerRepository(CoreDbContext ctx, ILogger<CustomerRepository> l
             query = query.Where(c => c.Type == type);
         }
 
-        if (customerFilter.IsVIP.HasValue)
-            query = query.Where(c => c.IsVIP == customerFilter.IsVIP.Value);
+        if (customerFilter.IsVip.HasValue)
+            query = query.Where(c => c.IsVip == customerFilter.IsVip.Value);
 
         if (customerFilter.AssignedToUserId.HasValue)
         {
@@ -71,31 +70,32 @@ public class CustomerRepository(CoreDbContext ctx, ILogger<CustomerRepository> l
 
     public async Task<Customer?> FindByIdAsync(Guid id)
     {
-        return await ctx.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id);
+        return await context.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<Customer?> FindByEmailAsync(EmailAddress email)
     {
-        return await ctx.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Email == email);
+        return await context.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Email == email);
     }
 
     public Task AddAsync(Customer customer)
     {
-        ctx.Customers.Add(customer);
+        context.Customers.Add(customer);
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(Customer customer)
     {
-        ctx.Customers.Update(customer);
+        context.Customers.Update(customer);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Customer customer)
     {
-        ctx.Customers.Remove(customer);
+        context.Customers.Remove(customer);
         return Task.CompletedTask;
     }
 
-    public Task<int> SaveChangesAsync() => ctx.SaveChangesAsync();
+    public Task<int> SaveChangesAsync() => context.SaveChangesAsync();
+
 }

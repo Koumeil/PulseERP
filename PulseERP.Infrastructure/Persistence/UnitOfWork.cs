@@ -1,19 +1,18 @@
+using MediatR;
 using PulseERP.Abstractions.Contracts.Repositories;
 using PulseERP.Infrastructure.Database;
 
 namespace PulseERP.Infrastructure.Persistence;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork(CoreDbContext context, IMediator mediator) : IUnitOfWork
 {
-    private readonly CoreDbContext _dbContext;
-
-    public UnitOfWork(CoreDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return _dbContext.SaveChangesAsync(cancellationToken);
+        return context.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task<int> SaveChangesAndDispatchEventsAsync(CancellationToken cancellationToken = default)
+    {
+        return context.SaveChangesAndDispatchEventsAsync(mediator, cancellationToken);
     }
 }

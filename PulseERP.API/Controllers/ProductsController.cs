@@ -2,13 +2,13 @@ namespace PulseERP.API.Controllers;
 
 
 using Microsoft.AspNetCore.Mvc;
-using PulseERP.Abstractions.Common.DTOs.Inventories.Models;
-using PulseERP.Abstractions.Common.DTOs.Products.Commands;
-using PulseERP.Abstractions.Common.DTOs.Products.Models;
-using PulseERP.Abstractions.Common.Filters;
-using PulseERP.Abstractions.Common.Pagination;
-using PulseERP.API.Contracts;
-using PulseERP.Application.Interfaces;
+using Abstractions.Common.DTOs.Inventories.Models;
+using Abstractions.Common.DTOs.Products.Commands;
+using Abstractions.Common.DTOs.Products.Models;
+using Abstractions.Common.Filters;
+using Abstractions.Common.Pagination;
+using Contracts;
+using Application.Interfaces;
 
 [ApiController]
 [Route("api/products")]
@@ -167,33 +167,6 @@ public class ProductsController(IProductService productService)
                 result,
                 "Low stock products retrieved successfully"
             )
-        );
-    }
-
-    [HttpGet("{id:guid}/inventory-movements")]
-    public async Task<
-        ActionResult<ApiResponse<IReadOnlyCollection<InventoryMovementModel>>>
-    > GetInventoryMovements(Guid id)
-    {
-        var result = await productService.GetInventoryMovementsAsync(id);
-        return Ok(
-            new ApiResponse<IReadOnlyCollection<InventoryMovementModel>>(
-                true,
-                result,
-                "Inventory movements retrieved successfully"
-            )
-        );
-    }
-
-    [HttpPost("{id:guid}/return")]
-    public async Task<ActionResult<ApiResponse<ProductDetails>>> ReturnProduct(
-        Guid id,
-        [FromBody] ReturnProductCommand request
-    )
-    {
-        var result = await productService.ReturnProductAsync(id, request.Quantity);
-        return Ok(
-            new ApiResponse<ProductDetails>(true, result, "Product return processed successfully")
         );
     }
 

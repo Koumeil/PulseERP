@@ -1,8 +1,9 @@
+using PulseERP.Domain.Entities;
+
 namespace PulseERP.Domain.Events.DomainEvents;
 
 using System;
-using PulseERP.Domain.Common;
-using PulseERP.Domain.Interfaces;
+using Interfaces;
 
 /// <summary>
 /// Domain event raised when an entity is deactivated (IsActive set to false).

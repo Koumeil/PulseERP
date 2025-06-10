@@ -15,5 +15,5 @@ public sealed record UpdateCustomerCommand(
     string? Status = null,
     string? Industry = null,
     string? Source = null,
-    bool? IsVIP = null
+    bool? IsVip = null
 );
