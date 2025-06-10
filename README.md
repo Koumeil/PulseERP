@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com)  
 
-# PulseERP **🚀 PulseERP** - Mini ERP évolutif pour petites entreprises
+# **🚀 PulseERP** - Mini ERP évolutif pour petites entreprises
 
 PulseERP est une solution logicielle spécialement pensée pour répondre aux besoins essentiels des petites entreprises. Conçu pour simplifier la gestion quotidienne des clients, employés, produits, et inventaires, monitoring, PulseERP offre une expérience intuitive, robuste et évolutive.
 
